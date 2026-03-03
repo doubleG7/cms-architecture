@@ -490,7 +490,7 @@
   /* ── DATA SECTION ────────────────────────── */
   .infra-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 2px;
     background: rgba(255,255,255,0.05);
     border-radius: 6px;
@@ -539,6 +539,30 @@
     color: var(--trimble-yellow);
     font-size: 10px;
     top: 1px;
+  }
+
+  .capability-graph-wrap {
+    margin-top: 22px;
+    padding: 14px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 6px;
+  }
+
+  .capability-graph-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.58);
+    margin-bottom: 10px;
+  }
+
+  .capability-graph {
+    width: 100%;
+    height: auto;
+    display: block;
   }
 
   /* ── BACKSTAGE ───────────────────────────── */
@@ -1131,6 +1155,7 @@
         <li>API contracts & domain rules</li>
         <li>Compliance & security policies</li>
         <li>Data schemas & code standards</li>
+        <li>Knowledge graph</li>
         <li>Prompt & instruction catalog</li>
       </ul>
       <div class="layer-rule">Stored in GitHub, Trimble Backstage, and AI-accessible documentation layers.</div>
@@ -1140,23 +1165,21 @@
       <div class="layer-num">2</div>
       <div class="layer-tag">Layer 2</div>
       <div class="layer-name">Agent Role<br>Specialization</div>
-      <p class="layer-desc">Move from generic AI to domain agents. Each CMS product defines specialized agents with scope boundaries.</p>
+      <p class="layer-desc">Treat AI like a team of focused experts, not one general assistant. Generic AI tries to do everything and often misses product context.</p>
       <ul class="layer-items">
-        <li>Vista Smart Payroll Agent</li>
-        <li>Prism ERP Smart Payroll Agent</li>
-        <li>Financial Forecast, Predictive Agent</li>
-        <li>Payroll Compliance Agent</li>
-        <li>Shared Infrastructure Agent</li>
-        <li>Integration Agent</li>
+        <li>Scope agents by product and business area (payroll, compliance, integrations)</li>
+        <li>Define clear boundaries: data access, allowed tasks, and prohibited decisions</li>
+        <li>Improve quality through domain accuracy and predictable behavior</li>
+        <li>Improve safety and governance through constrained execution and easier auditing</li>
       </ul>
-      <div class="layer-rule">Agents are parameterized, constrained execution systems — not magic.</div>
+      <div class="layer-rule">Specialized agents are constrained systems with explicit scope, ownership, and accountability.</div>
     </div>
 
     <div class="layer-card">
       <div class="layer-num">2.5</div>
       <div class="layer-tag">Layer 2.5</div>
       <div class="layer-name">Agent Portfolio<br>Continuation</div>
-      <p class="layer-desc">Expand domain coverage with product-specific agents across additional CMS platforms and workflows.</p>
+      <p class="layer-desc">Put specialization into practice: each CMS product defines its agent set with explicit responsibilities and handoffs between agents.</p>
       <ul class="layer-items">
         <li>ProjectSight Agent</li>
         <li>MEP Estimation Agent</li>
@@ -1166,7 +1189,7 @@
         <li>Material Agent</li>
         <li>Content Ingestion Agent</li>
       </ul>
-      <div class="layer-rule">Layer 2.5 extends Layer 2 with broader product and workflow coverage.</div>
+      <div class="layer-rule">Layer 2.5 operationalizes Layer 2 with product-specific ownership and explicit inter-agent handoffs.</div>
     </div>
 
     <div class="layer-card">
@@ -1253,9 +1276,19 @@
     <div class="part-line"></div>
   </div>
   <h2 class="part-title">Data + Model Architecture</h2>
-  <p class="part-desc">Where the moat lives. Databricks + Azure foundation with governed data lineage for every AI-enabled product.</p>
+  <p class="part-desc">Where the moat lives. Databricks + Azure foundation with governed data lineage for every AI-enabled product. A knowledge graph of capabilities vector render comes before infrastructure.</p>
 
   <div style="margin-top:40px;" class="infra-grid">
+    <div class="infra-block">
+      <div class="infra-icon">🧠</div>
+      <div class="infra-title">Knowledge Graph</div>
+      <ul class="infra-items">
+        <li>Capabilities graph modeled by product domain</li>
+        <li>Vector render for capability relationships</li>
+        <li>Shared ontology for agents and services</li>
+        <li>Foundation context before infrastructure setup</li>
+      </ul>
+    </div>
     <div class="infra-block">
       <div class="infra-icon">⚙️</div>
       <div class="infra-title">Infrastructure</div>
@@ -1292,6 +1325,44 @@
   <div style="margin-top:32px; padding:32px; background:rgba(0,99,163,0.1); border-radius:6px; border:1px solid rgba(0,99,163,0.25);">
     <p style="font-family:'Barlow Condensed',sans-serif; font-size:18px; font-weight:700; color:white; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:12px;">Custom Models & Fine-Tuning Strategy</p>
     <p style="font-size:14px; color:rgba(255,255,255,0.65); line-height:1.75; max-width:700px;">CMS moat is built on domain-tuned LLMs, retrieval systems, financial compliance agents, and structured memory graphs. We must store successful prompt patterns, failed attempts, architectural outcomes, and tagged reusable patterns. <strong style="color:var(--trimble-yellow)">This compounds.</strong></p>
+    <div class="capability-graph-wrap">
+      <p class="capability-graph-title">Capabilities Knowledge Graph (Vector)</p>
+      <svg class="capability-graph" viewBox="0 0 760 260" role="img" aria-label="CMS capabilities knowledge graph linking product domains and shared infrastructure to a central ontology" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="cap-arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+            <path d="M0,0 L10,4 L0,8 Z" fill="var(--trimble-yellow)" />
+          </marker>
+        </defs>
+
+        <rect x="280" y="92" width="200" height="76" rx="10" fill="rgba(0,99,163,0.28)" stroke="var(--trimble-yellow)" stroke-width="2"/>
+        <text x="380" y="124" text-anchor="middle" fill="white" font-size="14" font-family="Barlow, sans-serif" font-weight="600">CMS Capability Ontology</text>
+        <text x="380" y="144" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="11" font-family="Barlow, sans-serif">Cross-product semantic core</text>
+
+        <rect x="28" y="30" width="190" height="56" rx="8" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.26)"/>
+        <text x="123" y="54" text-anchor="middle" fill="white" font-size="12" font-family="Barlow, sans-serif">Vista + Prism</text>
+        <text x="123" y="70" text-anchor="middle" fill="rgba(255,255,255,0.62)" font-size="10" font-family="Barlow, sans-serif">ERP workflows · Job cost · Compliance</text>
+
+        <rect x="28" y="172" width="190" height="56" rx="8" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.26)"/>
+        <text x="123" y="196" text-anchor="middle" fill="white" font-size="12" font-family="Barlow, sans-serif">ProjectSight + B2W + Civil</text>
+        <text x="123" y="212" text-anchor="middle" fill="rgba(255,255,255,0.62)" font-size="10" font-family="Barlow, sans-serif">Planning · Field ops · Production tracking</text>
+
+        <rect x="542" y="30" width="190" height="56" rx="8" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.26)"/>
+        <text x="637" y="54" text-anchor="middle" fill="white" font-size="12" font-family="Barlow, sans-serif">Financials + Payroll + Payments</text>
+        <text x="637" y="70" text-anchor="middle" fill="rgba(255,255,255,0.62)" font-size="10" font-family="Barlow, sans-serif">Ledger · AP/AR · Labor controls</text>
+
+        <rect x="542" y="172" width="190" height="56" rx="8" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.26)"/>
+        <text x="637" y="196" text-anchor="middle" fill="white" font-size="12" font-family="Barlow, sans-serif">Shared Infrastructure</text>
+        <text x="637" y="212" text-anchor="middle" fill="rgba(255,255,255,0.62)" font-size="10" font-family="Barlow, sans-serif">Identity · Integration · Vector/RAG</text>
+
+        <line x1="218" y1="58" x2="280" y2="112" stroke="var(--trimble-yellow)" stroke-width="1.6" marker-end="url(#cap-arrow)"/>
+        <line x1="218" y1="200" x2="280" y2="148" stroke="var(--trimble-yellow)" stroke-width="1.6" marker-end="url(#cap-arrow)"/>
+        <line x1="542" y1="58" x2="480" y2="112" stroke="var(--trimble-yellow)" stroke-width="1.6" marker-end="url(#cap-arrow)"/>
+        <line x1="542" y1="200" x2="480" y2="148" stroke="var(--trimble-yellow)" stroke-width="1.6" marker-end="url(#cap-arrow)"/>
+
+        <line x1="380" y1="168" x2="380" y2="238" stroke="rgba(255,255,255,0.3)" stroke-dasharray="5 5"/>
+        <text x="380" y="252" text-anchor="middle" fill="var(--trimble-yellow)" font-size="10" font-family="Barlow, sans-serif" letter-spacing="1">MODEL EXTENSIONS + FEEDBACK LOOPS</text>
+      </svg>
+    </div>
   </div>
 </section>
 
