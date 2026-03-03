@@ -450,6 +450,40 @@
     font-style: italic;
   }
 
+  .ownership-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .ownership-table th,
+  .ownership-table td {
+    font-size: 13px;
+    line-height: 1.4;
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    vertical-align: top;
+  }
+
+  .ownership-table tr:last-child th,
+  .ownership-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .ownership-table th {
+    width: 34%;
+    color: var(--white);
+    font-weight: 600;
+    text-align: left;
+    background: rgba(255,255,255,0.03);
+  }
+
+  .ownership-table td {
+    color: rgba(255,255,255,0.68);
+  }
+
   /* ── DATA SECTION ────────────────────────── */
   .infra-grid {
     display: grid;
@@ -1120,10 +1154,18 @@
       <div class="layer-tag">Layer 3</div>
       <div class="layer-name">Hybrid Human<br>+ Agent Teams</div>
       <p class="layer-desc">Developer role shifts from coder to conductor. You're designing orchestration patterns, not typing loops.</p>
-      <ul class="layer-items">
-        <li><strong style="color:white">Human owns:</strong> Architecture, tradeoffs, final approval, risk</li>
-        <li><strong style="color:white">Agents own:</strong> Boilerplate, tests, docs, refactors, pattern enforcement, pre-review</li>
-      </ul>
+      <table class="ownership-table">
+        <tbody>
+          <tr>
+            <th>Human owns</th>
+            <td>Architecture, tradeoffs, final approval, risk</td>
+          </tr>
+          <tr>
+            <th>Agents own</th>
+            <td>Boilerplate, tests, docs, refactors, pattern enforcement, pre-review</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
     <div class="layer-card">
