@@ -39,6 +39,15 @@
     overflow-x: hidden;
   }
 
+  a {
+    color: var(--trimble-yellow);
+  }
+
+  a:hover,
+  a:focus-visible {
+    color: var(--trimble-yellow-light);
+  }
+
   /* ── HERO ────────────────────────────────── */
   .hero {
     min-height: 100vh;
@@ -941,6 +950,75 @@
     text-align: right;
   }
 
+  /* ── WORKFLOW GLANCE ───────────────────── */
+  .workflow-glance {
+    margin-top: 44px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .workflow-row {
+    display: grid;
+    grid-template-columns: 116px 1fr;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .workflow-step {
+    background: var(--trimble-blue-mid);
+    color: var(--white);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    min-height: 88px;
+  }
+
+  .workflow-content {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-left: none;
+    padding: 18px 20px 16px;
+  }
+
+  .workflow-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 34px;
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1.08;
+    letter-spacing: 0.01em;
+    margin-bottom: 6px;
+  }
+
+  .workflow-intro {
+    font-size: 15px;
+    color: var(--trimble-steel);
+    max-width: 900px;
+    line-height: 1.7;
+  }
+
+  .workflow-item-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--white);
+    line-height: 1.08;
+    margin-bottom: 4px;
+  }
+
+  .workflow-item-body {
+    font-size: 21px;
+    color: rgba(255,255,255,0.72);
+    line-height: 1.42;
+  }
+
   /* ── SYNTHESIS / FOOTER ─────────────────── */
   .synthesis {
     background: var(--trimble-yellow);
@@ -1071,6 +1149,21 @@
     .synthesis { grid-template-columns: 1fr; }
     .phases-timeline { grid-template-columns: 1fr; }
     .phases-timeline::before { display: none; }
+    .workflow-row { grid-template-columns: 1fr; }
+    .workflow-step {
+      justify-content: flex-start;
+      padding: 12px 16px;
+      min-height: auto;
+      font-size: 20px;
+    }
+    .workflow-content {
+      border-left: 1px solid rgba(255,255,255,0.08);
+      border-top: none;
+      padding: 14px 16px;
+    }
+    .workflow-title { font-size: 26px; }
+    .workflow-item-title { font-size: 24px; }
+    .workflow-item-body { font-size: 18px; }
   }
 </style>
 </head>
@@ -1366,10 +1459,70 @@
   </div>
 </section>
 
-<!-- ══ PART III — BACKSTAGE ══════════════════════════════════════════ -->
+<!-- ══ PART III — END-TO-END WORKFLOW ════════════════════════════════ -->
 <section class="section">
   <div class="part-header">
     <span class="part-number">Part III</span>
+    <div class="part-line"></div>
+  </div>
+  <h2 class="part-title">The End-to-End Workflow at a Glance</h2>
+  <p class="workflow-intro">The following six steps take capability from raw product requirements all the way to a merged, tested, deployed service — with Claude Code as an informed collaborator at every stage. <a href="https://docs.google.com/document/d/1Ee9fVOfshui523o-C7rVPTsbOoJ8KLSdstTvq5R2qog/edit?tab=t.0" target="_blank" rel="noopener noreferrer">Reference document</a>.</p>
+
+  <div class="workflow-glance">
+    <div class="workflow-row">
+      <div class="workflow-step">Step 1</div>
+      <div class="workflow-content">
+        <p class="workflow-item-title">Author CLAUDE.md Before Writing Any Code</p>
+        <p class="workflow-item-body">Lock in the tech stack, folder structure, hard rules, and workflow commands so AI starts every session informed.</p>
+      </div>
+    </div>
+
+    <div class="workflow-row">
+      <div class="workflow-step">Step 2</div>
+      <div class="workflow-content">
+        <p class="workflow-item-title">Translate Product Requirements into Scoped Work</p>
+        <p class="workflow-item-body">Use Claude to decompose PRDs into bounded, testable units of work. Validate scope with the team before moving to tasks.</p>
+      </div>
+    </div>
+
+    <div class="workflow-row">
+      <div class="workflow-step">Step 3</div>
+      <div class="workflow-content">
+        <p class="workflow-item-title">Generate and Assign Git Project Tasks</p>
+        <p class="workflow-item-body">Convert scoped work into discrete, trackable issues. Include acceptance criteria and dependencies in every task.</p>
+      </div>
+    </div>
+
+    <div class="workflow-row">
+      <div class="workflow-step">Step 4</div>
+      <div class="workflow-content">
+        <p class="workflow-item-title">Implement Each Task with Claude as Pair Programmer</p>
+        <p class="workflow-item-body">Leverage CLAUDE.md guardrails during implementation. Claude proposes a plan first, then implements the smallest viable change.</p>
+      </div>
+    </div>
+
+    <div class="workflow-row">
+      <div class="workflow-step">Step 5</div>
+      <div class="workflow-content">
+        <p class="workflow-item-title">Validate and Harden Before Merge</p>
+        <p class="workflow-item-body">Run the commands defined in CLAUDE.md. Verify that Claude's output respects architecture, async patterns, and test coverage.</p>
+      </div>
+    </div>
+
+    <div class="workflow-row">
+      <div class="workflow-step">Step 6</div>
+      <div class="workflow-content">
+        <p class="workflow-item-title">Ship and Update CLAUDE.md</p>
+        <p class="workflow-item-body">Merge, deploy, and capture any new patterns or lessons learned back into CLAUDE.md so the next session starts smarter.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PART IV — BACKSTAGE ═══════════════════════════════════════════ -->
+<section class="section">
+  <div class="part-header">
+    <span class="part-number">Part IV</span>
     <div class="part-line"></div>
   </div>
   <h2 class="part-title">Trimble Backstage as Control Plane</h2>
@@ -1402,10 +1555,10 @@
   </div>
 </section>
 
-<!-- ══ PART IV — 90-DAY PLAN ═════════════════════════════════════════ -->
+<!-- ══ PART V — 90-DAY PLAN ══════════════════════════════════════════ -->
 <section class="section section-alt">
   <div class="part-header">
-    <span class="part-number">Part IV</span>
+    <span class="part-number">Part V</span>
     <div class="part-line"></div>
   </div>
   <h2 class="part-title">90-Day Kick-Starter Plan</h2>
@@ -1454,10 +1607,10 @@
   </div>
 </section>
 
-<!-- ══ PART V — KPIs ══════════════════════════════════════════════════ -->
+<!-- ══ PART VI — KPIs ═════════════════════════════════════════════════ -->
 <section class="section">
   <div class="part-header">
-    <span class="part-number">Part V</span>
+    <span class="part-number">Part VI</span>
     <div class="part-line"></div>
   </div>
   <h2 class="part-title">KPIs That Matter</h2>
@@ -1508,10 +1661,10 @@
   </div>
 </section>
 
-<!-- ══ PART VI — STRATEGIC MOATS ════════════════════════════════════ -->
+<!-- ══ PART VII — STRATEGIC MOATS ═══════════════════════════════════ -->
 <section class="moat-section">
   <div class="part-header" style="border-bottom-color:rgba(255,255,255,0.1);">
-    <span class="part-number">Part VI</span>
+    <span class="part-number">Part VII</span>
     <div class="part-line"></div>
   </div>
   <h2 class="part-title">Strategic Moats — 2027 View</h2>
