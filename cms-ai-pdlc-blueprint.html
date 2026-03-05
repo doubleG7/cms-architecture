@@ -560,9 +560,9 @@
 
   .capability-graph-title {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: rgba(255,255,255,0.58);
     margin-bottom: 10px;
@@ -969,7 +969,7 @@
     background: var(--trimble-blue-mid);
     color: var(--white);
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -977,7 +977,7 @@
     align-items: center;
     justify-content: center;
     line-height: 1;
-    min-height: 88px;
+    min-height: 82px;
   }
 
   .workflow-content {
@@ -1006,7 +1006,7 @@
 
   .workflow-item-title {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 600;
     color: var(--white);
     line-height: 1.08;
@@ -1014,9 +1014,244 @@
   }
 
   .workflow-item-body {
-    font-size: 21px;
+    font-size: 16px;
     color: rgba(255,255,255,0.72);
-    line-height: 1.42;
+    line-height: 1.55;
+  }
+
+  .step7-orchestration {
+    margin-top: 22px;
+    padding: 24px;
+    border-radius: 6px;
+    background:
+      radial-gradient(circle at top right, rgba(251,173,38,0.13), transparent 38%),
+      linear-gradient(140deg, rgba(0,99,163,0.18), rgba(0,53,96,0.32));
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+
+  .step7-header {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .step7-kicker {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    color: var(--trimble-yellow);
+    text-transform: uppercase;
+  }
+
+  .step7-sub {
+    font-size: 14px;
+    color: rgba(255,255,255,0.72);
+    max-width: 760px;
+  }
+
+  .step7-badge {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--trimble-dark);
+    background: var(--trimble-yellow);
+    padding: 6px 10px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+
+  .step7-grid {
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    gap: 14px;
+  }
+
+  .s7-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 5px;
+    padding: 14px;
+  }
+
+  .s7-card-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--white);
+    margin-bottom: 10px;
+  }
+
+  .s7-flow {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+  }
+
+  .s7-flow-strip {
+    width: 100%;
+    display: block;
+    margin: 2px 0 8px;
+  }
+
+  .s7-flow-strip text {
+    font-family: 'Barlow', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    fill: rgba(255,255,255,0.52);
+    text-transform: uppercase;
+  }
+
+  .s7-stage {
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 4px;
+    padding: 10px;
+    min-height: 92px;
+  }
+
+  .s7-stage b {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--trimble-yellow);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+  }
+
+  .s7-stage span {
+    font-size: 12px;
+    color: rgba(255,255,255,0.72);
+    line-height: 1.45;
+  }
+
+  .s7-roles {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .s7-role {
+    background: rgba(255,255,255,0.03);
+    border-left: 3px solid var(--trimble-blue-mid);
+    padding: 10px;
+    border-radius: 3px;
+  }
+
+  .s7-role h4 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--white);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .s7-role p {
+    font-size: 12px;
+    color: rgba(255,255,255,0.66);
+    line-height: 1.45;
+  }
+
+  .s7-rules {
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .s7-rules li {
+    font-size: 12px;
+    color: rgba(255,255,255,0.68);
+    line-height: 1.45;
+    padding: 8px 10px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 3px;
+  }
+
+  .s7-rules li strong {
+    color: var(--white);
+    font-weight: 600;
+  }
+
+  .s7-footer {
+    margin-top: 12px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.58);
+    line-height: 1.5;
+  }
+
+  .s7-flow-link {
+    stroke-dasharray: 110 16;
+    animation: s7FlowRun 2.8s linear infinite;
+  }
+
+  .s7-flow-link.l2 { animation-delay: 0.18s; }
+  .s7-flow-link.l3 { animation-delay: 0.36s; }
+  .s7-flow-link.l4 { animation-delay: 0.54s; }
+
+  .s7-flow-node {
+    animation: s7NodePulse 2.2s ease-in-out infinite;
+  }
+
+  .s7-example {
+    margin-top: 12px;
+    background: rgba(0,0,0,0.18);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 5px;
+    padding: 14px;
+  }
+
+  .s7-example-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .s7-example-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--white);
+  }
+
+  .s7-example-tag {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--trimble-dark);
+    background: var(--trimble-yellow);
+    border-radius: 3px;
+    padding: 4px 8px;
+  }
+
+  .s7-example-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 8px;
+  }
+
+  .s7-example-item {
+    font-size: 12px;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.45;
+    background: rgba(255,255,255,0.03);
+    border-radius: 4px;
+    padding: 9px 10px;
+  }
+
+  .s7-example-item strong {
+    color: var(--white);
+    font-weight: 600;
   }
 
   /* ── SYNTHESIS / FOOTER ─────────────────── */
@@ -1129,6 +1364,24 @@
     to   { opacity: 1; transform: translateY(0); }
   }
 
+  @keyframes s7FlowRun {
+    from { stroke-dashoffset: 126; }
+    to   { stroke-dashoffset: 0; }
+  }
+
+  @keyframes s7NodePulse {
+    0%   { transform: scale(1); opacity: 0.85; }
+    50%  { transform: scale(1.22); opacity: 1; }
+    100% { transform: scale(1); opacity: 0.85; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .s7-flow-link,
+    .s7-flow-node {
+      animation: none;
+    }
+  }
+
   .hero-eyebrow { animation: fadeUp 0.6s ease both; animation-delay: 0.1s; }
   .hero-title   { animation: fadeUp 0.7s ease both; animation-delay: 0.2s; }
   .hero-subtitle{ animation: fadeUp 0.7s ease both; animation-delay: 0.35s; }
@@ -1154,7 +1407,7 @@
       justify-content: flex-start;
       padding: 12px 16px;
       min-height: auto;
-      font-size: 20px;
+      font-size: 18px;
     }
     .workflow-content {
       border-left: 1px solid rgba(255,255,255,0.08);
@@ -1162,8 +1415,17 @@
       padding: 14px 16px;
     }
     .workflow-title { font-size: 26px; }
-    .workflow-item-title { font-size: 24px; }
-    .workflow-item-body { font-size: 18px; }
+    .workflow-item-title { font-size: 18px; }
+    .workflow-item-body { font-size: 15px; }
+    .step7-orchestration { padding: 16px; }
+    .step7-header { flex-direction: column; align-items: flex-start; }
+    .step7-grid { grid-template-columns: 1fr; }
+    .s7-flow { grid-template-columns: 1fr 1fr; }
+    .s7-flow-strip { display: none; }
+    .s7-roles { grid-template-columns: 1fr; }
+    .s7-rules { grid-template-columns: 1fr; }
+    .s7-example-head { flex-direction: column; align-items: flex-start; }
+    .s7-example-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -1428,24 +1690,24 @@
         </defs>
 
         <rect x="280" y="92" width="200" height="76" rx="10" fill="rgba(0,99,163,0.28)" stroke="var(--trimble-yellow)" stroke-width="2"/>
-        <text x="380" y="124" text-anchor="middle" fill="white" font-size="14" font-family="Barlow, sans-serif" font-weight="600">CMS Capability Ontology</text>
-        <text x="380" y="144" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="11" font-family="Barlow, sans-serif">Cross-product semantic core</text>
+        <text x="380" y="124" text-anchor="middle" fill="white" font-size="12" font-family="Barlow, sans-serif" font-weight="600">CMS Capability Ontology</text>
+        <text x="380" y="144" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="10" font-family="Barlow, sans-serif">Cross-product semantic core</text>
 
         <rect x="28" y="30" width="190" height="56" rx="8" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.26)"/>
-        <text x="123" y="54" text-anchor="middle" fill="white" font-size="12" font-family="Barlow, sans-serif">Vista + Prism</text>
-        <text x="123" y="70" text-anchor="middle" fill="rgba(255,255,255,0.62)" font-size="10" font-family="Barlow, sans-serif">ERP workflows · Job cost · Compliance</text>
+        <text x="123" y="54" text-anchor="middle" fill="white" font-size="11" font-family="Barlow, sans-serif">Vista + Prism</text>
+        <text x="123" y="70" text-anchor="middle" fill="rgba(255,255,255,0.62)" font-size="9" font-family="Barlow, sans-serif">ERP workflows · Job cost · Compliance</text>
 
         <rect x="28" y="172" width="190" height="56" rx="8" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.26)"/>
-        <text x="123" y="196" text-anchor="middle" fill="white" font-size="12" font-family="Barlow, sans-serif">ProjectSight + B2W + Civil</text>
-        <text x="123" y="212" text-anchor="middle" fill="rgba(255,255,255,0.62)" font-size="10" font-family="Barlow, sans-serif">Planning · Field ops · Production tracking</text>
+        <text x="123" y="196" text-anchor="middle" fill="white" font-size="11" font-family="Barlow, sans-serif">ProjectSight + B2W + Civil</text>
+        <text x="123" y="212" text-anchor="middle" fill="rgba(255,255,255,0.62)" font-size="9" font-family="Barlow, sans-serif">Planning · Field ops · Production tracking</text>
 
         <rect x="542" y="30" width="190" height="56" rx="8" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.26)"/>
-        <text x="637" y="54" text-anchor="middle" fill="white" font-size="12" font-family="Barlow, sans-serif">Financials + Payroll + Payments</text>
-        <text x="637" y="70" text-anchor="middle" fill="rgba(255,255,255,0.62)" font-size="10" font-family="Barlow, sans-serif">Ledger · AP/AR · Labor controls</text>
+        <text x="637" y="54" text-anchor="middle" fill="white" font-size="11" font-family="Barlow, sans-serif">Financials + Payroll + Payments</text>
+        <text x="637" y="70" text-anchor="middle" fill="rgba(255,255,255,0.62)" font-size="9" font-family="Barlow, sans-serif">Ledger · AP/AR · Labor controls</text>
 
         <rect x="542" y="172" width="190" height="56" rx="8" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.26)"/>
-        <text x="637" y="196" text-anchor="middle" fill="white" font-size="12" font-family="Barlow, sans-serif">Shared Infrastructure</text>
-        <text x="637" y="212" text-anchor="middle" fill="rgba(255,255,255,0.62)" font-size="10" font-family="Barlow, sans-serif">Identity · Integration · Vector/RAG</text>
+        <text x="637" y="196" text-anchor="middle" fill="white" font-size="11" font-family="Barlow, sans-serif">Shared Infrastructure</text>
+        <text x="637" y="212" text-anchor="middle" fill="rgba(255,255,255,0.62)" font-size="9" font-family="Barlow, sans-serif">Identity · Integration · Vector/RAG</text>
 
         <line x1="218" y1="58" x2="280" y2="112" stroke="var(--trimble-yellow)" stroke-width="1.6" marker-end="url(#cap-arrow)"/>
         <line x1="218" y1="200" x2="280" y2="148" stroke="var(--trimble-yellow)" stroke-width="1.6" marker-end="url(#cap-arrow)"/>
@@ -1453,7 +1715,7 @@
         <line x1="542" y1="200" x2="480" y2="148" stroke="var(--trimble-yellow)" stroke-width="1.6" marker-end="url(#cap-arrow)"/>
 
         <line x1="380" y1="168" x2="380" y2="238" stroke="rgba(255,255,255,0.3)" stroke-dasharray="5 5"/>
-        <text x="380" y="252" text-anchor="middle" fill="var(--trimble-yellow)" font-size="10" font-family="Barlow, sans-serif" letter-spacing="1">MODEL EXTENSIONS + FEEDBACK LOOPS</text>
+        <text x="380" y="252" text-anchor="middle" fill="var(--trimble-yellow)" font-size="9" font-family="Barlow, sans-serif" letter-spacing="1">MODEL EXTENSIONS + FEEDBACK LOOPS</text>
       </svg>
     </div>
   </div>
@@ -1515,6 +1777,86 @@
         <p class="workflow-item-title">Ship and Update CLAUDE.md</p>
         <p class="workflow-item-body">Merge, deploy, and capture any new patterns or lessons learned back into CLAUDE.md so the next session starts smarter.</p>
       </div>
+    </div>
+
+    <div class="step7-orchestration">
+      <div class="step7-header">
+        <div>
+          <p class="step7-kicker">Step 7 — Agentic Orchestration</p>
+          <p class="step7-sub">Move from one-session pair programming to coordinated multi-agent pipelines. Claude shifts from responder to goal-seeking orchestrator with bounded tools, explicit gates, and auditable actions.</p>
+        </div>
+        <span class="step7-badge">CLAUDE.md Is The Contract</span>
+      </div>
+
+      <div class="step7-grid">
+        <div class="s7-card">
+          <p class="s7-card-title">Pipeline Pattern (Trigger to Audit)</p>
+          <svg class="s7-flow-strip" viewBox="0 0 760 40" role="img" aria-label="Orchestration pipeline flow from trigger to action and audit" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="s7-arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                <path d="M0,0 L8,3 L0,6 Z" fill="var(--trimble-yellow)" />
+              </marker>
+            </defs>
+            <line x1="38" y1="20" x2="722" y2="20" stroke="rgba(255,255,255,0.2)" stroke-width="1" />
+            <line class="s7-flow-link l1" x1="62" y1="20" x2="190" y2="20" stroke="var(--trimble-yellow)" stroke-width="1.6" marker-end="url(#s7-arrow)" />
+            <line class="s7-flow-link l2" x1="210" y1="20" x2="338" y2="20" stroke="var(--trimble-yellow)" stroke-width="1.6" marker-end="url(#s7-arrow)" />
+            <line class="s7-flow-link l3" x1="358" y1="20" x2="486" y2="20" stroke="var(--trimble-yellow)" stroke-width="1.6" marker-end="url(#s7-arrow)" />
+            <line class="s7-flow-link l4" x1="506" y1="20" x2="634" y2="20" stroke="var(--trimble-yellow)" stroke-width="1.6" marker-end="url(#s7-arrow)" />
+            <circle class="s7-flow-node" cx="38" cy="20" r="3" fill="var(--trimble-yellow)" />
+            <circle class="s7-flow-node" cx="722" cy="20" r="3" fill="var(--trimble-yellow)" />
+            <text x="10" y="33">Event</text>
+            <text x="690" y="33">Outcome</text>
+          </svg>
+          <div class="s7-flow">
+            <div class="s7-stage"><b>Trigger</b><span>Signal fires: webhook, schedule, or threshold breach.</span></div>
+            <div class="s7-stage"><b>Enrich</b><span>Worker pulls contract + job context via approved MCP tools.</span></div>
+            <div class="s7-stage"><b>Classify</b><span>Critic scores severity and confidence against schema rules.</span></div>
+            <div class="s7-stage"><b>Gate</b><span>High severity pauses for PM acknowledgment before actions.</span></div>
+            <div class="s7-stage"><b>Act + Log</b><span>Create remediation issues, notify owners, emit audit event.</span></div>
+          </div>
+          <p class="s7-footer">ERP example: cost overrun event -> contract lookup -> variance summary -> GitHub issues -> PM notification -> Application Insights audit.</p>
+        </div>
+
+        <div class="s7-card">
+          <p class="s7-card-title">Roles + Guardrails</p>
+          <div class="s7-roles">
+            <div class="s7-role">
+              <h4>Orchestrator</h4>
+              <p>Breaks goals into subtasks, delegates, aggregates, never implements directly.</p>
+            </div>
+            <div class="s7-role">
+              <h4>Worker</h4>
+              <p>Owns one service or repo boundary and returns structured outputs only.</p>
+            </div>
+            <div class="s7-role">
+              <h4>Critic</h4>
+              <p>Checks policy, contracts, and acceptance criteria before human visibility.</p>
+            </div>
+          </div>
+
+          <ul class="s7-rules" style="margin-top:10px;">
+            <li><strong>Allowed tools only:</strong> MCP inventory is explicit, no undeclared APIs.</li>
+            <li><strong>No direct main commits:</strong> PR + review gate required.</li>
+            <li><strong>No silent failures:</strong> low confidence or errors must escalate.</li>
+            <li><strong>Rollback required:</strong> failed runs leave no partial state behind.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="s7-example">
+        <div class="s7-example-head">
+          <p class="s7-example-title">Example Orchestration Run: Construction ERP Cost Variance</p>
+          <span class="s7-example-tag">Event-Driven</span>
+        </div>
+        <div class="s7-example-grid">
+          <div class="s7-example-item"><strong>Trigger + Goal:</strong> JC cost event breaches threshold. Goal: produce a reviewed remediation packet with owner-ready tasks and full audit trace.</div>
+          <div class="s7-example-item"><strong>MCP Tools:</strong> `mcp-vista-finance` (read costs), `mcp-github` (create issues), `mcp-notifications` (Teams), `mcp-appinsights` (audit logs).</div>
+          <div class="s7-example-item"><strong>Execution:</strong> Orchestrator delegates enrichment to worker, critic scores confidence, then opens variance issue set by service label.</div>
+          <div class="s7-example-item"><strong>Gate + Rollback:</strong> High severity pauses for PM acknowledgment. On failure, created tasks are closed and pipeline state is reverted before retry/escalation.</div>
+        </div>
+      </div>
+
+      <p class="s7-footer"><strong style="color:var(--white)">How this extends Steps 1-6:</strong> Step 1 adds agentic rules and tool inventory; Step 2 marks automatable vs human-gated requirements; Steps 3-4 split trigger/worker/critic components; Step 5 validates gates, audit, rollback; Step 6 updates rules after every production run.</p>
     </div>
   </div>
 </section>
