@@ -120,12 +120,19 @@
   }
 
   .hero-body {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: minmax(0, 760px) minmax(240px, 300px);
+    align-items: center;
+    gap: 34px;
     padding: 60px 56px;
     position: relative;
     z-index: 10;
+  }
+
+  .hero-copy {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 
   .hero-eyebrow {
@@ -193,6 +200,45 @@
     letter-spacing: 0.1em;
     color: rgba(255,255,255,0.55);
     text-transform: uppercase;
+  }
+
+  .hero-doc-link {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--trimble-dark);
+    background: var(--trimble-yellow);
+    border: 2px solid rgba(255,255,255,0.45);
+    border-radius: 8px;
+    padding: 14px 14px 12px;
+    box-shadow: 0 12px 26px rgba(0,0,0,0.3);
+    max-width: 280px;
+    justify-self: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  }
+
+  .hero-doc-link:hover,
+  .hero-doc-link:focus-visible {
+    background: var(--trimble-yellow-light);
+    transform: translateY(-2px);
+    box-shadow: 0 16px 30px rgba(0,0,0,0.35);
+  }
+
+  .hero-doc-svg {
+    width: 250px;
+    height: 62px;
+    display: block;
+  }
+
+  .hero-doc-text {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--trimble-dark);
+    text-align: center;
   }
 
   .hero-footer-bar {
@@ -1386,6 +1432,7 @@
   .hero-title   { animation: fadeUp 0.7s ease both; animation-delay: 0.2s; }
   .hero-subtitle{ animation: fadeUp 0.7s ease both; animation-delay: 0.35s; }
   .hero-stats   { animation: fadeUp 0.7s ease both; animation-delay: 0.5s; }
+  .hero-doc-link{ animation: fadeUp 0.75s ease both; animation-delay: 0.45s; }
 
   /* ── RESPONSIVE ─────────────────────────── */
   @media (max-width: 900px) {
@@ -1393,6 +1440,18 @@
     .section, .north-star, .moat-section, .synthesis, .footer {
       padding-left: 28px;
       padding-right: 28px;
+    }
+    .hero-body {
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+    .hero-doc-link {
+      justify-self: start;
+      max-width: 260px;
+    }
+    .hero-doc-svg {
+      width: 230px;
+      height: 58px;
     }
     .hero-stats { gap: 28px; }
     .infra-grid { grid-template-columns: 1fr; }
@@ -1441,28 +1500,42 @@
   </div>
 
   <div class="hero-body">
-    <p class="hero-eyebrow">AI / LLM / Agentic Development Blueprint</p>
-    <h1 class="hero-title">
-      CMS AI PDLC<br>
-      <em>Kick&#8209;Starter</em>
-    </h1>
-    <p class="hero-subtitle">
-      This isn't a simple tool enhancement. It's a <strong>fundamental re-architecture of how CMS engineering operates</strong> — a streamlined, practical blueprint that any team can adopt, even if they're just beginning their journey with AI.
-    </p>
-    <div class="hero-stats">
-      <div class="stat">
-        <span class="stat-value">2–3×</span>
-        <span class="stat-label">Feature Velocity</span>
-      </div>
-      <div class="stat">
-        <span class="stat-value">50%</span>
-        <span class="stat-label">Cycle-Time Reduction</span>
-      </div>
-      <div class="stat">
-        <span class="stat-value">90</span>
-        <span class="stat-label">Day Kick-Starter</span>
+    <div class="hero-copy">
+      <p class="hero-eyebrow">AI / LLM / Agentic Development Blueprint</p>
+      <h1 class="hero-title">
+        CMS AI PDLC<br>
+        <em>Kick&#8209;Starter</em>
+      </h1>
+      <p class="hero-subtitle">
+        This isn't a simple tool enhancement. It's a <strong>fundamental re-architecture of how CMS engineering operates</strong> — a streamlined, practical blueprint that any team can adopt, even if they're just beginning their journey with AI.
+      </p>
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-value">2–3×</span>
+          <span class="stat-label">Feature Velocity</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value">50%</span>
+          <span class="stat-label">Cycle-Time Reduction</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value">90</span>
+          <span class="stat-label">Day Kick-Starter</span>
+        </div>
       </div>
     </div>
+
+    <a class="hero-doc-link" href="https://docs.google.com/document/d/1a8iZny17Ze3H75KJpM9zG0AgrOw8L7Oju9FWaTtSXv4/edit?tab=t.0" target="_blank" rel="noopener noreferrer" aria-label="Open CMS AI PDLC Kick-Starter reference document">
+      <svg class="hero-doc-svg" viewBox="0 0 250 62" role="img" aria-label="Open blueprint reference" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1.5" y="1.5" width="247" height="59" rx="8" fill="rgba(0,0,0,0.08)" stroke="rgba(0,0,0,0.2)" />
+        <polyline points="20,44 62,36 104,32 146,26 188,18 226,12" fill="none" stroke="var(--trimble-dark)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+        <circle cx="62" cy="36" r="2.4" fill="var(--trimble-dark)" />
+        <circle cx="146" cy="26" r="2.4" fill="var(--trimble-dark)" />
+        <circle cx="226" cy="12" r="3" fill="var(--trimble-dark)" />
+        <text x="20" y="20" fill="rgba(0,0,0,0.78)" font-size="8.5" font-family="Barlow, sans-serif" letter-spacing="0.6">CLICK TO OPEN REFERENCE DOC</text>
+      </svg>
+      <span class="hero-doc-text">Open Kick-Starter Blueprint</span>
+    </a>
   </div>
 
   <div class="hero-footer-bar">
