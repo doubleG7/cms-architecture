@@ -9,22 +9,24 @@
 
 <style>
 :root {
-  --bg: #080b10;
-  --surface: #0d1119;
-  --surface2: #121820;
+  --bg: #252a2e;
+  --surface: #1e2226;
+  --surface2: #252a2e;
   --border: rgba(255,255,255,0.07);
-  --border-bright: rgba(82,196,255,0.25);
-  --accent: #52c4ff;
-  --accent2: #ff6b4a;
-  --accent3: #a8ff78;
-  --text: #e8edf2;
-  --text-muted: #5a6a7a;
-  --text-dim: #8a9aaa;
-  --glow: rgba(82,196,255,0.15);
-  --glow-strong: rgba(82,196,255,0.35);
+  --border-bright: rgba(255,255,255,0.2);
+  --accent: #fbad26;
+  --accent2: #0063a3;
+  --accent3: #06d6a0;
+  --text: #ffffff;
+  --text-muted: #a0a0a0;
+  --text-dim: rgba(255,255,255,0.7);
+  --glow: rgba(251,173,38,0.15);
+  --glow-strong: rgba(251,173,38,0.35);
   --human: #ffd166;
   --agent: #06d6a0;
   --critic: #ef476f;
+  --trimble-blue: #0063a3;
+  --trimble-yellow: #fbad26;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -129,6 +131,7 @@ nav {
   padding: 120px 48px 80px;
   position: relative;
   overflow: hidden;
+  background: linear-gradient(135deg, #001929 0%, #003560 40%, #0063a3 100%);
 }
 
 .hero-grid-bg {
@@ -208,7 +211,6 @@ h1 em::after {
   display: flex; gap: 40px;
   margin-bottom: 48px;
 }
-.stat-item {}
 .stat-num {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-weight: 800;
@@ -321,7 +323,7 @@ h2 {
 
 /* ═══════════════ ROLE SHIFT ═══════════════ */
 #shift {
-  background: var(--surface);
+  background: #1e2226;
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
 }
@@ -424,8 +426,6 @@ h2 {
   line-height: 1.3;
 }
 
-.layer-panels { }
-
 .layer-panel {
   display: none;
   animation: fadeInUp 0.3s ease;
@@ -484,7 +484,7 @@ h2 {
 }
 
 /* ═══════════════ WORKFLOW (6 STEPS) ═══════════════ */
-#workflow { background: var(--surface); border-top: 1px solid var(--border); }
+#workflow { background: #1e2226; border-top: 1px solid var(--border); }
 
 .workflow-steps {
   display: grid;
@@ -629,7 +629,7 @@ h2 {
 }
 
 /* ═══════════════ AGENT ROLES ═══════════════ */
-#agents { background: var(--surface); border-top: 1px solid var(--border); }
+#agents { background: #1e2226; border-top: 1px solid var(--border); }
 
 .agent-grid {
   display: grid;
@@ -751,7 +751,7 @@ h2 {
 }
 
 /* ═══════════════ MOATS ═══════════════ */
-#moats { background: var(--surface); border-top: 1px solid var(--border); }
+#moats { background: linear-gradient(160deg, #001929 0%, #003560 50%, #0063a3 100%); border-top: 1px solid var(--border); }
 
 .moat-vs {
   display: grid;
@@ -824,8 +824,6 @@ h2 {
   font-weight: 700;
   line-height: 1;
 }
-
-.moat-body {}
 .moat-title {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-weight: 700;
