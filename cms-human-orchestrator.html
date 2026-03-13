@@ -1,0 +1,1869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CMS — Human as Orchestrator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #080b10;
+  --surface: #0d1119;
+  --surface2: #121820;
+  --border: rgba(255,255,255,0.07);
+  --border-bright: rgba(82,196,255,0.25);
+  --accent: #52c4ff;
+  --accent2: #ff6b4a;
+  --accent3: #a8ff78;
+  --text: #e8edf2;
+  --text-muted: #5a6a7a;
+  --text-dim: #8a9aaa;
+  --glow: rgba(82,196,255,0.15);
+  --glow-strong: rgba(82,196,255,0.35);
+  --human: #ffd166;
+  --agent: #06d6a0;
+  --critic: #ef476f;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  overflow-x: hidden;
+  cursor: crosshair;
+}
+
+/* ═══════════════ NOISE OVERLAY ═══════════════ */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.4;
+}
+
+/* ═══════════════ SCANLINE ═══════════════ */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.03) 2px,
+    rgba(0,0,0,0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 9998;
+}
+
+/* ═══════════════ SCROLLBAR ═══════════════ */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+
+/* ═══════════════ NAV ═══════════════ */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 48px;
+  background: linear-gradient(180deg, rgba(8,11,16,0.95) 0%, transparent 100%);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-logo {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.nav-logo span { color: var(--text-muted); }
+
+.nav-links {
+  display: flex; gap: 32px; list-style: none;
+}
+.nav-links a {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+  text-decoration: none;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--accent); }
+
+.nav-status {
+  display: flex; align-items: center; gap: 8px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--agent);
+  letter-spacing: 0.1em;
+}
+.status-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--agent);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+
+/* ═══════════════ HERO ═══════════════ */
+#hero {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  padding: 120px 48px 80px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-grid-bg {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(82,196,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(82,196,255,0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+}
+
+.hero-glow {
+  position: absolute;
+  width: 700px; height: 700px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(82,196,255,0.07) 0%, transparent 65%);
+  right: -100px; top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.hero-left {
+  position: relative; z-index: 2;
+  padding-right: 60px;
+}
+
+.hero-tag {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--accent);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 28px;
+  border: 1px solid var(--border-bright);
+  padding: 6px 14px;
+  background: rgba(82,196,255,0.05);
+}
+.hero-tag::before {
+  content: '▶';
+  font-size: 8px;
+  animation: blink 1.5s step-end infinite;
+}
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+h1 {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 800;
+  font-size: clamp(42px, 5vw, 72px);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  margin-bottom: 24px;
+}
+h1 em {
+  font-style: normal;
+  color: var(--accent);
+  position: relative;
+}
+h1 em::after {
+  content: '';
+  position: absolute;
+  bottom: 4px; left: 0; right: 0;
+  height: 2px;
+  background: var(--accent);
+  opacity: 0.4;
+}
+
+.hero-sub {
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--text-dim);
+  max-width: 440px;
+  margin-bottom: 40px;
+}
+
+.hero-stats {
+  display: flex; gap: 40px;
+  margin-bottom: 48px;
+}
+.stat-item {}
+.stat-num {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 800;
+  font-size: 36px;
+  color: var(--accent);
+  line-height: 1;
+}
+.stat-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.hero-ctas { display: flex; gap: 16px; }
+
+.btn-primary {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 14px 28px;
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  display: inline-block;
+}
+.btn-primary:hover {
+  background: #fff;
+  box-shadow: 0 0 30px var(--glow-strong);
+}
+
+.btn-ghost {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 14px 28px;
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  display: inline-block;
+}
+.btn-ghost:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ═══════════════ ORCHESTRATION DIAGRAM ═══════════════ */
+.hero-right {
+  position: relative; z-index: 2;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.orch-diagram {
+  width: 480px; height: 480px;
+  position: relative;
+}
+
+.orch-svg {
+  width: 100%; height: 100%;
+  overflow: visible;
+}
+
+/* ═══════════════ SECTION SCAFFOLDING ═══════════════ */
+section {
+  padding: 100px 48px;
+  position: relative;
+}
+
+.section-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--accent);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  display: flex; align-items: center; gap: 12px;
+}
+.section-label::before {
+  content: '';
+  width: 30px; height: 1px;
+  background: var(--accent);
+}
+
+h2 {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 800;
+  font-size: clamp(30px, 3.5vw, 52px);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+}
+
+.section-intro {
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--text-dim);
+  max-width: 600px;
+  margin-bottom: 64px;
+}
+
+/* ═══════════════ ROLE SHIFT ═══════════════ */
+#shift {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.shift-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 0;
+  max-width: 900px;
+}
+
+.shift-col {
+  padding: 40px;
+  border: 1px solid var(--border);
+}
+.shift-col.from { border-right: none; }
+.shift-col.to {
+  border-left: 1px solid var(--border-bright);
+  background: rgba(82,196,255,0.03);
+}
+
+.shift-arrow {
+  display: flex; align-items: center; justify-content: center;
+  width: 64px;
+  font-size: 28px;
+  color: var(--accent);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface2);
+}
+
+.shift-header {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+.shift-col.from .shift-header { color: var(--text-muted); }
+.shift-col.to .shift-header { color: var(--accent); }
+
+.shift-items { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+.shift-items li {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-dim);
+  padding-left: 18px;
+  position: relative;
+}
+.shift-items li::before {
+  content: '—';
+  position: absolute; left: 0;
+  color: var(--text-muted);
+}
+.shift-col.to .shift-items li { color: var(--text); }
+.shift-col.to .shift-items li::before { color: var(--accent); content: '→'; }
+
+/* ═══════════════ LAYERS ═══════════════ */
+#layers { background: var(--bg); }
+
+.layers-container {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 60px;
+  align-items: start;
+}
+
+.layer-nav {
+  position: sticky;
+  top: 100px;
+  display: flex; flex-direction: column; gap: 2px;
+}
+
+.layer-btn {
+  display: flex; align-items: center; gap: 16px;
+  padding: 16px 20px;
+  background: transparent;
+  border: none;
+  border-left: 2px solid transparent;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+}
+.layer-btn:hover, .layer-btn.active {
+  background: rgba(82,196,255,0.05);
+  border-left-color: var(--accent);
+}
+.layer-btn.active .layer-num { color: var(--accent); }
+.layer-btn.active .layer-name { color: var(--text); }
+
+.layer-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+  min-width: 28px;
+}
+.layer-name {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.3;
+}
+
+.layer-panels { }
+
+.layer-panel {
+  display: none;
+  animation: fadeInUp 0.3s ease;
+}
+.layer-panel.active { display: block; }
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.panel-card {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: 40px;
+  margin-bottom: 24px;
+}
+.panel-card:hover {
+  border-color: var(--border-bright);
+}
+
+.panel-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--accent);
+  letter-spacing: 0.2em;
+  margin-bottom: 10px;
+}
+
+.panel-title {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  margin-bottom: 16px;
+  letter-spacing: -0.02em;
+}
+
+.panel-desc {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-dim);
+  margin-bottom: 24px;
+}
+
+.panel-tags {
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+.tag {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--accent);
+  border: 1px solid rgba(82,196,255,0.2);
+  padding: 4px 10px;
+  background: rgba(82,196,255,0.05);
+  letter-spacing: 0.08em;
+}
+
+/* ═══════════════ WORKFLOW (6 STEPS) ═══════════════ */
+#workflow { background: var(--surface); border-top: 1px solid var(--border); }
+
+.workflow-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+
+.step-card {
+  background: var(--surface);
+  padding: 36px 32px;
+  position: relative;
+  transition: background 0.2s;
+  cursor: default;
+}
+.step-card:hover { background: var(--surface2); }
+
+.step-number {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 800;
+  font-size: 72px;
+  line-height: 1;
+  color: rgba(82,196,255,0.08);
+  position: absolute;
+  top: 20px; right: 24px;
+  user-select: none;
+}
+
+.step-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--accent);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.step-title {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  margin-bottom: 12px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.step-body {
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--text-dim);
+}
+
+.step-card.highlight {
+  border-left: 2px solid var(--accent);
+  background: rgba(82,196,255,0.04);
+}
+
+/* ═══════════════ ORCHESTRATION PIPELINE ═══════════════ */
+#pipeline { background: var(--bg); }
+
+.pipeline-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-width: 800px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.pipeline-flow::before {
+  content: '';
+  position: absolute;
+  left: 24px; top: 0; bottom: 0;
+  width: 1px;
+  background: linear-gradient(180deg, var(--accent) 0%, rgba(82,196,255,0.1) 100%);
+}
+
+.pipe-step {
+  display: grid;
+  grid-template-columns: 50px 1fr;
+  gap: 32px;
+  padding: 24px 0;
+  position: relative;
+}
+
+.pipe-dot {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+  position: relative; z-index: 2;
+  flex-shrink: 0;
+  transition: all 0.3s;
+}
+.pipe-step:hover .pipe-dot {
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 20px var(--glow);
+}
+
+.pipe-step.human-gate .pipe-dot {
+  border-color: var(--human);
+  color: var(--human);
+  background: rgba(255,209,102,0.1);
+}
+
+.pipe-content {
+  padding-top: 10px;
+}
+
+.pipe-title {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  font-size: 17px;
+  margin-bottom: 6px;
+  letter-spacing: -0.02em;
+}
+.human-gate .pipe-title { color: var(--human); }
+
+.pipe-desc {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+
+.gate-badge {
+  display: inline-block;
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  background: rgba(255,209,102,0.12);
+  border: 1px solid rgba(255,209,102,0.3);
+  color: var(--human);
+  margin-bottom: 8px;
+}
+
+/* ═══════════════ AGENT ROLES ═══════════════ */
+#agents { background: var(--surface); border-top: 1px solid var(--border); }
+
+.agent-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.agent-card {
+  border: 1px solid var(--border);
+  padding: 32px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+.agent-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+.agent-card.orchestrator::before { background: var(--human); }
+.agent-card.worker::before { background: var(--agent); }
+.agent-card.critic::before { background: var(--critic); }
+.agent-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--border-bright);
+}
+
+.agent-icon {
+  font-size: 32px;
+  margin-bottom: 16px;
+}
+.agent-role {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.agent-card.orchestrator .agent-role { color: var(--human); }
+.agent-card.worker .agent-role { color: var(--agent); }
+.agent-card.critic .agent-role { color: var(--critic); }
+
+.agent-name {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  margin-bottom: 12px;
+  letter-spacing: -0.02em;
+}
+
+.agent-desc {
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--text-dim);
+  margin-bottom: 20px;
+}
+
+.agent-rules {
+  list-style: none;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.agent-rules li {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+  padding-left: 16px;
+  position: relative;
+  letter-spacing: 0.05em;
+}
+.agent-rules li::before {
+  content: '//';
+  position: absolute; left: 0;
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+/* ═══════════════ KPIs ═══════════════ */
+#kpis { background: var(--bg); }
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+
+.kpi-card {
+  background: var(--bg);
+  padding: 32px 24px;
+  text-align: center;
+  transition: background 0.2s;
+}
+.kpi-card:hover { background: var(--surface); }
+
+.kpi-icon {
+  font-size: 24px;
+  margin-bottom: 14px;
+}
+
+.kpi-name {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 12px;
+  letter-spacing: -0.01em;
+}
+
+.kpi-items {
+  list-style: none;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.kpi-items li {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+
+/* ═══════════════ MOATS ═══════════════ */
+#moats { background: var(--surface); border-top: 1px solid var(--border); }
+
+.moat-vs {
+  display: grid;
+  grid-template-columns: 1fr 80px 1fr;
+  gap: 24px;
+  margin-bottom: 60px;
+  max-width: 860px;
+}
+
+.moat-col {
+  border: 1px solid var(--border);
+  padding: 32px;
+}
+
+.moat-col.bad { opacity: 0.5; }
+.moat-col.good { border-color: var(--border-bright); background: rgba(82,196,255,0.03); }
+
+.moat-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.moat-col.bad .moat-label { color: var(--text-muted); }
+.moat-col.good .moat-label { color: var(--accent); }
+
+.moat-vs-center {
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 800;
+  font-size: 24px;
+  color: var(--text-muted);
+}
+
+.moat-items {
+  list-style: none;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.moat-items li {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-dim);
+  padding-left: 16px;
+  position: relative;
+}
+.moat-col.bad .moat-items li::before { content: '✗'; position: absolute; left: 0; color: var(--critic); font-size: 11px; }
+.moat-col.good .moat-items li::before { content: '✓'; position: absolute; left: 0; color: var(--agent); font-size: 11px; }
+
+.moat-list {
+  display: flex; flex-direction: column; gap: 16px;
+  max-width: 860px;
+}
+
+.moat-item {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 20px;
+  align-items: start;
+  padding: 24px;
+  border: 1px solid var(--border);
+  transition: all 0.2s;
+}
+.moat-item:hover { border-color: var(--border-bright); background: rgba(82,196,255,0.03); }
+
+.moat-n {
+  font-family: 'Space Mono', monospace;
+  font-size: 24px;
+  color: rgba(82,196,255,0.15);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.moat-body {}
+.moat-title {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+.moat-desc {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+
+/* ═══════════════ 90-DAY PLAN ═══════════════ */
+#plan { background: var(--bg); }
+
+.phase-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+}
+
+.phase-card {
+  border: 1px solid var(--border);
+  padding: 40px 36px;
+  position: relative;
+}
+.phase-card + .phase-card { border-left: none; }
+
+.phase-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.phase-weeks {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 800;
+  font-size: 48px;
+  line-height: 1;
+  color: rgba(82,196,255,0.12);
+  margin-bottom: 20px;
+}
+
+.phase-title {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  margin-bottom: 20px;
+  letter-spacing: -0.02em;
+}
+
+.phase-items {
+  list-style: none;
+  display: flex; flex-direction: column; gap: 10px;
+  margin-bottom: 28px;
+}
+.phase-items li {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-dim);
+  padding-left: 18px;
+  position: relative;
+}
+.phase-items li::before {
+  content: '›';
+  position: absolute; left: 0;
+  color: var(--accent);
+}
+
+.phase-deliverable {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: var(--accent);
+  border-top: 1px solid var(--border);
+  padding-top: 20px;
+  letter-spacing: 0.05em;
+}
+
+/* ═══════════════ SYNTHESIS / FOOTER ═══════════════ */
+#synthesis {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  text-align: center;
+  padding: 120px 48px;
+  position: relative;
+  overflow: hidden;
+}
+
+.synth-glow {
+  position: absolute;
+  width: 600px; height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(82,196,255,0.06) 0%, transparent 70%);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.synth-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  margin: 40px auto 60px;
+  max-width: 500px;
+}
+
+.synth-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  width: 100%;
+}
+
+.synth-node {
+  display: flex; align-items: center; gap: 14px;
+  width: 100%;
+  padding: 16px 24px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  position: relative;
+  z-index: 2;
+}
+.synth-node.human-node {
+  border-color: rgba(255,209,102,0.35);
+  background: rgba(255,209,102,0.06);
+}
+.synth-node.active-node {
+  border-color: var(--border-bright);
+  background: rgba(82,196,255,0.05);
+  box-shadow: 0 0 40px var(--glow);
+}
+
+.synth-icon {
+  font-size: 20px;
+  min-width: 28px;
+  text-align: center;
+}
+
+.synth-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-align: left;
+}
+.human-node .synth-label { color: var(--human); }
+.active-node .synth-label { color: var(--accent); }
+
+.synth-arrow {
+  width: 1px;
+  height: 28px;
+  background: linear-gradient(180deg, var(--border-bright), rgba(82,196,255,0.1));
+  position: relative; z-index: 1;
+}
+.synth-arrow::after {
+  content: '▼';
+  position: absolute;
+  bottom: -4px; left: 50%;
+  transform: translateX(-50%);
+  font-size: 8px;
+  color: var(--accent);
+  opacity: 0.5;
+}
+
+.synth-quote {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  font-size: clamp(24px, 3vw, 40px);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  max-width: 680px;
+  margin: 0 auto 20px;
+}
+.synth-quote em {
+  font-style: normal;
+  color: var(--accent);
+}
+
+.synth-sub {
+  font-size: 15px;
+  color: var(--text-muted);
+  max-width: 500px;
+  margin: 0 auto 48px;
+  line-height: 1.7;
+}
+
+footer {
+  border-top: 1px solid var(--border);
+  padding: 32px 48px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.footer-left {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+}
+.footer-right {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+}
+
+/* ═══════════════ ANIMATIONS ═══════════════ */
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">CMS <span>//</span> 2026—2027</div>
+  <ul class="nav-links">
+    <li><a href="#shift">Shift</a></li>
+    <li><a href="#layers">Layers</a></li>
+    <li><a href="#workflow">Workflow</a></li>
+    <li><a href="#pipeline">Pipeline</a></li>
+    <li><a href="#agents">Agents</a></li>
+    <li><a href="#plan">90-Day</a></li>
+    <li><a href="#moats">Moats</a></li>
+  </ul>
+  <div class="nav-status">
+    <span class="status-dot"></span>
+    AI PDLC ACTIVE
+  </div>
+</nav>
+
+<!-- ═══════ HERO ═══════ -->
+<section id="hero">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-glow"></div>
+
+  <div class="hero-left fade-in">
+    <div class="hero-tag">CMS AI PDLC Kick-Starter · 2026–2027</div>
+    <h1>You Are<br>the <em>Orchestrator</em></h1>
+    <p class="hero-sub">
+      AI doesn't replace the architect. It amplifies one. You set the intent, govern the agents, and own every decision. The machine executes. You conduct.
+    </p>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-num">2–3×</div>
+        <div class="stat-label">Feature Velocity</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">50%</div>
+        <div class="stat-label">Cycle-Time Reduction</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">90</div>
+        <div class="stat-label">Day Kick-Starter</div>
+      </div>
+    </div>
+    <div class="hero-ctas">
+      <a href="https://docs.google.com/document/d/1a8iZny17Ze3H75KJpM9zG0AgrOw8L7Oju9FWaTtSXv4/edit" target="_blank" class="btn-primary">Open Blueprint ↗</a>
+      <a href="#shift" class="btn-ghost">Explore Framework</a>
+    </div>
+  </div>
+
+  <div class="hero-right fade-in">
+    <div class="orch-diagram">
+      <svg class="orch-svg" viewBox="0 0 480 480" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="humanGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ffd166" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#ffd166" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="agentGlow1" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#06d6a0" stop-opacity="0.2"/>
+            <stop offset="100%" stop-color="#06d6a0" stop-opacity="0"/>
+          </radialGradient>
+          <filter id="glow-filter">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+            <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <marker id="arrowBlue" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L6,3 z" fill="rgba(82,196,255,0.6)"/>
+          </marker>
+          <marker id="arrowGreen" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L6,3 z" fill="rgba(6,214,160,0.6)"/>
+          </marker>
+        </defs>
+
+        <!-- Outer ring -->
+        <circle cx="240" cy="240" r="190" fill="none" stroke="rgba(82,196,255,0.06)" stroke-width="1" stroke-dasharray="4 8"/>
+        <circle cx="240" cy="240" r="140" fill="none" stroke="rgba(82,196,255,0.04)" stroke-width="1"/>
+
+        <!-- Orbital animation path (invisible guide) -->
+        <animateTransform id="orbit" type="rotate"/>
+
+        <!-- Lines: human → agents -->
+        <line x1="240" y1="220" x2="240" y2="112" stroke="rgba(82,196,255,0.25)" stroke-width="1" marker-end="url(#arrowBlue)"/>
+        <line x1="255" y1="247" x2="360" y2="300" stroke="rgba(82,196,255,0.25)" stroke-width="1" marker-end="url(#arrowBlue)"/>
+        <line x1="225" y1="247" x2="120" y2="300" stroke="rgba(82,196,255,0.25)" stroke-width="1" marker-end="url(#arrowBlue)"/>
+        <line x1="255" y1="225" x2="345" y2="155" stroke="rgba(82,196,255,0.15)" stroke-width="1" stroke-dasharray="3 5"/>
+        <line x1="225" y1="225" x2="135" y2="155" stroke="rgba(82,196,255,0.15)" stroke-width="1" stroke-dasharray="3 5"/>
+
+        <!-- Return signals (agents → human) -->
+        <line x1="240" y1="118" x2="240" y2="226" stroke="rgba(6,214,160,0.2)" stroke-width="1" stroke-dasharray="2 4" marker-end="url(#arrowGreen)"/>
+        <line x1="350" y1="294" x2="258" y2="248" stroke="rgba(6,214,160,0.2)" stroke-width="1" stroke-dasharray="2 4" marker-end="url(#arrowGreen)"/>
+        <line x1="130" y1="294" x2="222" y2="248" stroke="rgba(6,214,160,0.2)" stroke-width="1" stroke-dasharray="2 4" marker-end="url(#arrowGreen)"/>
+
+        <!-- Human center glow -->
+        <circle cx="240" cy="240" r="60" fill="url(#humanGlow)">
+          <animate attributeName="r" values="55;65;55" dur="3s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.7;1;0.7" dur="3s" repeatCount="indefinite"/>
+        </circle>
+
+        <!-- Human node -->
+        <circle cx="240" cy="240" r="42" fill="rgba(8,11,16,0.9)" stroke="#ffd166" stroke-width="2"/>
+        <circle cx="240" cy="240" r="38" fill="none" stroke="rgba(255,209,102,0.2)" stroke-width="1"/>
+        <text x="240" y="235" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-weight="800" font-size="11" fill="#ffd166">HUMAN</text>
+        <text x="240" y="249" text-anchor="middle" font-family="Space Mono" font-size="8" fill="rgba(255,209,102,0.7)" letter-spacing="2">ORCHESTRATOR</text>
+
+        <!-- Agent: top (Orchestrator) -->
+        <circle cx="240" cy="100" r="28" fill="rgba(8,11,16,0.9)" stroke="rgba(6,214,160,0.5)" stroke-width="1.5"/>
+        <text x="240" y="96" text-anchor="middle" font-family="Space Mono" font-size="8" fill="#06d6a0">WORKER</text>
+        <text x="240" y="108" text-anchor="middle" font-family="Space Mono" font-size="7" fill="rgba(6,214,160,0.5)">AGENT</text>
+        <circle cx="240" cy="100" r="33" fill="none" stroke="rgba(6,214,160,0.1)" stroke-width="1">
+          <animate attributeName="r" values="28;34;28" dur="2.4s" begin="0.3s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.3;0;0.3" dur="2.4s" begin="0.3s" repeatCount="indefinite"/>
+        </circle>
+
+        <!-- Agent: bottom-right (Worker) -->
+        <circle cx="372" cy="308" r="28" fill="rgba(8,11,16,0.9)" stroke="rgba(82,196,255,0.5)" stroke-width="1.5"/>
+        <text x="372" y="304" text-anchor="middle" font-family="Space Mono" font-size="8" fill="#52c4ff">CRITIC</text>
+        <text x="372" y="316" text-anchor="middle" font-family="Space Mono" font-size="7" fill="rgba(82,196,255,0.5)">AGENT</text>
+        <circle cx="372" cy="308" r="33" fill="none" stroke="rgba(82,196,255,0.1)" stroke-width="1">
+          <animate attributeName="r" values="28;35;28" dur="2.8s" begin="0.9s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.3;0;0.3" dur="2.8s" begin="0.9s" repeatCount="indefinite"/>
+        </circle>
+
+        <!-- Agent: bottom-left (Critic) -->
+        <circle cx="108" cy="308" r="28" fill="rgba(8,11,16,0.9)" stroke="rgba(239,71,111,0.5)" stroke-width="1.5"/>
+        <text x="108" y="304" text-anchor="middle" font-family="Space Mono" font-size="8" fill="#ef476f">ORCH.</text>
+        <text x="108" y="316" text-anchor="middle" font-family="Space Mono" font-size="7" fill="rgba(239,71,111,0.5)">AGENT</text>
+
+        <!-- Satellite nodes (top-right, top-left) -->
+        <circle cx="346" cy="150" r="18" fill="rgba(8,11,16,0.9)" stroke="rgba(82,196,255,0.2)" stroke-width="1"/>
+        <text x="346" y="147" text-anchor="middle" font-family="Space Mono" font-size="7" fill="rgba(82,196,255,0.5)">PRISM</text>
+        <text x="346" y="157" text-anchor="middle" font-family="Space Mono" font-size="7" fill="rgba(82,196,255,0.3)">ERP</text>
+
+        <circle cx="134" cy="150" r="18" fill="rgba(8,11,16,0.9)" stroke="rgba(82,196,255,0.2)" stroke-width="1"/>
+        <text x="134" y="147" text-anchor="middle" font-family="Space Mono" font-size="7" fill="rgba(82,196,255,0.5)">VISTA</text>
+        <text x="134" y="157" text-anchor="middle" font-family="Space Mono" font-size="7" fill="rgba(82,196,255,0.3)">ERP</text>
+
+        <!-- Outer ring dots representing MCP tools -->
+        <g opacity="0.4">
+          <circle cx="240" cy="50" r="5" fill="rgba(82,196,255,0.5)"/>
+          <circle cx="376" cy="122" r="4" fill="rgba(82,196,255,0.3)"/>
+          <circle cx="420" cy="240" r="5" fill="rgba(6,214,160,0.4)"/>
+          <circle cx="376" cy="358" r="4" fill="rgba(82,196,255,0.3)"/>
+          <circle cx="240" cy="430" r="5" fill="rgba(82,196,255,0.5)"/>
+          <circle cx="104" cy="358" r="4" fill="rgba(239,71,111,0.4)"/>
+          <circle cx="60" cy="240" r="5" fill="rgba(82,196,255,0.4)"/>
+          <circle cx="104" cy="122" r="4" fill="rgba(82,196,255,0.3)"/>
+        </g>
+
+        <!-- Label: MCP Tools -->
+        <text x="432" y="243" font-family="Space Mono" font-size="8" fill="rgba(6,214,160,0.4)" letter-spacing="1">MCP</text>
+
+        <!-- Animated pulse on human node -->
+        <circle cx="240" cy="240" r="48" fill="none" stroke="#ffd166" stroke-width="1" opacity="0">
+          <animate attributeName="r" values="42;70;42" dur="3s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.4;0;0.4" dur="3s" repeatCount="indefinite"/>
+        </circle>
+
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ ROLE SHIFT ═══════ -->
+<section id="shift">
+  <div class="section-label">The Fundamental Shift</div>
+  <h2>From Coder to Conductor</h2>
+  <p class="section-intro">
+    The developer role doesn't disappear — it elevates. You move from typing loops to designing orchestration. From writing boilerplate to setting architectural intent.
+  </p>
+
+  <div class="shift-grid fade-in">
+    <div class="shift-col from">
+      <div class="shift-header">Shifting From</div>
+      <ul class="shift-items">
+        <li>Single-agent, inline assistance</li>
+        <li>Tool experimentation, ad-hoc AI usage</li>
+        <li>Developer writes every line of code</li>
+        <li>Ungoverned, shadow AI pipelines</li>
+        <li>Context is an afterthought</li>
+        <li>Generic LLM output, no domain fit</li>
+        <li>AI as a feature</li>
+      </ul>
+    </div>
+    <div class="shift-arrow">→</div>
+    <div class="shift-col to">
+      <div class="shift-header">Moving To</div>
+      <ul class="shift-items">
+        <li>Multi-agent, orchestrated, governed ecosystems</li>
+        <li>Standardized AI PDLC operating model across CMS</li>
+        <li>Human designs systems; agents execute</li>
+        <li>Every agent action is traceable and auditable</li>
+        <li>Structured context is the competitive moat</li>
+        <li>Domain-tuned agents with explicit scope and memory</li>
+        <li>AI as the execution engine of the PDLC</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ 7 LAYERS ═══════ -->
+<section id="layers">
+  <div class="section-label">Foundation</div>
+  <h2>The Seven Layers</h2>
+  <p class="section-intro">
+    Seven mandatory layers every CMS team must implement. Competitive advantage lives in structured context — not prompts.
+  </p>
+
+  <div class="layers-container">
+    <nav class="layer-nav" id="layerNav">
+      <button class="layer-btn active" onclick="showLayer(0)">
+        <span class="layer-num">L1</span>
+        <span class="layer-name">Context Layer — The Real Moat</span>
+      </button>
+      <button class="layer-btn" onclick="showLayer(1)">
+        <span class="layer-num">L2</span>
+        <span class="layer-name">Agent Role Specialization</span>
+      </button>
+      <button class="layer-btn" onclick="showLayer(2)">
+        <span class="layer-num">L2.5</span>
+        <span class="layer-name">Agent Portfolio Continuation</span>
+      </button>
+      <button class="layer-btn" onclick="showLayer(3)">
+        <span class="layer-num">L3</span>
+        <span class="layer-name">Hybrid Human + Agent Teams</span>
+      </button>
+      <button class="layer-btn" onclick="showLayer(4)">
+        <span class="layer-num">L4</span>
+        <span class="layer-name">Async Background Execution</span>
+      </button>
+      <button class="layer-btn" onclick="showLayer(5)">
+        <span class="layer-num">L5</span>
+        <span class="layer-name">Governance & Audit Layer</span>
+      </button>
+      <button class="layer-btn" onclick="showLayer(6)">
+        <span class="layer-num">L6</span>
+        <span class="layer-name">Internal Agent Development</span>
+      </button>
+      <button class="layer-btn" onclick="showLayer(7)">
+        <span class="layer-num">L7</span>
+        <span class="layer-name">Model Extension & Learning Loops</span>
+      </button>
+    </nav>
+
+    <div class="layer-panels">
+
+      <div class="layer-panel active" id="layer-0">
+        <div class="panel-card">
+          <div class="panel-num">LAYER 01 — CONTEXT</div>
+          <div class="panel-title">The Real Moat</div>
+          <div class="panel-desc">Competitive advantage is not prompts — it is context. No AI generation without structured context ingestion. Every agent session must start informed, or it starts wrong.</div>
+          <div class="panel-tags">
+            <span class="tag">Architecture Decision Records</span>
+            <span class="tag">API Contracts</span>
+            <span class="tag">Domain Rules</span>
+            <span class="tag">Compliance Policies</span>
+            <span class="tag">Data Schemas</span>
+            <span class="tag">Prompt Catalog</span>
+            <span class="tag">Knowledge Graph</span>
+          </div>
+        </div>
+        <div class="panel-card" style="background:rgba(82,196,255,0.03); border-color: var(--border-bright);">
+          <div class="panel-num">STORAGE LAYER</div>
+          <div class="panel-title">Where Context Lives</div>
+          <div class="panel-desc">Stored in GitHub, Trimble Backstage, and AI-accessible documentation layers. Structured, versioned, always available to every agent in the mesh.</div>
+        </div>
+      </div>
+
+      <div class="layer-panel" id="layer-1">
+        <div class="panel-card">
+          <div class="panel-num">LAYER 02 — SPECIALIZATION</div>
+          <div class="panel-title">Agent Role Specialization</div>
+          <div class="panel-desc">Treat AI like a team of focused experts, not one general assistant. Generic AI tries to do everything and often misses product context. Specialized agents are constrained systems with explicit scope, ownership, and accountability.</div>
+          <div class="panel-tags">
+            <span class="tag">Scoped by Product Domain</span>
+            <span class="tag">Explicit Boundaries</span>
+            <span class="tag">Constrained Execution</span>
+            <span class="tag">Governed Auditing</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="layer-panel" id="layer-2">
+        <div class="panel-card">
+          <div class="panel-num">LAYER 2.5 — PORTFOLIO</div>
+          <div class="panel-title">Agent Portfolio Continuation</div>
+          <div class="panel-desc">Operationalize Layer 2 with product-specific ownership and explicit inter-agent handoffs. Each CMS product defines its agent set with clear responsibilities.</div>
+          <div class="panel-tags">
+            <span class="tag">ProjectSight Agent</span>
+            <span class="tag">MEP Estimation Agent</span>
+            <span class="tag">B2W Operations Agent</span>
+            <span class="tag">Civil Agent</span>
+            <span class="tag">Payments Agent</span>
+            <span class="tag">Material Agent</span>
+            <span class="tag">Content Ingestion Agent</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="layer-panel" id="layer-3">
+        <div class="panel-card">
+          <div class="panel-num">LAYER 03 — HYBRID</div>
+          <div class="panel-title">Hybrid Human + Agent Teams</div>
+          <div class="panel-desc">Developer role shifts from coder to conductor. You're designing orchestration patterns, not typing loops. The human retains architecture, tradeoffs, final approval, and risk. Agents own everything else.</div>
+        </div>
+        <div class="panel-card" style="display:grid; grid-template-columns:1fr 1fr; gap:24px; padding:32px;">
+          <div>
+            <div class="panel-num" style="color:var(--human);">HUMAN OWNS</div>
+            <ul style="list-style:none; display:flex; flex-direction:column; gap:10px; margin-top:12px;">
+              <li style="font-size:13px; color:var(--text-dim); padding-left:16px; position:relative;">
+                <span style="position:absolute;left:0;color:var(--human);">›</span> Architecture & tradeoffs
+              </li>
+              <li style="font-size:13px; color:var(--text-dim); padding-left:16px; position:relative;">
+                <span style="position:absolute;left:0;color:var(--human);">›</span> Final approval
+              </li>
+              <li style="font-size:13px; color:var(--text-dim); padding-left:16px; position:relative;">
+                <span style="position:absolute;left:0;color:var(--human);">›</span> Risk assessment
+              </li>
+            </ul>
+          </div>
+          <div>
+            <div class="panel-num" style="color:var(--agent);">AGENTS OWN</div>
+            <ul style="list-style:none; display:flex; flex-direction:column; gap:10px; margin-top:12px;">
+              <li style="font-size:13px; color:var(--text-dim); padding-left:16px; position:relative;">
+                <span style="position:absolute;left:0;color:var(--agent);">›</span> Boilerplate & tests
+              </li>
+              <li style="font-size:13px; color:var(--text-dim); padding-left:16px; position:relative;">
+                <span style="position:absolute;left:0;color:var(--agent);">›</span> Docs & refactors
+              </li>
+              <li style="font-size:13px; color:var(--text-dim); padding-left:16px; position:relative;">
+                <span style="position:absolute;left:0;color:var(--agent);">›</span> Pre-review & pattern enforcement
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="layer-panel" id="layer-4">
+        <div class="panel-card">
+          <div class="panel-num">LAYER 04 — ASYNC</div>
+          <div class="panel-title">Async Background Execution</div>
+          <div class="panel-desc">Introduce background coding agents. Reduced context switching, overnight feature generation, parallelization at scale. You write the spec. Agents execute while you sleep.</div>
+          <div class="panel-tags">
+            <span class="tag">Feature Spec Written</span>
+            <span class="tag">Agent Branch Spawned</span>
+            <span class="tag">Implementation + Tests + Docs</span>
+            <span class="tag">Pre-review Agents Validate</span>
+            <span class="tag">Human Final Review</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="layer-panel" id="layer-5">
+        <div class="panel-card">
+          <div class="panel-num">LAYER 05 — GOVERNANCE</div>
+          <div class="panel-title">Governance & Audit Layer</div>
+          <div class="panel-desc">Enterprise policy control is mandatory. No shadow AI. Every agent action is traceable. SAST/DAST parity for AI output. Velocity, quality, and adoption metrics on every run.</div>
+          <div class="panel-tags">
+            <span class="tag">Access Controls</span>
+            <span class="tag">Data Sensitivity Boundaries</span>
+            <span class="tag">Token Budget Controls</span>
+            <span class="tag">Audit Trail</span>
+            <span class="tag">SAST/DAST Parity</span>
+            <span class="tag">KPI Dashboards</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="layer-panel" id="layer-6">
+        <div class="panel-card">
+          <div class="panel-num">LAYER 06 — INTERNAL</div>
+          <div class="panel-title">Internal Agent Development</div>
+          <div class="panel-desc">Build internal, domain-governed agents as proprietary CMS assets. Create a CMS Agent SDK with interface contracts and guardrails. Standardize context injection, memory schema, and observability hooks.</div>
+          <div class="panel-tags">
+            <span class="tag">CMS Agent SDK</span>
+            <span class="tag">Interface Contracts</span>
+            <span class="tag">Guardrails</span>
+            <span class="tag">Trimble Backstage Templates</span>
+            <span class="tag">Memory Schema</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="layer-panel" id="layer-7">
+        <div class="panel-card">
+          <div class="panel-num">LAYER 07 — LEARNING</div>
+          <div class="panel-title">Model Extension & Learning Loops</div>
+          <div class="panel-desc">Extend models safely and improve agents continuously. Use RAG over governed Databricks data. Log decisions, store winning patterns, and flag risky outputs. Every feedback cycle must be governed and observable.</div>
+          <div class="panel-tags">
+            <span class="tag">RAG over Databricks</span>
+            <span class="tag">Structured Reasoning</span>
+            <span class="tag">Lineage + Classification</span>
+            <span class="tag">Governance Approval</span>
+            <span class="tag">Decision Logging</span>
+            <span class="tag">Pattern Storage</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ 6-STEP WORKFLOW ═══════ -->
+<section id="workflow">
+  <div class="section-label">End-to-End Workflow</div>
+  <h2>Six Steps to Ship</h2>
+  <p class="section-intro">
+    From raw product requirement to merged, tested, deployed service — with Claude Code as an informed collaborator at every stage.
+  </p>
+
+  <div class="workflow-steps fade-in">
+    <div class="step-card highlight">
+      <div class="step-number">01</div>
+      <div class="step-label">Before Any Code</div>
+      <div class="step-title">Author CLAUDE.md</div>
+      <div class="step-body">Lock in the tech stack, folder structure, hard rules, and workflow commands so AI starts every session informed — never from zero.</div>
+    </div>
+    <div class="step-card">
+      <div class="step-number">02</div>
+      <div class="step-label">Requirements</div>
+      <div class="step-title">Translate PRDs into Scoped Work</div>
+      <div class="step-body">Use Claude to decompose product requirements into bounded, testable units. Validate scope with the team before moving to tasks.</div>
+    </div>
+    <div class="step-card">
+      <div class="step-number">03</div>
+      <div class="step-label">Task Generation</div>
+      <div class="step-title">Generate Git Project Tasks</div>
+      <div class="step-body">Convert scoped work into discrete, trackable issues. Include acceptance criteria and dependencies in every task.</div>
+    </div>
+    <div class="step-card">
+      <div class="step-number">04</div>
+      <div class="step-label">Implementation</div>
+      <div class="step-title">Pair-Program with Claude</div>
+      <div class="step-body">Leverage CLAUDE.md guardrails during implementation. Claude proposes a plan first, then implements the smallest viable change.</div>
+    </div>
+    <div class="step-card">
+      <div class="step-number">05</div>
+      <div class="step-label">Validation</div>
+      <div class="step-title">Validate and Harden Before Merge</div>
+      <div class="step-body">Run commands defined in CLAUDE.md. Verify architecture, async patterns, and test coverage. Pre-review agents run first.</div>
+    </div>
+    <div class="step-card highlight">
+      <div class="step-number">06</div>
+      <div class="step-label">Ship + Learn</div>
+      <div class="step-title">Ship and Update CLAUDE.md</div>
+      <div class="step-body">Merge, deploy, and capture new patterns back into CLAUDE.md. Every run makes the next session smarter. The moat compounds.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ PIPELINE ═══════ -->
+<section id="pipeline">
+  <div class="section-label">Agentic Orchestration</div>
+  <h2>Event → Audit Pipeline</h2>
+  <p class="section-intro">
+    Move from one-session pair programming to coordinated multi-agent pipelines. Claude shifts from responder to goal-seeking orchestrator with bounded tools, explicit gates, and auditable actions.
+  </p>
+
+  <div class="pipeline-flow fade-in">
+    <div class="pipe-step">
+      <div class="pipe-dot">01</div>
+      <div class="pipe-content">
+        <div class="pipe-title">Trigger</div>
+        <div class="pipe-desc">Signal fires: webhook, schedule, or threshold breach. Example: JC cost event exceeds budget threshold in Vista.</div>
+      </div>
+    </div>
+
+    <div class="pipe-step">
+      <div class="pipe-dot">02</div>
+      <div class="pipe-content">
+        <div class="pipe-title">Enrich</div>
+        <div class="pipe-desc">Worker agent pulls contract + job context via approved MCP tools. <code style="font-family:Space Mono; font-size:11px; color:var(--accent); background:rgba(82,196,255,0.1); padding:1px 6px;">mcp-vista-finance</code> reads cost data.</div>
+      </div>
+    </div>
+
+    <div class="pipe-step">
+      <div class="pipe-dot">03</div>
+      <div class="pipe-content">
+        <div class="pipe-title">Classify</div>
+        <div class="pipe-desc">Critic agent scores severity and confidence against schema rules. Returns structured output: severity level, confidence score, recommended action.</div>
+      </div>
+    </div>
+
+    <div class="pipe-step human-gate">
+      <div class="pipe-dot">04</div>
+      <div class="pipe-content">
+        <div class="gate-badge">⚠ Human Gate Required</div>
+        <div class="pipe-title">Gate — High Severity</div>
+        <div class="pipe-desc">High severity pauses for PM acknowledgment before any actions. This gate cannot be bypassed. No silent execution past this point.</div>
+      </div>
+    </div>
+
+    <div class="pipe-step">
+      <div class="pipe-dot">05</div>
+      <div class="pipe-content">
+        <div class="pipe-title">Act + Log</div>
+        <div class="pipe-desc">Create remediation issues, notify owners via Teams, emit audit event to Application Insights. <code style="font-family:Space Mono; font-size:11px; color:var(--accent); background:rgba(82,196,255,0.1); padding:1px 6px;">mcp-github</code> · <code style="font-family:Space Mono; font-size:11px; color:var(--accent); background:rgba(82,196,255,0.1); padding:1px 6px;">mcp-notifications</code></div>
+      </div>
+    </div>
+
+    <div class="pipe-step">
+      <div class="pipe-dot">⟲</div>
+      <div class="pipe-content">
+        <div class="pipe-title">Rollback on Failure</div>
+        <div class="pipe-desc">Failed runs leave no partial state. Created tasks are closed, pipeline state is reverted before retry or escalation. No debris.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ AGENT ROLES ═══════ -->
+<section id="agents">
+  <div class="section-label">Agent Architecture</div>
+  <h2>Three Roles, One System</h2>
+  <p class="section-intro">
+    Every agentic pipeline in CMS is built from the same three role primitives — Orchestrator, Worker, Critic. Each has bounded scope and explicit rules.
+  </p>
+
+  <div class="agent-grid fade-in">
+    <div class="agent-card orchestrator">
+      <div class="agent-icon">🎯</div>
+      <div class="agent-role">Orchestrator</div>
+      <div class="agent-name">Goal Decomposer</div>
+      <div class="agent-desc">Breaks goals into subtasks, delegates to Workers, aggregates results, never implements directly. The strategic layer of the agent mesh.</div>
+      <ul class="agent-rules">
+        <li>Delegates, never implements</li>
+        <li>Aggregates structured outputs</li>
+        <li>Escalates on low-confidence results</li>
+        <li>Maintains goal state across turns</li>
+      </ul>
+    </div>
+
+    <div class="agent-card worker">
+      <div class="agent-icon">⚙️</div>
+      <div class="agent-role">Worker</div>
+      <div class="agent-name">Domain Executor</div>
+      <div class="agent-desc">Owns one service or repo boundary. Returns structured outputs only. Scoped to a single domain — payroll, compliance, integrations — and nothing else.</div>
+      <ul class="agent-rules">
+        <li>One service / one repo boundary</li>
+        <li>Structured outputs only</li>
+        <li>No direct commits to main</li>
+        <li>PR + review gate required</li>
+      </ul>
+    </div>
+
+    <div class="agent-card critic">
+      <div class="agent-icon">🔍</div>
+      <div class="agent-role">Critic</div>
+      <div class="agent-name">Policy Enforcer</div>
+      <div class="agent-desc">Checks policy, contracts, and acceptance criteria before anything reaches human visibility. The last programmatic line of defense before a human gate.</div>
+      <ul class="agent-rules">
+        <li>Policy and contract validation</li>
+        <li>Acceptance criteria enforcement</li>
+        <li>Low confidence → escalate</li>
+        <li>No silent failures permitted</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ KPIs ═══════ -->
+<section id="kpis">
+  <div class="section-label">Measurement</div>
+  <h2>Five Pillars of AI PDLC Health</h2>
+  <p class="section-intro">Track what matters. These five measurement pillars show moat strength and economic return.</p>
+
+  <div class="kpi-grid fade-in">
+    <div class="kpi-card">
+      <div class="kpi-icon">⚡</div>
+      <div class="kpi-name">Velocity</div>
+      <ul class="kpi-items">
+        <li>Cycle time</li>
+        <li>Deploy frequency</li>
+        <li>PR merge rate</li>
+      </ul>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon">✅</div>
+      <div class="kpi-name">Quality</div>
+      <ul class="kpi-items">
+        <li>Defect density</li>
+        <li>AI code acceptance</li>
+        <li>First-pass rate ≥60%</li>
+      </ul>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon">🔒</div>
+      <div class="kpi-name">Governance</div>
+      <ul class="kpi-items">
+        <li>SAST/DAST parity</li>
+        <li>Audit completeness</li>
+        <li>Zero shadow AI</li>
+      </ul>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon">💰</div>
+      <div class="kpi-name">Economics</div>
+      <ul class="kpi-items">
+        <li>Token spend / feature</li>
+        <li>Rework ratio</li>
+        <li>Cost per shipped unit</li>
+      </ul>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon">🏰</div>
+      <div class="kpi-name">Moat Strength</div>
+      <ul class="kpi-items">
+        <li># domain agent roles</li>
+        <li>% reusable memory</li>
+        <li>% custom model touch</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ MOATS ═══════ -->
+<section id="moats">
+  <div class="section-label">2027 Strategic View</div>
+  <h2>The Moat That Compounds</h2>
+  <p class="section-intro">
+    The organizations that win are not those with the biggest models. They control context, govern execution, and encode institutional memory.
+  </p>
+
+  <div class="moat-vs fade-in">
+    <div class="moat-col bad">
+      <div class="moat-label">The Others</div>
+      <ul class="moat-items">
+        <li>Biggest model wins</li>
+        <li>Generic LLM output</li>
+        <li>Ungoverned pipelines</li>
+        <li>Ad-hoc tooling</li>
+        <li>"We use GPT"</li>
+      </ul>
+    </div>
+    <div class="moat-vs-center">VS</div>
+    <div class="moat-col good">
+      <div class="moat-label">CMS</div>
+      <ul class="moat-items">
+        <li>Structured domain memory</li>
+        <li>Compliance-aware agent ecosystem</li>
+        <li>Governed data lineage</li>
+        <li>Orchestration patterns at scale</li>
+        <li>Institutional memory graph</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="moat-list fade-in">
+    <div class="moat-item">
+      <div class="moat-n">01</div>
+      <div class="moat-body">
+        <div class="moat-title">Domain-Trained Construction + ERP Agents</div>
+        <div class="moat-desc">Tuned on real workflows, real ERP rules, real construction domain logic. JCJM, JCCost, APTH, ARTH — not generic LLM approximation.</div>
+      </div>
+    </div>
+    <div class="moat-item">
+      <div class="moat-n">02</div>
+      <div class="moat-body">
+        <div class="moat-title">Financial Compliance Reasoning Engines</div>
+        <div class="moat-desc">Trained on real cases. Governed, auditable reasoning — not a generic model hoping to get payroll compliance right.</div>
+      </div>
+    </div>
+    <div class="moat-item">
+      <div class="moat-n">03</div>
+      <div class="moat-body">
+        <div class="moat-title">Cross-Product Integration Agents</div>
+        <div class="moat-desc">Vista, Prism, Financials, Payroll — orchestrated, not siloed. Every product connected through shared agent infrastructure and governed handoffs.</div>
+      </div>
+    </div>
+    <div class="moat-item">
+      <div class="moat-n">04</div>
+      <div class="moat-body">
+        <div class="moat-title">Institutional Memory Graph</div>
+        <div class="moat-desc">Architecture decisions, patterns, failures — persistent, compounding, proprietary. Every run makes the next run smarter. This is the asset that cannot be cloned.</div>
+      </div>
+    </div>
+    <div class="moat-item">
+      <div class="moat-n">05</div>
+      <div class="moat-body">
+        <div class="moat-title">AI PDLC in Funding & Governance</div>
+        <div class="moat-desc">Embedded in the operating model — not bolted on as a tool. The process itself becomes a competitive differentiator across every CMS product line.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ 90-DAY PLAN ═══════ -->
+<section id="plan">
+  <div class="section-label">Execution Plan</div>
+  <h2>90-Day Kick-Starter</h2>
+  <p class="section-intro">Three phases. Clear deliverables. Measurable targets. How a team with zero AI PDLC experience gets to governed, repeatable AI delivery.</p>
+
+  <div class="phase-grid fade-in">
+    <div class="phase-card">
+      <div class="phase-num">Phase 1 · Wks 1–4</div>
+      <div class="phase-weeks">01</div>
+      <div class="phase-title">Foundations</div>
+      <ul class="phase-items">
+        <li>Publish AI PDLC Playbook v1</li>
+        <li>Stand up Backstage AI template</li>
+        <li>Define domain agent roles</li>
+        <li>Create prompt + instruction repository</li>
+        <li>Baseline metrics (velocity, defects)</li>
+      </ul>
+      <div class="phase-deliverable">✦ Pilot team live</div>
+    </div>
+    <div class="phase-card">
+      <div class="phase-num">Phase 2 · Wks 5–8</div>
+      <div class="phase-weeks">02</div>
+      <div class="phase-title">Structured Pilot</div>
+      <ul class="phase-items">
+        <li>Hybrid human/agent workflow active</li>
+        <li>Async background branch agent running</li>
+        <li>Pre-review agents operational</li>
+        <li>Instrument KPI dashboards</li>
+      </ul>
+      <div class="phase-deliverable">✦ 40% review reduction · ≥60% first-pass</div>
+    </div>
+    <div class="phase-card">
+      <div class="phase-num">Phase 3 · Wks 9–12</div>
+      <div class="phase-weeks">03</div>
+      <div class="phase-title">Data & Model Hardening</div>
+      <ul class="phase-items">
+        <li>Governed Databricks pipeline live</li>
+        <li>Memory loop storage enabled</li>
+        <li>Reusable patterns tagged and cataloged</li>
+        <li>Cost dashboards operational</li>
+      </ul>
+      <div class="phase-deliverable">✦ Repeatable AI delivery · Governance operational</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SYNTHESIS ═══════ -->
+<section id="synthesis">
+  <div class="synth-glow"></div>
+
+  <div class="section-label" style="justify-content:center;">Final Synthesis</div>
+  <div class="synth-quote fade-in">
+    CMS is becoming<br>the <em>Orchestrator</em>
+  </div>
+  <p class="synth-sub fade-in">
+    The next layer to design is the AI Capability Map across Vista, Prism, Financials, Payroll, and Shared Infrastructure — so orchestration patterns become standardized and portable.
+  </p>
+
+  <div class="synth-stack fade-in">
+    <div class="synth-step">
+      <div class="synth-node human-node">
+        <span class="synth-icon">👤</span>
+        <span class="synth-label">Human → Tool</span>
+      </div>
+      <div class="synth-arrow"></div>
+    </div>
+    <div class="synth-step">
+      <div class="synth-node human-node" style="background:rgba(255,209,102,0.1); border-color:rgba(255,209,102,0.5);">
+        <span class="synth-icon">🎯</span>
+        <span class="synth-label">Human → Orchestrator</span>
+      </div>
+      <div class="synth-arrow"></div>
+    </div>
+    <div class="synth-step">
+      <div class="synth-node active-node">
+        <span class="synth-icon">🤖</span>
+        <span class="synth-label">Orchestrator → Agent Ecosystem</span>
+      </div>
+      <div class="synth-arrow"></div>
+    </div>
+    <div class="synth-step">
+      <div class="synth-node" style="border-color:rgba(6,214,160,0.35); background:rgba(6,214,160,0.05);">
+        <span class="synth-icon">📊</span>
+        <span class="synth-label" style="color:var(--agent);">Agent Ecosystem → Measured Output</span>
+      </div>
+    </div>
+  </div>
+
+  <a href="https://docs.google.com/document/d/1a8iZny17Ze3H75KJpM9zG0AgrOw8L7Oju9FWaTtSXv4/edit" target="_blank" class="btn-primary">Open Full Blueprint ↗</a>
+</section>
+
+<footer>
+  <div class="footer-left">Trimble CMS Division · CMS 2026–2027 AI PDLC Kick-Starter · Confidential</div>
+  <div class="footer-right">Construction Management Solutions</div>
+</footer>
+
+<script>
+// Layer tab switching
+function showLayer(index) {
+  const panels = document.querySelectorAll('.layer-panel');
+  const btns = document.querySelectorAll('.layer-btn');
+
+  panels.forEach(p => p.classList.remove('active'));
+  btns.forEach(b => b.classList.remove('active'));
+
+  document.getElementById('layer-' + index).classList.add('active');
+  btns[index].classList.add('active');
+}
+
+// Scroll-triggered fade-in
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      setTimeout(() => {
+        entry.target.classList.add('visible');
+      }, 80);
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// Hero elements animate in on load
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    document.querySelectorAll('#hero .fade-in').forEach((el, i) => {
+      setTimeout(() => el.classList.add('visible'), i * 180);
+    });
+  }, 100);
+});
+</script>
+</body>
+</html>
