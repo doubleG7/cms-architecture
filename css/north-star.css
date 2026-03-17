@@ -1,0 +1,89 @@
+/* ── MAIN CONTENT ───────────────────────── */
+.page-content {
+  background: var(--trimble-dark);
+}
+
+/* ── NORTH STAR BLOCK ───────────────────── */
+.north-star {
+  background: var(--trimble-yellow);
+  padding: 72px 56px;
+  position: relative;
+  overflow: hidden;
+}
+
+.north-star::before {
+  content: 'NORTH STAR';
+  position: absolute;
+  right: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 120px;
+  font-weight: 800;
+  color: rgba(0,0,0,0.06);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  pointer-events: none;
+  line-height: 1;
+}
+
+.ns-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(0,0,0,0.45);
+  margin-bottom: 16px;
+}
+
+.ns-statement {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 700;
+  color: var(--trimble-dark);
+  line-height: 1.15;
+  max-width: 700px;
+  margin-bottom: 40px;
+}
+
+/* North Star shift grid (yellow bg variant) */
+.shift-grid {
+  display: grid;
+  grid-template-columns: 1fr 60px 1fr;
+  gap: 0;
+  max-width: 700px;
+  align-items: center;
+}
+
+.shift-from, .shift-to {
+  background: rgba(0,0,0,0.08);
+  padding: 20px 24px;
+  border-radius: 4px;
+}
+
+.shift-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(0,0,0,0.4);
+  margin-bottom: 8px;
+}
+
+.shift-text {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--trimble-dark);
+  line-height: 1.4;
+}
+
+.shift-arrow {
+  text-align: center;
+  font-size: 24px;
+  color: var(--trimble-dark);
+  opacity: 0.5;
+}
+
+.shift-to { background: rgba(0,99,163,0.15); }
+.shift-to .shift-text { color: var(--trimble-blue-deep); font-weight: 600; }

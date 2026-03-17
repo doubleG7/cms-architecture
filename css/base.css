@@ -1,0 +1,21 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Barlow', sans-serif;
+  background: var(--trimble-dark);
+  color: var(--trimble-light);
+  font-weight: 300;
+  line-height: 1.65;
+  overflow-x: hidden;
+}
+
+a {
+  color: var(--trimble-yellow);
+}
+
+a:hover,
+a:focus-visible {
+  color: var(--trimble-yellow-light);
+}

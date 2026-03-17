@@ -1,0 +1,132 @@
+/* ── MOAT ─────────────────────────────── */
+.moat-section {
+  background: linear-gradient(160deg, #001929 0%, #003560 50%, #0063a3 100%);
+  padding: 80px 56px;
+  position: relative;
+  overflow: hidden;
+}
+
+.moat-section::before {
+  content: '2027';
+  position: absolute;
+  right: -20px;
+  bottom: -30px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 240px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.03);
+  line-height: 1;
+  user-select: none;
+}
+
+.moat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 56px;
+  align-items: start;
+  position: relative;
+  z-index: 1;
+}
+
+.moat-pillars {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.moat-pillar {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  padding: 20px 24px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 5px;
+  border-left: 4px solid var(--trimble-yellow);
+  backdrop-filter: blur(4px);
+  transition: background 0.2s;
+}
+
+.moat-pillar:hover { background: rgba(255,255,255,0.09); }
+
+.pillar-num {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 32px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.2);
+  line-height: 1;
+  min-width: 36px;
+}
+
+.pillar-text {
+  font-size: 14px;
+  color: rgba(255,255,255,0.8);
+  line-height: 1.6;
+}
+
+.pillar-text strong {
+  display: block;
+  font-weight: 600;
+  color: white;
+  font-size: 15px;
+  margin-bottom: 3px;
+}
+
+.moat-closing {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.closing-statement {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(24px, 3vw, 38px);
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.closing-statement em {
+  font-style: normal;
+  color: var(--trimble-yellow);
+}
+
+.vs-box {
+  background: rgba(255,255,255,0.06);
+  border-radius: 5px;
+  padding: 28px;
+  backdrop-filter: blur(4px);
+}
+
+.vs-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.vs-row:last-child { border-bottom: none; }
+
+.vs-not {
+  font-size: 13px;
+  color: rgba(255,255,255,0.4);
+  flex: 1;
+  text-decoration: line-through;
+}
+
+.vs-mid {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--trimble-yellow);
+  text-transform: uppercase;
+}
+
+.vs-yes {
+  font-size: 13px;
+  color: var(--white);
+  font-weight: 500;
+  flex: 1;
+  text-align: right;
+}

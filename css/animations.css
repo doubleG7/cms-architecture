@@ -1,0 +1,91 @@
+/* ── ANIMATIONS ─────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes s7FlowRun {
+  from { stroke-dashoffset: 126; }
+  to   { stroke-dashoffset: 0; }
+}
+
+@keyframes s7NodePulse {
+  0%   { transform: scale(1); opacity: 0.85; }
+  50%  { transform: scale(1.22); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.85; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .s7-flow-link,
+  .s7-flow-node {
+    animation: none;
+  }
+}
+
+.hero-eyebrow { animation: fadeUp 0.6s ease both; animation-delay: 0.1s; }
+.hero-title   { animation: fadeUp 0.7s ease both; animation-delay: 0.2s; }
+.hero-subtitle{ animation: fadeUp 0.7s ease both; animation-delay: 0.35s; }
+.hero-stats   { animation: fadeUp 0.7s ease both; animation-delay: 0.5s; }
+.hero-doc-link{ animation: fadeUp 0.75s ease both; animation-delay: 0.45s; }
+
+/* ── RESPONSIVE ─────────────────────────── */
+@media (max-width: 900px) {
+  .top-bar, .hero-body, .hero-footer-bar,
+  .section, .north-star, .moat-section, .synthesis, .footer {
+    padding-left: 28px;
+    padding-right: 28px;
+  }
+
+  .hero-body {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .hero-doc-link {
+    justify-self: start;
+    max-width: 260px;
+  }
+
+  .hero-doc-svg {
+    width: 230px;
+    height: 58px;
+  }
+
+  .hero-stats { gap: 28px; }
+  .infra-grid { grid-template-columns: 1fr; }
+  .kpis-grid { grid-template-columns: repeat(2, 1fr); }
+  .backstage-grid { grid-template-columns: 1fr; }
+  .moat-grid { grid-template-columns: 1fr; }
+  .synthesis { grid-template-columns: 1fr; }
+  .phases-timeline { grid-template-columns: 1fr; }
+  .phases-timeline::before { display: none; }
+
+  .workflow-row { grid-template-columns: 1fr; }
+
+  .workflow-step {
+    justify-content: flex-start;
+    padding: 12px 16px;
+    min-height: auto;
+    font-size: 18px;
+  }
+
+  .workflow-content {
+    border-left: 1px solid rgba(255,255,255,0.08);
+    border-top: none;
+    padding: 14px 16px;
+  }
+
+  .workflow-title { font-size: 26px; }
+  .workflow-item-title { font-size: 18px; }
+  .workflow-item-body { font-size: 15px; }
+
+  .step7-orchestration { padding: 16px; }
+  .step7-header { flex-direction: column; align-items: flex-start; }
+  .step7-grid { grid-template-columns: 1fr; }
+  .s7-flow { grid-template-columns: 1fr 1fr; }
+  .s7-flow-strip { display: none; }
+  .s7-roles { grid-template-columns: 1fr; }
+  .s7-rules { grid-template-columns: 1fr; }
+  .s7-example-head { flex-direction: column; align-items: flex-start; }
+  .s7-example-grid { grid-template-columns: 1fr; }
+}

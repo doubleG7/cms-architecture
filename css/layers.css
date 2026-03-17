@@ -1,0 +1,131 @@
+/* ── LAYERS GRID ────────────────────────── */
+.layers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.layer-card {
+  background: var(--trimble-dark);
+  padding: 36px 32px;
+  position: relative;
+  transition: background 0.25s;
+}
+
+.layer-card:hover { background: #2a3036; }
+
+.layer-num {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 64px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.04);
+  position: absolute;
+  top: 16px; right: 20px;
+  line-height: 1;
+  user-select: none;
+}
+
+.layer-tag {
+  display: inline-block;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--trimble-yellow);
+  background: rgba(251,173,38,0.1);
+  padding: 4px 10px;
+  border-radius: 2px;
+  margin-bottom: 14px;
+}
+
+.layer-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--white);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin-bottom: 12px;
+  line-height: 1.2;
+}
+
+.layer-desc {
+  font-size: 13.5px;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.layer-items {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.layer-items li {
+  font-size: 13px;
+  color: rgba(255,255,255,0.65);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  line-height: 1.4;
+}
+
+.layer-items li::before {
+  content: '';
+  width: 4px; height: 4px;
+  min-width: 4px;
+  border-radius: 50%;
+  background: var(--trimble-blue);
+  margin-top: 6px;
+}
+
+.layer-rule {
+  margin-top: 20px;
+  padding: 12px 14px;
+  background: rgba(0,99,163,0.12);
+  border-left: 3px solid var(--trimble-blue);
+  border-radius: 0 3px 3px 0;
+  font-size: 12.5px;
+  color: rgba(255,255,255,0.7);
+  font-style: italic;
+}
+
+.ownership-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.ownership-table th,
+.ownership-table td {
+  font-size: 13px;
+  line-height: 1.4;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  vertical-align: top;
+}
+
+.ownership-table tr:last-child th,
+.ownership-table tr:last-child td {
+  border-bottom: none;
+}
+
+.ownership-table th {
+  width: 34%;
+  color: var(--white);
+  font-weight: 600;
+  text-align: left;
+  background: rgba(255,255,255,0.03);
+}
+
+.ownership-table td {
+  color: rgba(255,255,255,0.68);
+}

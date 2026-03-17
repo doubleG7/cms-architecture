@@ -1,0 +1,77 @@
+/* ── DATA SECTION ────────────────────────── */
+.infra-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: 0;
+}
+
+.infra-block {
+  background: #1e2226;
+  padding: 32px 28px;
+}
+
+.infra-icon {
+  font-size: 28px;
+  margin-bottom: 16px;
+}
+
+.infra-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--white);
+  margin-bottom: 16px;
+}
+
+.infra-items {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.infra-items li {
+  font-size: 13px;
+  color: rgba(255,255,255,0.6);
+  padding-left: 14px;
+  position: relative;
+}
+
+.infra-items li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--trimble-yellow);
+  font-size: 10px;
+  top: 1px;
+}
+
+.capability-graph-wrap {
+  margin-top: 22px;
+  padding: 14px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 6px;
+}
+
+.capability-graph-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.58);
+  margin-bottom: 10px;
+}
+
+.capability-graph {
+  width: 100%;
+  height: auto;
+  display: block;
+}

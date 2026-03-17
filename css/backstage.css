@@ -1,0 +1,104 @@
+/* ── BACKSTAGE ───────────────────────────── */
+.backstage-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+.backstage-desc {
+  font-size: 15px;
+  color: rgba(255,255,255,0.65);
+  line-height: 1.8;
+  margin-bottom: 24px;
+}
+
+.capability-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.capability-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: rgba(255,255,255,0.7);
+  padding: 12px 16px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 4px;
+  border-left: 3px solid transparent;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.capability-list li:hover {
+  border-left-color: var(--trimble-yellow);
+  background: rgba(255,255,255,0.06);
+}
+
+.capability-list li::before {
+  content: '→';
+  color: var(--trimble-yellow);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.becomes-box {
+  background: linear-gradient(135deg, #003560, #0063a3);
+  border-radius: 6px;
+  padding: 40px 36px;
+  position: sticky;
+  top: 32px;
+}
+
+.becomes-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 8px;
+}
+
+.becomes-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--white);
+  text-transform: uppercase;
+  line-height: 1.1;
+  margin-bottom: 24px;
+}
+
+.becomes-items {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.becomes-items li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 14px;
+  color: rgba(255,255,255,0.8);
+  line-height: 1.5;
+}
+
+.becomes-items li .check {
+  width: 20px; height: 20px;
+  min-width: 20px;
+  background: var(--trimble-yellow);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--trimble-dark);
+  font-weight: 700;
+  margin-top: 1px;
+}

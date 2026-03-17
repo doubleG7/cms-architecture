@@ -1,0 +1,103 @@
+/* ── SYNTHESIS / FOOTER ─────────────────── */
+.synthesis {
+  background: var(--trimble-yellow);
+  padding: 72px 56px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+
+.synthesis-left .eyebrow {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(0,0,0,0.4);
+  margin-bottom: 12px;
+}
+
+.synthesis-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(32px, 4vw, 52px);
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--trimble-dark);
+  line-height: 1.05;
+  margin-bottom: 20px;
+}
+
+.synthesis-body {
+  font-size: 15px;
+  color: rgba(0,0,0,0.6);
+  line-height: 1.75;
+  max-width: 460px;
+}
+
+.evolution-chain {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.chain-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: rgba(0,0,0,0.06);
+  border-radius: 4px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--trimble-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.chain-step .arrow {
+  font-size: 18px;
+  color: rgba(0,0,0,0.35);
+  padding: 6px 0;
+  text-align: center;
+  width: 100%;
+  display: block;
+}
+
+.chain-arrow-row {
+  text-align: center;
+  font-size: 20px;
+  color: rgba(0,0,0,0.3);
+  line-height: 1;
+}
+
+.chain-step:last-child {
+  background: var(--trimble-blue);
+  color: white;
+}
+
+.footer {
+  background: #111518;
+  padding: 28px 56px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-brand {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+}
+
+.footer-brand span { color: var(--trimble-yellow); }
+
+.footer-doc {
+  font-size: 12px;
+  color: rgba(255,255,255,0.2);
+  letter-spacing: 0.06em;
+}

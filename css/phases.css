@@ -1,0 +1,90 @@
+/* ── 90-DAY PHASES ───────────────────────── */
+.phases-timeline {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  position: relative;
+}
+
+.phases-timeline::before {
+  content: '';
+  position: absolute;
+  top: 32px;
+  left: calc(100% / 6);
+  right: calc(100% / 6);
+  height: 2px;
+  background: linear-gradient(to right, var(--trimble-blue), var(--trimble-yellow));
+  z-index: 0;
+}
+
+.phase-card {
+  padding: 0 24px 40px;
+  position: relative;
+  z-index: 1;
+}
+
+.phase-dot {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.phase-card:nth-child(1) .phase-dot { background: var(--trimble-blue); color: white; }
+.phase-card:nth-child(2) .phase-dot { background: var(--trimble-blue-mid); color: white; }
+.phase-card:nth-child(3) .phase-dot { background: var(--trimble-yellow); color: var(--trimble-dark); }
+
+.phase-weeks {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--trimble-steel);
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.phase-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--white);
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 20px;
+  line-height: 1.2;
+}
+
+.phase-items {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.phase-items li {
+  font-size: 13.5px;
+  color: rgba(255,255,255,0.6);
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 3px;
+  line-height: 1.4;
+}
+
+.phase-deliverable {
+  margin-top: 20px;
+  padding: 14px 16px;
+  border: 1px solid rgba(251,173,38,0.3);
+  border-radius: 4px;
+  font-size: 13px;
+  color: var(--trimble-yellow);
+  font-weight: 500;
+}

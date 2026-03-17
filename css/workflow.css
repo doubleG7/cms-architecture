@@ -1,0 +1,304 @@
+/* ── WORKFLOW GLANCE ───────────────────── */
+.workflow-glance {
+  margin-top: 44px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.workflow-row {
+  display: grid;
+  grid-template-columns: 116px 1fr;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.workflow-step {
+  background: var(--trimble-blue-mid);
+  color: var(--white);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  min-height: 82px;
+}
+
+.workflow-content {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-left: none;
+  padding: 18px 20px 16px;
+}
+
+.workflow-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 34px;
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1.08;
+  letter-spacing: 0.01em;
+  margin-bottom: 6px;
+}
+
+.workflow-intro {
+  font-size: 15px;
+  color: var(--trimble-steel);
+  max-width: 900px;
+  line-height: 1.7;
+}
+
+.workflow-item-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--white);
+  line-height: 1.08;
+  margin-bottom: 4px;
+}
+
+.workflow-item-body {
+  font-size: 16px;
+  color: rgba(255,255,255,0.72);
+  line-height: 1.55;
+}
+
+/* ── STEP 7 ORCHESTRATION ───────────────── */
+.step7-orchestration {
+  margin-top: 22px;
+  padding: 24px;
+  border-radius: 6px;
+  background:
+    radial-gradient(circle at top right, rgba(251,173,38,0.13), transparent 38%),
+    linear-gradient(140deg, rgba(0,99,163,0.18), rgba(0,53,96,0.32));
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+.step7-header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.step7-kicker {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--trimble-yellow);
+  text-transform: uppercase;
+}
+
+.step7-sub {
+  font-size: 14px;
+  color: rgba(255,255,255,0.72);
+  max-width: 760px;
+}
+
+.step7-badge {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--trimble-dark);
+  background: var(--trimble-yellow);
+  padding: 6px 10px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.step7-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 14px;
+}
+
+.s7-card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 5px;
+  padding: 14px;
+}
+
+.s7-card-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--white);
+  margin-bottom: 10px;
+}
+
+.s7-flow {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+
+.s7-flow-strip {
+  width: 100%;
+  display: block;
+  margin: 2px 0 8px;
+}
+
+.s7-flow-strip text {
+  font-family: 'Barlow', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  fill: rgba(255,255,255,0.52);
+  text-transform: uppercase;
+}
+
+.s7-stage {
+  background: rgba(0,0,0,0.2);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 4px;
+  padding: 10px;
+  min-height: 92px;
+}
+
+.s7-stage b {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--trimble-yellow);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.s7-stage span {
+  font-size: 12px;
+  color: rgba(255,255,255,0.72);
+  line-height: 1.45;
+}
+
+.s7-roles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.s7-role {
+  background: rgba(255,255,255,0.03);
+  border-left: 3px solid var(--trimble-blue-mid);
+  padding: 10px;
+  border-radius: 3px;
+}
+
+.s7-role h4 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--white);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.s7-role p {
+  font-size: 12px;
+  color: rgba(255,255,255,0.66);
+  line-height: 1.45;
+}
+
+.s7-rules {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.s7-rules li {
+  font-size: 12px;
+  color: rgba(255,255,255,0.68);
+  line-height: 1.45;
+  padding: 8px 10px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 3px;
+}
+
+.s7-rules li strong {
+  color: var(--white);
+  font-weight: 600;
+}
+
+.s7-footer {
+  margin-top: 12px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.58);
+  line-height: 1.5;
+}
+
+.s7-flow-link {
+  stroke-dasharray: 110 16;
+  animation: s7FlowRun 2.8s linear infinite;
+}
+
+.s7-flow-link.l2 { animation-delay: 0.18s; }
+.s7-flow-link.l3 { animation-delay: 0.36s; }
+.s7-flow-link.l4 { animation-delay: 0.54s; }
+
+.s7-flow-node {
+  animation: s7NodePulse 2.2s ease-in-out infinite;
+}
+
+.s7-example {
+  margin-top: 12px;
+  background: rgba(0,0,0,0.18);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 5px;
+  padding: 14px;
+}
+
+.s7-example-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.s7-example-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--white);
+}
+
+.s7-example-tag {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--trimble-dark);
+  background: var(--trimble-yellow);
+  border-radius: 3px;
+  padding: 4px 8px;
+}
+
+.s7-example-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 8px;
+}
+
+.s7-example-item {
+  font-size: 12px;
+  color: rgba(255,255,255,0.7);
+  line-height: 1.45;
+  background: rgba(255,255,255,0.03);
+  border-radius: 4px;
+  padding: 9px 10px;
+}
+
+.s7-example-item strong {
+  color: var(--white);
+  font-weight: 600;
+}
