@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Vista SQL Agent</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+      html,
+      body,
+      #root {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      body {
+        background: #0a0e1a;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script>
+      async function boot() {
+        const response = await fetch("./vista-sql-agent.jsx", { cache: "no-store" });
+
+        if (!response.ok) {
+          throw new Error(`Unable to load component: HTTP ${response.status}`);
+        }
+
+        const source = await response.text();
+        const compiled = Babel.transform(source, {
+          presets: [["env", { modules: "commonjs" }], "react"],
+          sourceType: "module",
+        }).code;
+
+        const exports = {};
+        const module = { exports };
+        const require = (specifier) => {
+          if (specifier === "react") {
+            return {
+              useState: React.useState,
+              useRef: React.useRef,
+              useEffect: React.useEffect,
+            };
+          }
+
+          throw new Error(`Unsupported import: ${specifier}`);
+        };
+
+        const factory = new Function("require", "module", "exports", compiled);
+        factory(require, module, exports);
+
+        const VistaAgent = module.exports.default || exports.default;
+
+        if (!VistaAgent) {
+          throw new Error("Component did not export a default value.");
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById("root"));
+        root.render(React.createElement(VistaAgent));
+      }
+
+      boot().catch((error) => {
+        console.error(error);
+        document.body.innerHTML = `<pre style="margin:0;padding:24px;color:#fca5a5;background:#0a0e1a;font:14px/1.6 monospace;white-space:pre-wrap;">${error.stack || error.message}</pre>`;
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trimble CMS — AI Product Development Lifecycle</title>
+
+<style>
+  :root {
+    --trimble-blue: #0068A5;
+    --trimble-dark: #F0F4F8;
+    --trimble-mid: #E2EBF3;
+    --accent-cyan: #0068A5;
+    --accent-amber: #B86E00;
+    --accent-green: #007A52;
+    --accent-red: #C8303F;
+    --text-primary: #0F1E2D;
+    --text-muted: #527290;
+    --border: rgba(0, 104, 165, 0.16);
+    --glow: rgba(0, 104, 165, 0.07);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #F0F4F8;
+    color: var(--text-primary);
+    font-family: Helvetica, Arial, sans-serif;
+    font-weight: 400;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Subtle grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,104,165,0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,104,165,0.07) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    top: -40%;
+    right: -20%;
+    width: 70vw;
+    height: 70vw;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,104,165,0.06) 0%, transparent 65%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 32px 80px;
+  }
+
+  /* ── Header ── */
+  header {
+    padding: 48px 0 40px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 56px;
+    animation: fadeDown 0.7s ease both;
+  }
+
+  .logo-lockup { display: flex; flex-direction: column; gap: 4px; }
+
+  .logo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent-cyan);
+    margin-bottom: 8px;
+  }
+
+  .logo-badge::before {
+    content: '';
+    display: inline-block;
+    width: 8px; height: 8px;
+    background: var(--accent-cyan);
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(0,104,165,0.5);
+    animation: pulse 2s ease infinite;
+  }
+
+  h1 {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: clamp(28px, 4vw, 48px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+  }
+
+  h1 span { color: var(--trimble-blue); }
+
+  .header-meta {
+    text-align: right;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.8;
+    padding-top: 8px;
+  }
+
+  .version-tag {
+    display: inline-block;
+    background: rgba(0,104,165,0.1);
+    border: 1px solid rgba(0,104,165,0.3);
+    color: var(--trimble-blue);
+    padding: 2px 10px;
+    border-radius: 2px;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+  }
+
+  /* ── Track selector ── */
+  .track-nav {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 40px;
+    background: #FFFFFF;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 4px;
+    animation: fadeUp 0.6s 0.2s ease both;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+
+  .track-btn {
+    flex: 1;
+    padding: 10px 16px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+
+  .track-btn.active {
+    background: var(--trimble-blue);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0,104,165,0.3);
+  }
+
+  .track-btn:hover:not(.active) {
+    color: var(--text-primary);
+    background: rgba(0,104,165,0.07);
+  }
+
+  /* ── Phase grid ── */
+  .track-panel { display: none; }
+  .track-panel.active { display: block; animation: fadeUp 0.4s ease both; }
+
+  .phases-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 2px;
+    margin-bottom: 2px;
+  }
+
+  .phase-card {
+    background: #FFFFFF;
+    border: 1px solid var(--border);
+    padding: 28px 24px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+
+  .phase-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--phase-color, var(--trimble-blue));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+  }
+
+  .phase-card:hover::before,
+  .phase-card.open::before { transform: scaleX(1); }
+
+  .phase-card:hover,
+  .phase-card.open {
+    background: #F5F9FD;
+    border-color: var(--phase-color, var(--trimble-blue));
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  }
+
+  .phase-number {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.15em;
+    margin-bottom: 10px;
+  }
+
+  .phase-icon {
+    font-size: 22px;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .phase-name {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+  }
+
+  .phase-subtitle {
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 14px;
+  }
+
+  .phase-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .tag {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    padding: 3px 7px;
+    border-radius: 2px;
+    background: rgba(0,104,165,0.05);
+    border: 1px solid rgba(0,104,165,0.15);
+    color: var(--text-muted);
+  }
+
+  .tag.hot {
+    background: rgba(184,110,0,0.08);
+    border-color: rgba(184,110,0,0.25);
+    color: var(--accent-amber);
+  }
+
+  .tag.ai {
+    background: rgba(0,104,165,0.08);
+    border-color: rgba(0,104,165,0.25);
+    color: var(--trimble-blue);
+  }
+
+  /* ── Expanded detail ── */
+  .phase-detail {
+    display: none;
+    grid-column: 1 / -1;
+    background: #EEF3F8;
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--phase-color, var(--trimble-blue));
+    padding: 32px;
+    animation: expandDown 0.3s ease both;
+  }
+
+  .phase-detail.open { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 24px; }
+
+  .tool-pills { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 2px; }
+
+  .tool-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 10px; font-weight: 500;
+    padding: 4px 8px; border-radius: 3px;
+    background: rgba(0,104,165,0.07);
+    border: 1px solid rgba(0,104,165,0.2);
+    color: #2A6496;
+    white-space: nowrap;
+  }
+
+  .tool-pill.primary {
+    background: rgba(0,104,165,0.12);
+    border-color: rgba(0,104,165,0.4);
+    color: var(--trimble-blue);
+    font-weight: 600;
+  }
+
+  .tool-pill.warning {
+    background: rgba(184,110,0,0.08);
+    border-color: rgba(184,110,0,0.3);
+    color: var(--accent-amber);
+  }
+
+  .detail-section h4 {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--trimble-blue);
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .detail-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .detail-list li {
+    font-size: 12px;
+    color: var(--text-primary);
+    line-height: 1.5;
+    padding-left: 14px;
+    position: relative;
+  }
+
+  .detail-list li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--phase-color, var(--trimble-blue));
+    font-size: 10px;
+  }
+
+  /* ── Flow diagram row ── */
+  .flow-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin: 40px 0;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+
+  .flow-node {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 18px;
+    background: #FFFFFF;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 100px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+
+  .flow-node:hover {
+    border-color: var(--trimble-blue);
+    background: rgba(0,104,165,0.06);
+  }
+
+  .flow-node .node-icon { font-size: 18px; }
+
+  .flow-node .node-label {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  .flow-arrow {
+    flex-shrink: 0;
+    width: 32px;
+    height: 1px;
+    background: linear-gradient(90deg, var(--trimble-blue), #5BA8D4);
+    position: relative;
+  }
+
+  .flow-arrow::after {
+    content: '▶';
+    position: absolute;
+    right: -4px;
+    top: -7px;
+    font-size: 8px;
+    color: var(--trimble-blue);
+  }
+
+  /* ── Gates strip ── */
+  .gates-strip {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 2px;
+    margin: 40px 0;
+    animation: fadeUp 0.6s 0.4s ease both;
+  }
+
+  .gate-hint {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-top: 10px;
+    opacity: 0.6;
+  }
+
+  .gate {
+    background: #FFFFFF;
+    border: 1px solid var(--border);
+    padding: 16px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .gate::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--trimble-blue);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.25s ease;
+  }
+
+  .gate:hover::before, .gate.open::before { transform: scaleX(1); }
+
+  .gate:hover, .gate.open {
+    border-color: var(--trimble-blue);
+    box-shadow: 0 4px 12px rgba(0,104,165,0.12);
+  }
+
+  .gate.open .gate-hint { opacity: 0; }
+
+  /* Gate detail panel */
+  .gate-detail-panel {
+    display: none;
+    background: #EEF3F8;
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--trimble-blue);
+    padding: 32px;
+    animation: expandDown 0.3s ease both;
+    margin-top: 2px;
+  }
+
+  .gate-detail-panel.open { display: block; }
+
+  .gate-detail-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .gate-detail-id {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--trimble-blue);
+    font-weight: 600;
+  }
+
+  .gate-detail-title {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+  }
+
+  .gate-type-badge {
+    margin-left: auto;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 2px;
+    font-weight: 600;
+  }
+
+  .gate-type-badge.required {
+    background: rgba(184,110,0,0.1);
+    border: 1px solid rgba(184,110,0,0.3);
+    color: var(--accent-amber);
+  }
+
+  .gate-type-badge.ai-assisted {
+    background: rgba(0,104,165,0.1);
+    border: 1px solid rgba(0,104,165,0.3);
+    color: var(--trimble-blue);
+  }
+
+  .gate-tracks-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+  }
+
+  .gate-track-col h4 {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--trimble-blue);
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .gate-track-col p {
+    font-size: 12.5px;
+    color: var(--text-primary);
+    line-height: 1.7;
+    margin-bottom: 12px;
+  }
+
+  .gate-track-col .gate-checklist {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    margin-top: 12px;
+  }
+
+  .gate-track-col .gate-checklist li {
+    font-size: 11px;
+    color: var(--text-muted);
+    padding-left: 16px;
+    position: relative;
+    line-height: 1.5;
+  }
+
+  .gate-track-col .gate-checklist li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--accent-green);
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  .gate-blocker-note {
+    margin-top: 24px;
+    padding: 12px 16px;
+    background: rgba(200,48,63,0.06);
+    border: 1px solid rgba(200,48,63,0.2);
+    border-left: 3px solid var(--accent-red);
+    font-size: 11px;
+    color: var(--text-primary);
+    font-style: italic;
+  }
+
+  .gate-ai-note {
+    margin-top: 24px;
+    padding: 12px 16px;
+    background: rgba(0,104,165,0.06);
+    border: 1px solid rgba(0,104,165,0.2);
+    border-left: 3px solid var(--trimble-blue);
+    font-size: 11px;
+    color: var(--text-primary);
+    font-style: italic;
+  }
+
+  .gate-label {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .gate-name {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .gate-status {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    margin-top: 8px;
+  }
+
+  .gate-status.required { background: var(--accent-amber); box-shadow: 0 0 6px rgba(184,110,0,0.4); }
+  .gate-status.ai-assisted { background: var(--trimble-blue); box-shadow: 0 0 6px rgba(0,104,165,0.4); }
+
+  /* ── Legend ── */
+  .legend {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-top: 40px;
+    padding: 20px 24px;
+    background: #FFFFFF;
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    animation: fadeUp 0.6s 0.5s ease both;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ── Footer ── */
+  footer {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 10px;
+    color: var(--text-muted);
+    animation: fadeUp 0.6s 0.6s ease both;
+  }
+
+  /* ── Animations ── */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes expandDown {
+    from { opacity: 0; transform: scaleY(0.9); }
+    to   { opacity: 1; transform: scaleY(1); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* ── Product Dev track ── */
+  .mckinsey-source-bar {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 12px 16px;
+    background: rgba(0,104,165,0.05);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--trimble-blue);
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+
+  .mckinsey-source-label {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--trimble-blue);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .mckinsey-source-text {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 11px;
+    color: var(--text-primary);
+  }
+
+  .mckinsey-source-authors {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-left: auto;
+  }
+
+  /* mapping table */
+  .mckinsey-mapping {
+    margin-top: 48px;
+  }
+
+  .mapping-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    gap: 2px;
+  }
+
+  .mapping-col {
+    background: #FFFFFF;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .mapping-col-header {
+    background: var(--trimble-blue);
+    color: #fff;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 10px 12px;
+    letter-spacing: -0.01em;
+  }
+
+  .mapping-col-shift {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 9px;
+    color: rgba(255,255,255,0.75);
+    font-weight: 400;
+    margin-top: 2px;
+  }
+
+  .mapping-items {
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .mapping-item {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 10px;
+    color: var(--text-primary);
+    padding: 5px 8px;
+    background: rgba(0,104,165,0.05);
+    border: 1px solid rgba(0,104,165,0.12);
+    border-radius: 2px;
+    line-height: 1.4;
+  }
+
+  .mapping-item .mi-track {
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+  }
+
+
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--trimble-blue); border-radius: 2px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="logo-lockup">
+      <div class="logo-badge">Trimble CMS · Architecture</div>
+      <h1>AI Product Development<br><span>Lifecycle</span></h1>
+    </div>
+    <div class="header-meta">
+      <div style="margin-bottom:6px;"><span class="version-tag">v2.0 · 2026</span></div>
+      CMS Division · Software Dev Track<br>
+      Ops Track · SecOps Track<br>
+      <span style="color:var(--trimble-blue)">CMS Products</span>
+    </div>
+  </header>
+
+  <!-- Track selector -->
+  <nav class="track-nav">
+    <button class="track-btn active" onclick="switchTrack('mckinsey')">📋 Product Dev</button>
+    <button class="track-btn" onclick="switchTrack('dev')">⚙ Software Dev</button>
+    <button class="track-btn" onclick="switchTrack('ops')">☁ Operations</button>
+    <button class="track-btn" onclick="switchTrack('secops')">🔒 SecOps</button>
+  </nav>
+
+  <!-- ══ SOFTWARE DEV TRACK ══ -->
+  <div id="track-dev" class="track-panel">
+    <div class="flow-row">
+      <div class="flow-node"><span class="node-icon">💡</span><span class="node-label">Ideate</span></div>
+      <div class="flow-arrow"></div>
+      <div class="flow-node"><span class="node-icon">🔬</span><span class="node-label">Research</span></div>
+      <div class="flow-arrow"></div>
+      <div class="flow-node"><span class="node-icon">📐</span><span class="node-label">Design</span></div>
+      <div class="flow-arrow"></div>
+      <div class="flow-node"><span class="node-icon">🏗</span><span class="node-label">Build</span></div>
+      <div class="flow-arrow"></div>
+      <div class="flow-node"><span class="node-icon">🧪</span><span class="node-label">Evaluate</span></div>
+      <div class="flow-arrow"></div>
+      <div class="flow-node"><span class="node-icon">🚀</span><span class="node-label">Ship</span></div>
+      <div class="flow-arrow"></div>
+      <div class="flow-node"><span class="node-icon">📊</span><span class="node-label">Monitor</span></div>
+      <div class="flow-arrow"></div>
+      <div class="flow-node"><span class="node-icon">🔁</span><span class="node-label">Iterate</span></div>
+    </div>
+
+    <div class="phases-grid" id="dev-grid">
+      <!-- Phase cards injected by JS -->
+    </div>
+    <div id="dev-detail" class="phase-detail"></div>
+  </div>
+
+  <!-- ══ OPS TRACK ══ -->
+  <div id="track-ops" class="track-panel">
+    <div class="flow-row">
+      <div class="flow-node"><span class="node-icon">📦</span><span class="node-label">Provision</span></div>
+      <div class="flow-arrow"></div>
+      <div class="flow-node"><span class="node-icon">🔄</span><span class="node-label">Deploy</span></div>
+      <div class="flow-arrow"></div>
+      <div class="flow-node"><span class="node-icon">📡</span><span class="node-label">Observe</span></div>
+      <div class="flow-arrow"></div>
+      <div class="flow-node"><span class="node-icon">⚡</span><span class="node-label">Optimize</span></div>
+      <div class="flow-arrow"></div>
+      <div class="flow-node"><span class="node-icon">🛡</span><span class="node-label">Harden</span></div>
+    </div>
+
+    <div class="phases-grid" id="ops-grid"></div>
+    <div id="ops-detail" class="phase-detail"></div>
+  </div>
+
+  <!-- ══ SECOPS TRACK ══ -->
+  <div id="track-secops" class="track-panel">
+    <div class="flow-row">
+      <div class="flow-node"><span class="node-icon">🔍</span><span class="node-label">Threat Model</span></div>
+      <div class="flow-arrow"></div>
+      <div class="flow-node"><span class="node-icon">🧱</span><span class="node-label">Guardrails</span></div>
+      <div class="flow-arrow"></div>
+      <div class="flow-node"><span class="node-icon">🔐</span><span class="node-label">Auth & RBAC</span></div>
+      <div class="flow-arrow"></div>
+      <div class="flow-node"><span class="node-icon">🕵️</span><span class="node-label">Red Team</span></div>
+      <div class="flow-arrow"></div>
+      <div class="flow-node"><span class="node-icon">📋</span><span class="node-label">Audit</span></div>
+    </div>
+
+    <div class="phases-grid" id="secops-grid"></div>
+    <div id="secops-detail" class="phase-detail"></div>
+  </div>
+
+  <!-- ══ McKINSEY PDLC TRACK ══ -->
+  <div id="track-mckinsey" class="track-panel active">
+
+    <!-- Source callout -->
+    <div class="mckinsey-source-bar">
+      <div class="mckinsey-source-label">Reference</div>
+      <div class="mckinsey-source-text"><em>"How an AI-enabled software product development life cycle will fuel innovation"</em> · February 2025</div>
+      <div class="mckinsey-source-authors">Gnanasambandam · Harrysson · Singh · Chawla</div>
+    </div>
+
+    <!-- 5 Shifts flow -->
+    <div class="flow-row">
+      <div class="flow-node"><span class="node-icon">🚀</span><span class="node-label">Faster TTM</span></div>
+      <div class="flow-arrow"></div>
+      <div class="flow-node"><span class="node-icon">🎯</span><span class="node-label">Customer Value</span></div>
+      <div class="flow-arrow"></div>
+      <div class="flow-node"><span class="node-icon">💡</span><span class="node-label">More Ideas</span></div>
+      <div class="flow-arrow"></div>
+      <div class="flow-node"><span class="node-icon">👤</span><span class="node-label">PM as CEO</span></div>
+      <div class="flow-arrow"></div>
+      <div class="flow-node"><span class="node-icon">🛡</span><span class="node-label">Shift Left</span></div>
+    </div>
+
+    <!-- Shift cards -->
+    <div class="phases-grid" id="mckinsey-grid"></div>
+    <div id="mckinsey-detail" class="phase-detail"></div>
+
+    <!-- CMS Alignment mapping table -->
+    <div class="mckinsey-mapping">
+      <div style="font-family:Helvetica,Arial,sans-serif;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--trimble-blue);margin-bottom:16px;">CMS Alignment to Product Dev Shifts</div>
+      <div class="mapping-grid" id="mapping-grid"></div>
+    </div>
+
+  </div>
+
+  <!-- Quality Gates -->
+  <div style="margin-top:48px;">
+    <div style="font-family:Helvetica,Arial,sans-serif;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--trimble-blue);margin-bottom:16px;">Quality Gates</div>
+    <div class="gates-strip" id="gates-strip">
+      <div class="gate" onclick="toggleGate(0)" data-gate="0">
+        <div class="gate-label">Gate G1</div>
+        <div class="gate-name">Feasibility</div>
+        <div class="gate-status required"></div>
+        <div class="gate-hint">click to expand</div>
+      </div>
+      <div class="gate" onclick="toggleGate(1)" data-gate="1">
+        <div class="gate-label">Gate G2</div>
+        <div class="gate-name">Architecture Review</div>
+        <div class="gate-status required"></div>
+        <div class="gate-hint">click to expand</div>
+      </div>
+      <div class="gate" onclick="toggleGate(2)" data-gate="2">
+        <div class="gate-label">Gate G3</div>
+        <div class="gate-name">AI Eval Baseline</div>
+        <div class="gate-status ai-assisted"></div>
+        <div class="gate-hint">click to expand</div>
+      </div>
+      <div class="gate" onclick="toggleGate(3)" data-gate="3">
+        <div class="gate-label">Gate G4</div>
+        <div class="gate-name">Security Sign-off</div>
+        <div class="gate-status required"></div>
+        <div class="gate-hint">click to expand</div>
+      </div>
+      <div class="gate" onclick="toggleGate(4)" data-gate="4">
+        <div class="gate-label">Gate G5</div>
+        <div class="gate-name">Prod Readiness</div>
+        <div class="gate-status ai-assisted"></div>
+        <div class="gate-hint">click to expand</div>
+      </div>
+    </div>
+    <div id="gate-detail-panel" class="gate-detail-panel"></div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--accent-amber);box-shadow:0 0 5px rgba(184,110,0,0.4)"></div>
+      Human Required Gate
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--trimble-blue);box-shadow:0 0 5px rgba(0,104,165,0.4)"></div>
+      AI-Assisted Gate
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--accent-green);box-shadow:0 0 5px rgba(0,122,82,0.4)"></div>
+      Automated / CI
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:var(--accent-red);box-shadow:0 0 5px rgba(200,48,63,0.4)"></div>
+      Hard Blocker
+    </div>
+    <div class="legend-item" style="margin-left:auto;">
+      <span class="tool-pill primary" style="font-size:9px;">Core / Recommended</span>
+    </div>
+    <div class="legend-item">
+      <span class="tool-pill warning" style="font-size:9px;">Evaluate / Caution</span>
+    </div>
+    <div class="legend-item">
+      <span class="tool-pill" style="font-size:9px;">Supporting</span>
+    </div>
+    <div class="legend-item" style="margin-left:8px; border-left:1px solid var(--border); padding-left:16px;">
+      <span style="font-size:10px;color:var(--text-muted)">Click any phase card to expand details</span>
+    </div>
+  </div>
+
+  <footer>
+    <span>Trimble CMS · Architecture Office · DoubleG</span>
+    <span>CMS Division · Construction ERP</span>
+    <span>2026</span>
+  </footer>
+</div>
+
+<script>
+// tooling: [{name, tier}]  tier: 'primary' = core/recommended, 'warning' = evaluate/caution, '' = supporting
+const tracks = {
+  dev: [
+    {
+      num: '01', icon: '💡', name: 'AI Opportunity Framing',
+      subtitle: 'Identify where AI creates leverage in CMS workflows',
+      tags: ['discovery','user-research','competitive','ai'],
+      color: '#00D4FF',
+      detail: {
+        activities: ['Construction persona mapping (20 roles)', 'Job-to-be-done analysis vs. core product workflows', 'AI leverage scoring: automation vs. augmentation', 'Competitor AI feature audit across key market players'],
+        artifacts: ['Opportunity brief', 'Persona × AI capability matrix', 'ADR: build vs. buy signal', 'AI-assisted exec summary'],
+        aiRole: ['LLM-assisted user interview synthesis', 'Automated competitor feature extraction', 'Prompt catalog seeding from discovery notes', 'Azure AI Foundry feasibility spike'],
+        tooling: [
+          {name:'Claude Sonnet 4.6', tier:'primary'},{name:'Azure AI Foundry', tier:'primary'},
+          {name:'Miro / FigJam', tier:''},{name:'ADO Boards', tier:''},
+          {name:'Prompt Catalog MCP', tier:'primary'},{name:'Confluence', tier:''}
+        ]
+      }
+    },
+    {
+      num: '02', icon: '🔬', name: 'Research & Spike',
+      subtitle: 'Validate AI approach with fast technical experiments',
+      tags: ['poc','model-eval','data-audit','ai'],
+      color: '#007BC2',
+      detail: {
+        activities: ['Model benchmark: latency, cost, accuracy (Sonnet, Gemini Flash, GPT-4o)', 'Grounding data audit: ERP schema availability', 'RAG vs. fine-tune decision', 'Prompt injection surface scan'],
+        artifacts: ['Spike report with eval metrics', 'Data readiness matrix', 'Model selection ADR', 'Prompt ensemble prototype'],
+        aiRole: ['Automated eval harness via Azure AI Foundry', 'LLM-generated test case expansion', 'Schema introspection via MCP server', 'Databricks Foundation Model API benchmarks'],
+        tooling: [
+          {name:'Azure AI Foundry', tier:'primary'},{name:'Databricks Foundation Models', tier:'primary'},
+          {name:'PromptFlow', tier:''},{name:'LangSmith', tier:''},
+          {name:'Codebase MCP Server', tier:'primary'},{name:'Jupyter / Databricks Notebooks', tier:''}
+        ]
+      }
+    },
+    {
+      num: '03', icon: '📐', name: 'Technical Design',
+      subtitle: 'Author structured designs grounded in CMS codebase',
+      tags: ['architecture','adr','blueprint','hot'],
+      color: '#F5A623',
+      detail: {
+        activities: ['AI-generated technical design from ADO story + codebase context', 'Senior Dev review via ADO discussion entry', 'Vertical slice definition (FastEndpoints module mapping)', 'Interface contract + data model design'],
+        artifacts: ['Blueprint spec (CLAUDE.md-compliant)', 'Component diagram', 'API contract (OpenAPI)', 'Data flow + RBAC model'],
+        aiRole: ['Azure AI Foundry pipeline: story → design doc', 'Codebase-grounded generation from ERP context', 'Auto-commit design draft to ADO', 'Prompt Catalog MCP for design patterns'],
+        tooling: [
+          {name:'Azure AI Foundry (pipeline)', tier:'primary'},{name:'Azure DevOps', tier:'primary'},
+          {name:'Prompt Catalog MCP', tier:'primary'},{name:'CLAUDE.md', tier:'primary'},
+          {name:'Structurizr / C4', tier:''},{name:'OpenAPI Generator', tier:''}
+        ]
+      }
+    },
+    {
+      num: '04', icon: '🏗', name: 'AI-Augmented Build',
+      subtitle: 'Accelerate development with agentic coding assistance',
+      tags: ['implementation','claude-code','ci','ai'],
+      color: '#00C278',
+      detail: {
+        activities: ['Claude Code with CLAUDE.md governance', 'Pair programming with context-aware completion', 'Automated boilerplate: FastEndpoints handlers, EF migrations', 'PR-level code review via AI reviewer'],
+        artifacts: ['Production code (vertical slice)', 'Unit + integration tests (AI-generated)', 'CLAUDE.md per repo/module', 'PR review summary'],
+        aiRole: ['Claude Code agentic session with codebase MCP', 'Auto-generate xUnit/NUnit test suites', 'Inline PR feedback via GitHub Copilot / Claude', 'Prompt Catalog for domain-specific patterns'],
+        tooling: [
+          {name:'Claude Code', tier:'primary'},{name:'GitHub Copilot', tier:''},
+          {name:'FastEndpoints', tier:'primary'},{name:'xUnit / NUnit', tier:''},
+          {name:'EF Core', tier:''},{name:'SonarQube', tier:''},
+          {name:'Azure DevOps CI', tier:'primary'}
+        ]
+      }
+    },
+    {
+      num: '05', icon: '🧪', name: 'AI Evaluation',
+      subtitle: 'Measure AI output quality across correctness, safety, drift',
+      tags: ['evals','red-team','regression','hot'],
+      color: '#FF4757',
+      detail: {
+        activities: ['Define eval dimensions: accuracy, groundedness, latency, safety', 'Golden dataset curation from ERP domain experts', 'Prompt injection + jailbreak testing', 'Regression suite on model updates'],
+        artifacts: ['Eval scorecard (per feature)', 'Failure mode catalog', 'Red team report', 'Baseline snapshot in Azure AI Foundry'],
+        aiRole: ['LLM-as-judge evaluation', 'Auto-generated adversarial prompts', 'Drift detection via Databricks monitoring', 'Azure AI Foundry eval pipeline'],
+        tooling: [
+          {name:'Azure AI Foundry Evals', tier:'primary'},{name:'Promptfoo', tier:'primary'},
+          {name:'Databricks MLflow', tier:'primary'},{name:'Giskard', tier:'warning'},
+          {name:'Braintrust', tier:''},{name:'DeepEval', tier:''}
+        ]
+      }
+    },
+    {
+      num: '06', icon: '🚀', name: 'Controlled Release',
+      subtitle: 'Progressive rollout with AI-specific feature flags',
+      tags: ['canary','feature-flags','rollback','ai'],
+      color: '#007BC2',
+      detail: {
+        activities: ['Feature flag segmentation by company/role', 'Canary: 5% → 20% → 100% with eval gating', 'Human-in-the-loop override for high-stakes outputs', 'Rollback trigger criteria documented'],
+        artifacts: ['Release runbook', 'Feature flag config (Statsig)', 'HITL escalation workflow', 'Rollback playbook'],
+        aiRole: ['Auto-generated release notes from PR history', 'AI-assisted go/no-go recommendation', 'Anomaly detection on canary cohort', 'Synthetic user simulation pre-release'],
+        tooling: [
+          {name:'Statsig', tier:'primary'},{name:'Azure Feature Flags', tier:''},
+          {name:'Azure DevOps Release Gates', tier:'primary'},{name:'Copilot Studio (HITL)', tier:'primary'},
+          {name:'Azure App Config', tier:''},{name:'Playwright (synthetic)', tier:''}
+        ]
+      }
+    },
+    {
+      num: '07', icon: '📊', name: 'Production Monitoring',
+      subtitle: 'Observe AI behavior, cost, and user trust in real-time',
+      tags: ['observability','cost','drift','ai'],
+      color: '#00D4FF',
+      detail: {
+        activities: ['Token cost telemetry per feature / tenant', 'User trust signals: thumbs, corrections, abandonment', 'Output quality sampling (1% → LLM-as-judge)', 'Model drift alerting'],
+        artifacts: ['AI operations dashboard (Databricks / Azure Monitor)', 'Cost allocation report by CMS product', 'Trust signal heatmap', 'SLA breach alerting runbook'],
+        aiRole: ['Automated anomaly detection on output quality', 'LLM-as-judge on sampled prod outputs', 'Cost forecast modeling', 'Proactive drift notification to on-call'],
+        tooling: [
+          {name:'Azure Monitor', tier:'primary'},{name:'Databricks Lakehouse Monitoring', tier:'primary'},
+          {name:'OpenTelemetry', tier:'primary'},{name:'Application Insights', tier:''},
+          {name:'Grafana', tier:''},{name:'Azure Cost Management', tier:''}
+        ]
+      }
+    },
+    {
+      num: '08', icon: '🔁', name: 'Feedback & Iteration',
+      subtitle: 'Close the loop: user signals feed the next sprint',
+      tags: ['retro','prompt-tuning','dataset','ai'],
+      color: '#F5A623',
+      detail: {
+        activities: ['Weekly AI feature retro (qual + quant signals)', 'Prompt refinement from production failure modes', 'Golden dataset expansion from corrected outputs', 'Roadmap re-prioritization vs. AI leverage score'],
+        artifacts: ['Iteration brief', 'Updated prompt catalog entry', 'Expanded eval dataset', 'Revised ADR if approach changes'],
+        aiRole: ['AI-summarized user feedback clusters', 'Auto-suggest prompt improvements from failure log', 'Eval dataset auto-labeling from corrections', 'Forecast ROI of next iteration'],
+        tooling: [
+          {name:'Prompt Catalog MCP', tier:'primary'},{name:'Azure AI Foundry', tier:'primary'},
+          {name:'ADO Boards (backlog)', tier:'primary'},{name:'Databricks Delta (dataset versioning)', tier:''},
+          {name:'Hex / Databricks Notebooks', tier:''},{name:'Confluence', tier:''}
+        ]
+      }
+    }
+  ],
+  ops: [
+    {
+      num: '01', icon: '📦', name: 'Infrastructure Provisioning',
+      subtitle: 'Repeatable, IaC-driven AI infra on Azure',
+      tags: ['iac','azure','terraform','ai'],
+      color: '#007BC2',
+      detail: {
+        activities: ['Azure AI Foundry workspace setup (per CMS product)', 'AKS cluster sizing for inference workloads', 'Databricks workspace + medallion layer provisioning', 'Key Vault + Managed Identity wiring'],
+        artifacts: ['Terraform modules (AI infra)', 'Azure resource tagging taxonomy', 'Databricks cluster config', 'Key Vault access policy matrix'],
+        aiRole: ['AI-generated Terraform from architecture diagram', 'Auto-remediation suggestions for drift', 'Cost optimization recommendations (Azure Advisor)', 'MCP-assisted infra Q&A'],
+        tooling: [
+          {name:'Terraform / Bicep', tier:'primary'},{name:'Azure AI Foundry', tier:'primary'},
+          {name:'AKS', tier:'primary'},{name:'Databricks on Azure', tier:'primary'},
+          {name:'Azure Key Vault', tier:'primary'},{name:'Managed Identity', tier:'primary'},
+          {name:'Azure Advisor', tier:''}
+        ]
+      }
+    },
+    {
+      num: '02', icon: '🔄', name: 'CI/CD for AI Systems',
+      subtitle: 'Automated pipelines with eval gates baked in',
+      tags: ['cicd','azdo','eval-gate','ai'],
+      color: '#00C278',
+      detail: {
+        activities: ['Azure DevOps pipeline: build → eval → deploy', 'Model registration + versioning in AI Foundry', 'Prompt version control alongside code', 'Blue/green deployment for model swaps'],
+        artifacts: ['ADO pipeline YAML (AI-aware)', 'Model registry config', 'Prompt version manifest', 'Deployment approval workflow'],
+        aiRole: ['AI-generated pipeline YAML from spec', 'Automated eval pass/fail as pipeline gate', 'PR → technical design via Foundry pipeline (POC)', 'Release notes auto-draft'],
+        tooling: [
+          {name:'Azure DevOps Pipelines', tier:'primary'},{name:'Azure AI Foundry (model registry)', tier:'primary'},
+          {name:'GitHub Actions', tier:''},{name:'MLflow Model Registry', tier:'primary'},
+          {name:'Semantic Versioning + Git', tier:'primary'},{name:'Docker / Azure Container Registry', tier:''}
+        ]
+      }
+    },
+    {
+      num: '03', icon: '📡', name: 'Observability Stack',
+      subtitle: 'Full-stack visibility from token to transaction',
+      tags: ['opentelemetry','databricks','signalr','ai'],
+      color: '#00D4FF',
+      detail: {
+        activities: ['OpenTelemetry tracing: LLM spans, tool calls, latency', 'Databricks Lakehouse for AI telemetry (bronze→gold)', 'SignalR-based async status for long-running agents', 'Azure Monitor dashboards + alerting'],
+        artifacts: ['OTel instrumentation guide', 'Databricks medallion schema for AI events', 'Operations dashboard', 'On-call alerting runbook'],
+        aiRole: ['AI-generated OTel instrumentation code', 'Anomaly detection on latency/cost metrics', 'Natural language query over telemetry (Finance MCP)', 'Proactive incident draft from alert context'],
+        tooling: [
+          {name:'OpenTelemetry SDK (.NET)', tier:'primary'},{name:'Azure Monitor + App Insights', tier:'primary'},
+          {name:'Databricks Lakehouse Monitoring', tier:'primary'},{name:'SignalR Service', tier:'primary'},
+          {name:'Grafana', tier:''},{name:'PagerDuty', tier:''}
+        ]
+      }
+    },
+    {
+      num: '04', icon: '⚡', name: 'Performance & Cost Ops',
+      subtitle: 'Manage inference cost, latency SLAs, and scale',
+      tags: ['cost','latency','autoscale','ai'],
+      color: '#F5A623',
+      detail: {
+        activities: ['Token budget enforcement per feature/tenant', 'Semantic caching layer (Azure Redis)', 'AKS autoscaling tuning (Boomi Molecule pattern)', 'Model tier routing: cheap → powerful by complexity'],
+        artifacts: ['Cost allocation policy', 'Caching strategy doc', 'AKS HPA config', 'Model routing decision tree'],
+        aiRole: ['AI-assisted query complexity scoring for routing', 'Auto-tune caching TTL from usage patterns', 'JVM/autoscaling recommendation engine', 'Cost anomaly alerting + root cause'],
+        tooling: [
+          {name:'Azure Redis Cache', tier:'primary'},{name:'AKS HPA / KEDA', tier:'primary'},
+          {name:'Azure API Management', tier:'primary'},{name:'Cast AI', tier:'warning'},
+          {name:'Azure Cost Management', tier:''},{name:'Boomi Molecule (AKS)', tier:'primary'}
+        ]
+      }
+    },
+    {
+      num: '05', icon: '🛡', name: 'Operational Hardening',
+      subtitle: 'Resilience, DR, and responsible AI ops at scale',
+      tags: ['dr','fips','soc2','hot'],
+      color: '#FF4757',
+      detail: {
+        activities: ['AI workload DR: failover to backup region/model', 'FIPS 140-2 compliance verification for inference endpoints', 'Azure SQL Edge retirement migration path', 'Incident response playbook for AI failures'],
+        artifacts: ['DR runbook (AI workloads)', 'FIPS compliance attestation', 'Migration checklist (SQL Edge → Azure SQL / PostgreSQL)', 'AI incident response playbook'],
+        aiRole: ['AI-assisted DR drill simulation', 'Automated compliance check against SOC 2 controls', 'Migration script generation (.bak → PostgreSQL)', 'Post-incident auto-summary for blameless retro'],
+        tooling: [
+          {name:'Azure Site Recovery', tier:'primary'},{name:'Azure Policy', tier:'primary'},
+          {name:'pgloader / AWS SCT', tier:'primary'},{name:'Azure SQL (target migration)', tier:'primary'},
+          {name:'Azure Key Vault (FIPS)', tier:'primary'},{name:'PagerDuty', tier:''}
+        ]
+      }
+    }
+  ],
+  secops: [
+    {
+      num: '01', icon: '🔍', name: 'AI Threat Modeling',
+      subtitle: 'STRIDE + LLM-specific threat analysis per feature',
+      tags: ['stride','prompt-injection','supply-chain','hot'],
+      color: '#FF4757',
+      detail: {
+        activities: ['STRIDE analysis for every AI feature surface', 'Prompt injection attack tree (direct + indirect)', 'Model supply chain risk (third-party model providers)', 'Data poisoning threat scenarios'],
+        artifacts: ['Threat model per AI feature', 'Attack surface registry', 'Risk rating matrix', 'Mitigation backlog in ADO'],
+        aiRole: ['AI-assisted STRIDE walkthrough', 'Auto-generate prompt injection test cases', 'Supply chain CVE monitoring', 'Risk scoring from ADO story context'],
+        tooling: [
+          {name:'Microsoft Threat Modeling Tool', tier:'primary'},{name:'OWASP LLM Top 10', tier:'primary'},
+          {name:'Promptfoo (injection test)', tier:'primary'},{name:'Azure Defender for DevOps', tier:''},
+          {name:'ADO Work Items', tier:''},{name:'Snyk', tier:''}
+        ]
+      }
+    },
+    {
+      num: '02', icon: '🧱', name: 'Guardrails & Output Safety',
+      subtitle: 'Prevent harmful, hallucinated, or leaking AI outputs',
+      tags: ['content-filter','grounding','pii','ai'],
+      color: '#F5A623',
+      detail: {
+        activities: ['Azure AI Content Safety integration (CMS-tuned)', 'Grounding validation: citations required for financial data', 'PII detection + redaction before LLM context injection', 'Output schema enforcement + rejection on malformed response'],
+        artifacts: ['Guardrail config per CMS product', 'PII handling policy', 'Output validation middleware', 'Hallucination rate threshold SLA'],
+        aiRole: ['LLM-as-judge for hallucination detection', 'Auto-classify sensitive ERP schema fields', 'Grounding score computation', 'Rejection + fallback orchestration'],
+        tooling: [
+          {name:'Azure AI Content Safety', tier:'primary'},{name:'Microsoft Presidio (PII)', tier:'primary'},
+          {name:'Guardrails AI', tier:'warning'},{name:'NeMo Guardrails', tier:'warning'},
+          {name:'Semantic Kernel Filters', tier:'primary'},{name:'Pydantic (output schema)', tier:''}
+        ]
+      }
+    },
+    {
+      num: '03', icon: '🔐', name: 'Auth, RBAC & Data Isolation',
+      subtitle: 'Trimble ID + OBO OAuth + RBAC at retrieval time',
+      tags: ['trimbleid','oidc','obo','rbac'],
+      color: '#007BC2',
+      detail: {
+        activities: ['OBO OAuth flow for M365 / Copilot Studio surfaces', 'RBAC enforcement at RAG retrieval (not just query)', 'Multi-tenant data isolation (company boundaries)', 'Session token security: HttpOnly cookies, not sessionStorage'],
+        artifacts: ['Auth architecture diagram (TrimbleID + OBO)', 'RBAC policy matrix (20 finance personas)', 'Multi-tenancy isolation test plan', 'ERP web security remediation checklist'],
+        aiRole: ['AI-assisted OBO token flow validation', 'Auto-generate RBAC test cases from persona matrix', 'Session vulnerability scanning', 'ADR: enterprise RBAC for memory retrieval systems'],
+        tooling: [
+          {name:'Trimble ID (OIDC)', tier:'primary'},{name:'Microsoft MSAL (.NET)', tier:'primary'},
+          {name:'Azure AD OBO Flow', tier:'primary'},{name:'Azure API Management (authz)', tier:'primary'},
+          {name:'OWASP ZAP', tier:''},{name:'Penetration Test (annual)', tier:'warning'}
+        ]
+      }
+    },
+    {
+      num: '04', icon: '🕵️', name: 'Red Team & Adversarial Testing',
+      subtitle: 'Break AI features before attackers do',
+      tags: ['red-team','adversarial','jailbreak','hot'],
+      color: '#FF4757',
+      detail: {
+        activities: ['Structured red team sprint before each major AI release', 'Jailbreak corpus execution against product prompts', 'Indirect prompt injection via ERP data fields', 'Cross-tenant data exfil attempt simulation'],
+        artifacts: ['Red team report (per feature)', 'Jailbreak test corpus (CMS-specific)', 'Vulnerability findings in ADO', 'Remediation SLA by severity'],
+        aiRole: ['AI-generated adversarial prompt variants', 'Auto-escalation on critical findings', 'LLM simulation of attacker personas', 'Remediation suggestion generation'],
+        tooling: [
+          {name:'PyRIT (Microsoft)', tier:'primary'},{name:'Promptfoo', tier:'primary'},
+          {name:'Garak', tier:'warning'},{name:'Azure AI Red Team', tier:'primary'},
+          {name:'Burp Suite', tier:''},{name:'Custom jailbreak corpus', tier:'primary'}
+        ]
+      }
+    },
+    {
+      num: '05', icon: '📋', name: 'Compliance & Audit Trail',
+      subtitle: 'SOC 2, GDPR, and construction-sector obligations',
+      tags: ['soc2','gdpr','audit-log','ai'],
+      color: '#00C278',
+      detail: {
+        activities: ['Immutable AI decision audit log (Azure Blob + Databricks)', 'SOC 2 Type II evidence collection for AI controls', 'GDPR data subject request handling for LLM context', 'M&A due diligence readiness (GPL, cross-tenant findings)'],
+        artifacts: ['AI audit log schema', 'SOC 2 control mapping (AI-specific)', 'GDPR AI data flow diagram', 'M&A technical red flag checklist'],
+        aiRole: ['AI-assisted SOC 2 evidence gathering', 'Auto-classify data sensitivity in context windows', 'GDPR deletion propagation through vector stores', 'M&A due diligence AI summarization (DocumentCrunch/Vito pattern)'],
+        tooling: [
+          {name:'Azure Immutable Blob Storage', tier:'primary'},{name:'Databricks Unity Catalog', tier:'primary'},
+          {name:'Vanta / Drata (SOC 2)', tier:'warning'},{name:'Azure Purview', tier:''},
+          {name:'Microsoft Priva (GDPR)', tier:''},{name:'Azure Policy', tier:'primary'}
+        ]
+      }
+    }
+  ]
+};
+
+function renderTrack(trackId) {
+  const phases = tracks[trackId];
+  const grid = document.getElementById(`${trackId}-grid`);
+  const detail = document.getElementById(`${trackId}-detail`);
+  grid.innerHTML = '';
+
+  phases.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = 'phase-card';
+    card.style.setProperty('--phase-color', p.color);
+    card.innerHTML = `
+      <div class="phase-number">PHASE ${p.num}</div>
+      <span class="phase-icon">${p.icon}</span>
+      <div class="phase-name">${p.name}</div>
+      <div class="phase-subtitle">${p.subtitle}</div>
+      <div class="phase-tags">
+        ${p.tags.map(t => `<span class="tag ${t==='hot'?'hot':t==='ai'?'ai':''}">${t}</span>`).join('')}
+      </div>
+    `;
+    card.addEventListener('click', () => toggleDetail(card, p, detail, trackId, i));
+    grid.appendChild(card);
+  });
+}
+
+function toggleDetail(card, phase, detailEl, trackId, idx) {
+  const wasOpen = card.classList.contains('open');
+
+  // Close all
+  document.querySelectorAll(`#${trackId}-grid .phase-card`).forEach(c => c.classList.remove('open'));
+  detailEl.classList.remove('open');
+
+  if (!wasOpen) {
+    card.classList.add('open');
+    detailEl.style.setProperty('--phase-color', phase.color);
+    detailEl.innerHTML = `
+      <div class="detail-section">
+        <h4>Activities</h4>
+        <ul class="detail-list">${phase.detail.activities.map(a => `<li>${a}</li>`).join('')}</ul>
+      </div>
+      <div class="detail-section">
+        <h4>Artifacts</h4>
+        <ul class="detail-list">${phase.detail.artifacts.map(a => `<li>${a}</li>`).join('')}</ul>
+      </div>
+      <div class="detail-section">
+        <h4>AI Role</h4>
+        <ul class="detail-list">${phase.detail.aiRole.map(a => `<li>${a}</li>`).join('')}</ul>
+      </div>
+      <div class="detail-section">
+        <h4>Tooling</h4>
+        <div class="tool-pills">${phase.detail.tooling.map(t => `<span class="tool-pill ${t.tier}">${t.name}</span>`).join('')}</div>
+      </div>
+    `;
+    detailEl.classList.add('open');
+
+    // Insert detail after the row containing the card
+    const grid = card.parentNode;
+    grid.after(detailEl);
+  }
+}
+
+function switchTrack(trackId) {
+  document.querySelectorAll('.track-btn').forEach((b,i) => {
+    b.classList.toggle('active', ['mckinsey','dev','ops','secops'][i] === trackId);
+  });
+  document.querySelectorAll('.track-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(`track-${trackId}`).classList.add('active');
+}
+
+const gateData = [
+  {
+    id: 'G1', name: 'Feasibility', type: 'required',
+    blocker: 'Hard blocker — no design or implementation work begins until this gate is cleared.',
+    tracks: {
+      dev: {
+        summary: 'Architecture team validates whether the AI approach is viable before any design work begins. This covers model selection rationale, data availability in ERP schemas, and the build vs. buy decision.',
+        checklist: ['AI leverage score documented (automation vs. augmentation)', 'Data availability confirmed in ERP schema', 'Build vs. buy ADR signal drafted', 'Exec opportunity brief approved']
+      },
+      ops: {
+        summary: 'Confirms Azure infrastructure can support the workload at the intended scale — AKS cluster sizing, Databricks tier selection, egress cost estimates, and AI Foundry workspace availability.',
+        checklist: ['AKS cluster sizing validated for inference workload', 'Databricks tier selected and cost-modeled', 'Azure AI Foundry workspace provisioned', 'Egress and token cost estimate approved']
+      },
+      secops: {
+        summary: 'Initial threat model review ensuring the feature\'s attack surface is understood before any design work starts. Prompt injection surface, data sensitivity, and multi-tenant boundaries are scoped.',
+        checklist: ['STRIDE scope defined for the feature surface', 'Prompt injection exposure classified', 'ERP data sensitivity level confirmed', 'Multi-tenant boundary risk acknowledged']
+      }
+    }
+  },
+  {
+    id: 'G2', name: 'Architecture Review', type: 'required',
+    blocker: 'Hard blocker — implementation cannot begin until the Blueprint spec is approved by senior architects via ADO review.',
+    tracks: {
+      dev: {
+        summary: 'Senior architects review the AI-generated Blueprint spec before a single line of implementation code is written. The ADO discussion entry your Foundry POC generates feeds directly into this gate — Karl, Tyler, and the senior dev reviewers sign off here.',
+        checklist: ['AI-generated Blueprint spec committed to ADO', 'Vertical slice module mapping approved', 'API contract (OpenAPI) reviewed', 'RBAC model and data flow signed off', 'Senior Dev comments resolved in ADO discussion']
+      },
+      ops: {
+        summary: 'IaC review covering Terraform modules, AKS cluster topology, Databricks workspace configuration, and Key Vault access policies. Ensures the infra design matches the AI workload profile.',
+        checklist: ['Terraform modules peer-reviewed', 'AKS node pool and HPA config approved', 'Databricks medallion layer schema reviewed', 'Key Vault and Managed Identity wiring confirmed']
+      },
+      secops: {
+        summary: 'Formal sign-off on the authentication and authorization model — OBO flow correctness, RBAC policy matrix, and multi-tenant data isolation boundaries. Session token and transport vulnerabilities are the type of finding this gate is designed to catch early.',
+        checklist: ['TrimbleID OBO flow architecture approved', 'RBAC policy matrix reviewed (20 finance personas)', 'Multi-tenant isolation design signed off', 'Session token handling confirmed (HttpOnly, not sessionStorage)']
+      }
+    }
+  },
+  {
+    id: 'G3', name: 'AI Eval Baseline', type: 'ai-assisted',
+    blocker: 'AI-assisted gate — automated eval pipeline must pass threshold before release proceeds. No human sign-off required if metrics are green.',
+    tracks: {
+      dev: {
+        summary: 'Before shipping to users, a documented baseline of feature performance is required against the golden dataset: accuracy, groundedness, latency, and hallucination rate. This is the Azure AI Foundry eval pipeline run and is the gate your ADO pipeline can enforce automatically.',
+        checklist: ['Golden dataset curated from ERP domain experts', 'Accuracy and groundedness score above threshold', 'Latency p95 within SLA', 'Hallucination rate below defined ceiling', 'Baseline snapshot committed to AI Foundry']
+      },
+      ops: {
+        summary: 'Validates that the observability stack is correctly capturing LLM spans, tool call traces, and token cost telemetry before any user traffic is routed. Ensures the monitoring foundation is solid before canary begins.',
+        checklist: ['OTel LLM spans confirmed in Application Insights', 'Token cost telemetry flowing to Databricks', 'SignalR async status verified for long-running agents', 'Azure Monitor alert rules validated']
+      },
+      secops: {
+        summary: 'Guardrail validation — confirming PII redaction, Azure AI Content Safety filters, and output schema enforcement are all functioning correctly before the feature touches real production ERP data.',
+        checklist: ['PII redaction confirmed on ERP field samples', 'Content Safety filter thresholds validated', 'Output schema enforcement tested on malformed responses', 'Grounding score computation verified']
+      }
+    }
+  },
+  {
+    id: 'G4', name: 'Security Sign-off', type: 'required',
+    blocker: 'Hard blocker — nothing ships without this gate cleared. All critical and high findings must be remediated or formally risk-accepted.',
+    tracks: {
+      dev: {
+        summary: 'The red team report must be closed or all critical/high findings remediated before release. Session token and transport security vulnerabilities are exactly the class of issue this gate is designed to catch and block on.',
+        checklist: ['Red team report completed and reviewed', 'All Critical/High findings remediated or risk-accepted', 'Prompt injection corpus executed against feature prompts', 'Cross-tenant data leakage test passed']
+      },
+      ops: {
+        summary: 'FIPS 140-2 compliance attestation for inference endpoints, Key Vault access policy review, and confirmation that no sensitive data traverses unencrypted paths in the AI pipeline.',
+        checklist: ['FIPS 140-2 compliance verified for inference endpoints', 'Key Vault access policy reviewed and scoped', 'TLS enforced on all AI service connections', 'Azure Policy compliance scan passed']
+      },
+      secops: {
+        summary: 'The most rigorous gate in the SecOps track. Requires completed PyRIT adversarial test run, jailbreak corpus results reviewed, cross-tenant isolation confirmed under simulated attack, and the full RBAC policy matrix validated against real ERP security groups.',
+        checklist: ['PyRIT red team run completed with results reviewed', 'Jailbreak corpus executed — no critical bypasses', 'Cross-tenant isolation confirmed under attack simulation', 'RBAC policy validated against ERP security groups', 'Indirect prompt injection via ERP data fields tested']
+      }
+    }
+  },
+  {
+    id: 'G5', name: 'Prod Readiness', type: 'ai-assisted',
+    blocker: 'AI-assisted gate — automated go/no-go based on canary cohort metrics. Eval score degradation beyond threshold auto-blocks promotion to next rollout stage.',
+    tracks: {
+      dev: {
+        summary: 'The automated go/no-go recommendation based on canary cohort metrics. If eval score degrades more than the defined threshold on the 5% canary, the ADO pipeline gate blocks promotion to 20%. This is where your Azure AI Foundry pipeline becomes a first-class release control.',
+        checklist: ['Canary 5% rollout stable for defined observation window', 'Eval score within baseline threshold on canary cohort', 'User trust signals (thumbs, corrections) within acceptable range', 'Token cost within budget on canary traffic', 'Rollback playbook tested and confirmed']
+      },
+      ops: {
+        summary: 'Confirms the DR runbook has been exercised, on-call alerting is wired to PagerDuty, cost anomaly detection baseline is set in Databricks, and the Boomi Molecule AKS autoscaling is tuned for the AI workload profile.',
+        checklist: ['DR runbook exercised in staging', 'On-call alerting confirmed to PagerDuty', 'Cost anomaly detection baseline established', 'AKS HPA tuning validated under load test', 'Rollback procedure tested for model swap scenario']
+      },
+      secops: {
+        summary: 'Audit log schema validation — confirming the immutable AI decision log is capturing the required events in Azure Blob + Databricks before the feature touches production data at scale. SOC 2 evidence collection process confirmed.',
+        checklist: ['Immutable audit log schema validated in Databricks', 'AI decision events confirmed in Azure Blob', 'SOC 2 control mapping updated for new AI feature', 'GDPR data flow diagram current', 'Audit log retention policy enforced']
+      }
+    }
+  }
+];
+
+let openGateIdx = null;
+
+function toggleGate(idx) {
+  const panel = document.getElementById('gate-detail-panel');
+  const gates = document.querySelectorAll('.gate');
+
+  if (openGateIdx === idx) {
+    // Close
+    gates[idx].classList.remove('open');
+    panel.classList.remove('open');
+    openGateIdx = null;
+    return;
+  }
+
+  // Close previous
+  gates.forEach(g => g.classList.remove('open'));
+
+  // Open new
+  gates[idx].classList.add('open');
+  openGateIdx = idx;
+
+  const g = gateData[idx];
+  panel.style.borderTopColor = g.type === 'required' ? 'var(--accent-amber)' : 'var(--trimble-blue)';
+
+  panel.innerHTML = `
+    <div class="gate-detail-header">
+      <div>
+        <div class="gate-detail-id">Quality Gate · ${g.id}</div>
+        <div class="gate-detail-title">${g.name}</div>
+      </div>
+      <span class="gate-type-badge ${g.type}">${g.type === 'required' ? 'Human Required' : 'AI-Assisted'}</span>
+    </div>
+    <div class="gate-tracks-grid">
+      <div class="gate-track-col">
+        <h4>⚙ Software Dev</h4>
+        <p>${g.tracks.dev.summary}</p>
+        <ul class="gate-checklist">${g.tracks.dev.checklist.map(c => `<li>${c}</li>`).join('')}</ul>
+      </div>
+      <div class="gate-track-col">
+        <h4>☁ Operations</h4>
+        <p>${g.tracks.ops.summary}</p>
+        <ul class="gate-checklist">${g.tracks.ops.checklist.map(c => `<li>${c}</li>`).join('')}</ul>
+      </div>
+      <div class="gate-track-col">
+        <h4>🔒 SecOps</h4>
+        <p>${g.tracks.secops.summary}</p>
+        <ul class="gate-checklist">${g.tracks.secops.checklist.map(c => `<li>${c}</li>`).join('')}</ul>
+      </div>
+    </div>
+    <div class="${g.type === 'required' ? 'gate-blocker-note' : 'gate-ai-note'}">${g.blocker}</div>
+  `;
+
+  panel.classList.add('open');
+}
+
+// Init all tracks
+['dev','ops','secops'].forEach(renderTrack);
+
+const mckinseyShifts = [
+  {
+    num: '01', icon: '🚀', name: 'Faster Time to Market',
+    subtitle: 'AI automates routine tasks across the entire PDLC — not just coding — freeing teams for higher-value work',
+    tags: ['speed','automation','ai'],
+    color: '#0068A5',
+    detail: {
+      activities: [
+        'Automate project management, market analysis, performance testing, and feedback documentation',
+        'Shorten the journey from strategy/vision to deployment and scaling',
+        'Run multiple product iterations rapidly to improve market fit',
+        'Conduct faster market testing and respond swiftly to user feedback'
+      ],
+      artifacts: [
+        'AI-generated project plans and sprint briefs',
+        'Automated market analysis report',
+        'Rapid prototype portfolio (multiple iterations)',
+        'Feedback loop dashboard'
+      ],
+      aiRole: [
+        'Automate routine PM and engineering tasks end-to-end',
+        'AI-synthesized market and competitive analysis',
+        'Generative prototype creation and A/B variant generation',
+        'Automated performance and regression testing'
+      ],
+      cmsAlignment: [
+        'Phase 03: AI-generated Blueprint from ADO story (the Foundry POC)',
+        'Phase 04: Claude Code for boilerplate and test generation',
+        'Phase 06: AI release notes and automated go/no-go signal',
+        'Phase 01: Automated competitor feature extraction'
+      ]
+    }
+  },
+  {
+    num: '02', icon: '🎯', name: 'Customer Value Sooner',
+    subtitle: 'AI stitches together fragmented data sources to link products to customer value from the outset — not after a few releases',
+    tags: ['customer-centric','feedback','telemetry','ai'],
+    color: '#00C278',
+    detail: {
+      activities: [
+        'Integrate customer research, telemetry, service tickets, and support feedback end-to-end',
+        'Incorporate real-time customer input, social sentiment, and competitive research alongside historical data',
+        'Gain actionable insights for customer-centric product concepts before building',
+        'Track value realization continuously from discovery through production'
+      ],
+      artifacts: [
+        'Unified customer feedback + telemetry data platform',
+        'Customer value hypothesis map',
+        'Real-time sentiment and usage dashboard',
+        'Value realization scorecard'
+      ],
+      aiRole: [
+        'AI stitches fragmented data: research, telemetry, tickets, social',
+        'LLM-synthesized user interview and feedback cluster analysis',
+        'AI-ranked feature value vs. customer need signal',
+        'Predictive churn and adoption modeling'
+      ],
+      cmsAlignment: [
+        'Phase 01: Construction finance persona mapping (20 roles)',
+        'Phase 07: User trust signals — thumbs, corrections, abandonment tracking',
+        'Phase 08: AI-summarized feedback clusters fed back into roadmap',
+        'Ops Phase 03: OTel + Databricks medallion for end-to-end telemetry'
+      ]
+    }
+  },
+  {
+    num: '03', icon: '💡', name: 'More Ideas See the Light',
+    subtitle: 'AI eliminates the strict divide between discovery and viability — enabling parallel prototyping and data-driven prioritization without HiPPO bias',
+    tags: ['discovery','prototyping','experimentation','ai'],
+    color: '#B86E00',
+    detail: {
+      activities: [
+        'Quick prototyping and automated A/B testing to validate multiple hypotheses simultaneously',
+        'Run significantly more experiments, raising odds that promising ideas are explored',
+        'Replace stack-ranking guesswork with data-driven, AI-scored prioritization',
+        'Reduce HiPPO bias (highest-paid person\'s opinion) in feature selection'
+      ],
+      artifacts: [
+        'Experiment portfolio with A/B results',
+        'AI-scored opportunity backlog',
+        'Rapid prototype suite across multiple hypotheses',
+        'Prioritization model (AI-ranked vs. manual baseline)'
+      ],
+      aiRole: [
+        'Generate and evaluate multiple product hypotheses in parallel',
+        'Automated A/B test design and results analysis',
+        'AI-scored opportunity ranking replacing manual stack-ranking',
+        'Continuous monitoring of experiment metrics with AI-flagged signals'
+      ],
+      cmsAlignment: [
+        'Phase 02: Parallel model benchmark spikes validating multiple approaches',
+        'Phase 05: Eval harness scores multiple prompt and model variants simultaneously',
+        'Phase 01: AI leverage scoring replacing intuition-based prioritization',
+        'Phase 08: Auto-suggest prompt improvements from production failure log'
+      ]
+    }
+  },
+  {
+    num: '04', icon: '👤', name: 'PMs as Mini-CEOs',
+    subtitle: 'PMs gain end-to-end oversight from ideation to value realization — absorbing design, marketing, and technical PM responsibilities as AI handles routine execution',
+    tags: ['pm-role','ownership','accountability','ai'],
+    color: '#C8303F',
+    detail: {
+      activities: [
+        'PMs "shift right" — taking on additional oversight in later PDLC stages with AI support',
+        'Run discovery AND rapidly prototype, create marketing collateral, and build POCs with minimal eng involvement',
+        'Take on long-term strategy, customer interviews, and complex problem solving',
+        'PM role may subsume PMM, PO, TPM, UI/UX as AI handles routine execution in those domains'
+      ],
+      artifacts: [
+        'PM-authored product one-pager and pitch deck (AI-assisted)',
+        'PM-owned technical proof of concept',
+        'End-to-end product roadmap with value tracking',
+        'PM-led customer interview synthesis report'
+      ],
+      aiRole: [
+        'AI drafts marketing collateral, product one-pagers, pitch decks from PM intent',
+        'Gen AI enables PMs to build functional POCs with minimal engineering bottleneck',
+        'AI analyzes meeting notes and call transcripts for internal coaching and feedback',
+        'LLM-assisted synthesis of customer and stakeholder interviews'
+      ],
+      cmsAlignment: [
+        'Phase 03: AI Blueprint reduces reliance on senior engineers for initial design draft',
+        'Phase 01: PM-owned AI leverage scoring and exec brief generation',
+        'Phase 04: Claude Code reduces engineering bottlenecks for early POC work',
+        'Phase 08: AI-summarized retro data enables PM-led roadmap reprioritization'
+      ]
+    }
+  },
+  {
+    num: '05', icon: '🛡', name: 'Quality & Risk Shift Left',
+    subtitle: 'Risk, compliance, and accessibility embedded from discovery — not bolted on at release — with AI making continuous quality enforcement scalable',
+    tags: ['shift-left','compliance','security','quality'],
+    color: '#527290',
+    detail: {
+      activities: [
+        'Embed risk, compliance, and accessibility testing starting in discovery — not at release',
+        'Automatically apply coding standards and requirements throughout development at the PR level',
+        'Identify patterns across test results and predict potential problem areas continuously',
+        'Threat detection and vulnerability scanning at the point of code authoring'
+      ],
+      artifacts: [
+        'Automated compliance and accessibility check results (per PR)',
+        'Threat detection report generated at code-write time',
+        'Continuous quality scorecard (not end-of-cycle)',
+        'Early-stage risk and accessibility sign-off document'
+      ],
+      aiRole: [
+        'AI-driven automated code compliance and accessibility checks at commit time',
+        'LLM-based threat detection and vulnerability scanning during development',
+        'AI identifies patterns across test results to predict problem areas proactively',
+        'Claude Code / GitHub Copilot finding and fixing vulnerabilities inline'
+      ],
+      cmsAlignment: [
+        'SecOps Phase 01: STRIDE threat modeling starts at story creation, not pre-release',
+        'SecOps Phase 02: PII detection and guardrails embedded before code ships',
+        'Phase 04: SonarQube + Claude inline PR review baked into the CI pipeline',
+        'Gate G4: Hard blocker ensuring nothing reaches prod without SecOps clearance'
+      ]
+    }
+  }
+];
+
+const mappingData = [
+  {
+    shift: 'Faster TTM',
+    cms: [
+      { track: 'Dev', text: 'Phase 03: AI Blueprint from ADO story' },
+      { track: 'Dev', text: 'Phase 04: Claude Code for boilerplate & tests' },
+      { track: 'Dev', text: 'Phase 06: AI go/no-go & release notes' }
+    ]
+  },
+  {
+    shift: 'Customer Value Sooner',
+    cms: [
+      { track: 'Dev', text: 'Phase 01: Persona × AI leverage mapping' },
+      { track: 'Dev', text: 'Phase 07: Trust signals & drift monitoring' },
+      { track: 'Ops', text: 'OTel + Databricks end-to-end telemetry' }
+    ]
+  },
+  {
+    shift: 'More Ideas Explored',
+    cms: [
+      { track: 'Dev', text: 'Phase 02: Parallel model benchmark spikes' },
+      { track: 'Dev', text: 'Phase 05: Eval harness scores multiple variants' },
+      { track: 'Dev', text: 'Phase 08: Auto-suggest from failure log' }
+    ]
+  },
+  {
+    shift: 'PM as Mini-CEO',
+    cms: [
+      { track: 'Dev', text: 'Phase 03: AI Blueprint reduces design bottleneck' },
+      { track: 'Dev', text: 'Phase 04: Claude Code enables PM-led POCs' },
+      { track: 'Dev', text: 'Phase 01: AI-generated exec opportunity brief' }
+    ]
+  },
+  {
+    shift: 'Quality Shift Left',
+    cms: [
+      { track: 'SecOps', text: 'Phase 01: STRIDE at story creation' },
+      { track: 'SecOps', text: 'Phase 02: Guardrails before code ships' },
+      { track: 'Dev', text: 'Phase 04: SonarQube + Claude inline PR review' }
+    ]
+  }
+];
+
+function renderMckinsey() {
+  const grid = document.getElementById('mckinsey-grid');
+  const detail = document.getElementById('mckinsey-detail');
+  grid.innerHTML = '';
+
+  mckinseyShifts.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = 'phase-card';
+    card.style.setProperty('--phase-color', p.color);
+    card.innerHTML = `
+      <div class="phase-number">SHIFT ${p.num}</div>
+      <span class="phase-icon">${p.icon}</span>
+      <div class="phase-name">${p.name}</div>
+      <div class="phase-subtitle">${p.subtitle}</div>
+      <div class="phase-tags">
+        ${p.tags.map(t => `<span class="tag ${t==='ai'?'ai':''}">${t}</span>`).join('')}
+      </div>
+    `;
+    card.addEventListener('click', () => {
+      const wasOpen = card.classList.contains('open');
+      document.querySelectorAll('#mckinsey-grid .phase-card').forEach(c => c.classList.remove('open'));
+      detail.classList.remove('open');
+      if (!wasOpen) {
+        card.classList.add('open');
+        detail.style.setProperty('--phase-color', p.color);
+        detail.innerHTML = `
+          <div class="detail-section">
+            <h4>Activities</h4>
+            <ul class="detail-list">${p.detail.activities.map(a => `<li>${a}</li>`).join('')}</ul>
+          </div>
+          <div class="detail-section">
+            <h4>Artifacts</h4>
+            <ul class="detail-list">${p.detail.artifacts.map(a => `<li>${a}</li>`).join('')}</ul>
+          </div>
+          <div class="detail-section">
+            <h4>AI Role</h4>
+            <ul class="detail-list">${p.detail.aiRole.map(a => `<li>${a}</li>`).join('')}</ul>
+          </div>
+          <div class="detail-section">
+            <h4>CMS Alignment</h4>
+            <ul class="detail-list">${p.detail.cmsAlignment.map(a => `<li>${a}</li>`).join('')}</ul>
+          </div>
+        `;
+        detail.classList.add('open');
+        grid.after(detail);
+      }
+    });
+    grid.appendChild(card);
+  });
+
+  // Render alignment mapping table
+  const mapGrid = document.getElementById('mapping-grid');
+  mapGrid.innerHTML = '';
+  mappingData.forEach(col => {
+    const el = document.createElement('div');
+    el.className = 'mapping-col';
+    el.innerHTML = `
+      <div class="mapping-col-header">${col.shift}</div>
+      <div class="mapping-items">
+        ${col.cms.map(item => `
+          <div class="mapping-item">
+            <div class="mi-track">${item.track}</div>
+            ${item.text}
+          </div>
+        `).join('')}
+      </div>
+    `;
+    mapGrid.appendChild(el);
+  });
+}
+
+renderMckinsey();
+</script>
+</body>
+</html>
