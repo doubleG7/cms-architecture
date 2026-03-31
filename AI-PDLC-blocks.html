@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI-Augmented PDLC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f7f8fa;
+    --surface: #ffffff;
+    --border: #e2e6ec;
+    --border-light: #edf0f5;
+    --text-primary: #1a1d23;
+    --text-secondary: #5a6070;
+    --text-tertiary: #9aa0ad;
+    --bf-bg: #eef3fc;
+    --bf-border: #c5d6f5;
+    --bf-accent: #3a6fd8;
+    --bf-text: #1a3a80;
+    --bf-badge-bg: #dae5fb;
+    --gf-bg: #edf7f2;
+    --gf-border: #b8e4cc;
+    --gf-accent: #1d9e75;
+    --gf-text: #0a4a30;
+    --gf-badge-bg: #c8edd8;
+    --mrd: #fde8e8;
+    --mrd-text: #7a1515;
+    --mrd-border: #f0a0a0;
+    --prd: #e8edfb;
+    --prd-text: #1a2f7a;
+    --prd-border: #a0b0ef;
+    --adr: #fef5e4;
+    --adr-text: #7a4f00;
+    --adr-border: #f0cc80;
+    --ctx: #e8f5ee;
+    --ctx-text: #0a4a30;
+    --ctx-border: #80d0a8;
+    --ghub: #f0eafb;
+    --ghub-text: #4a1a7a;
+    --ghub-border: #c0a0ef;
+    --radius: 8px;
+    --radius-sm: 5px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 8px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
+  }
+
+  body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* ── Top bar ── */
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .logo {
+    width: 28px; height: 28px;
+    background: linear-gradient(135deg, var(--bf-accent), var(--gf-accent));
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 13px; font-weight: 600;
+  }
+  .topbar h1 { font-size: 15px; font-weight: 600; letter-spacing: -0.2px; }
+  .topbar-sub { font-size: 11px; color: var(--text-tertiary); margin-left: 4px; }
+
+  .track-toggle { display: flex; gap: 4px; }
+  .tbtn {
+    padding: 5px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 20px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: inherit;
+    transition: all 0.14s;
+  }
+  .tbtn:hover { background: var(--bg); }
+  .tbtn.a-all  { background: var(--text-primary); color: white; border-color: var(--text-primary); }
+  .tbtn.a-bf   { background: var(--bf-bg); color: var(--bf-text); border-color: var(--bf-border); }
+  .tbtn.a-gf   { background: var(--gf-bg); color: var(--gf-text); border-color: var(--gf-border); }
+
+  /* ── Main layout ── */
+  .main { padding: 24px 32px 48px; max-width: 1400px; margin: 0 auto; }
+
+  /* ── Phase header ── */
+  .grid { display: grid; grid-template-columns: 88px repeat(6, 1fr); gap: 4px; }
+  .phase-row { margin-bottom: 6px; }
+  .ph {
+    text-align: center;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    padding: 6px 4px;
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-sm);
+  }
+
+  /* ── Lane rows ── */
+  .lane-row { margin-bottom: 4px; }
+  .lane-lbl {
+    display: flex; align-items: center; gap: 6px;
+    padding-right: 4px;
+  }
+  .l-icon {
+    width: 22px; height: 22px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; flex-shrink: 0;
+    font-weight: 600;
+  }
+  .l-name { font-size: 11px; font-weight: 500; color: var(--text-secondary); line-height: 1.2; }
+
+  /* ── Cells ── */
+  .cell {
+    border-radius: var(--radius-sm);
+    padding: 8px 9px 8px 12px;
+    min-height: 70px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: box-shadow 0.14s, opacity 0.14s, transform 0.1s;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cell::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+  }
+  .cell:hover:not(.empty) {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+    z-index: 2;
+  }
+  .cell:active:not(.empty) { transform: translateY(0); }
+
+  .cell.bf   { background: var(--bf-bg); border-color: var(--bf-border); }
+  .cell.bf::before { background: var(--bf-accent); }
+  .cell.gf   { background: var(--gf-bg); border-color: var(--gf-border); }
+  .cell.gf::before { background: var(--gf-accent); }
+  .cell.both {
+    background: linear-gradient(140deg, var(--bf-bg) 50%, var(--gf-bg) 50%);
+    border-color: #c8d8e8;
+  }
+  .cell.both::before { background: linear-gradient(to bottom, var(--bf-accent), var(--gf-accent)); }
+  .cell.empty {
+    background: var(--surface);
+    border-color: var(--border-light);
+    opacity: 0.4;
+    cursor: default;
+    min-height: 70px;
+  }
+  .cell.empty:hover { box-shadow: none; transform: none; }
+  .cell.dim { opacity: 0.12; pointer-events: none; }
+  .cell.active-cell { box-shadow: 0 0 0 2px var(--bf-accent); z-index: 2; }
+  .cell.active-cell.gf { box-shadow: 0 0 0 2px var(--gf-accent); }
+  .cell.active-cell.both { box-shadow: 0 0 0 2px #888; }
+
+  .badges { display: flex; gap: 3px; }
+  .bdg {
+    font-size: 7px; font-weight: 700;
+    padding: 1.5px 5px;
+    border-radius: 3px;
+    letter-spacing: 0.6px;
+  }
+  .bdg.bf { background: var(--bf-badge-bg); color: var(--bf-text); }
+  .bdg.gf { background: var(--gf-badge-bg); color: var(--gf-text); }
+
+  .c-title { font-size: 11px; font-weight: 600; color: var(--text-primary); line-height: 1.3; }
+  .c-sub   { font-size: 9.5px; color: var(--text-secondary); line-height: 1.4; }
+
+  .asset-chips { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 5px; }
+  .chip {
+    font-size: 8px; font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 3px;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: opacity 0.12s, transform 0.1s;
+    font-family: 'DM Mono', monospace;
+  }
+  .chip:hover { opacity: 0.8; transform: scale(0.97); }
+  .chip.mrd  { background: var(--mrd);  color: var(--mrd-text);  border-color: var(--mrd-border); }
+  .chip.prd  { background: var(--prd);  color: var(--prd-text);  border-color: var(--prd-border); }
+  .chip.adr  { background: var(--adr);  color: var(--adr-text);  border-color: var(--adr-border); }
+  .chip.ctx  { background: var(--ctx);  color: var(--ctx-text);  border-color: var(--ctx-border); }
+  .chip.ghub { background: var(--ghub); color: var(--ghub-text); border-color: var(--ghub-border); }
+
+  /* ── Milestone strip ── */
+  .ms-row { margin-top: 4px; }
+  .ms-lbl { font-size: 9px; font-weight: 500; color: var(--text-tertiary); display: flex; align-items: center; }
+  .ms-cell {
+    font-size: 9px; font-weight: 500;
+    color: var(--text-secondary);
+    padding: 5px 8px;
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    line-height: 1.4;
+  }
+
+  /* ── Legend ── */
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 16px;
+    margin-top: 20px; padding-top: 16px;
+    border-top: 1px solid var(--border-light);
+    align-items: center;
+  }
+  .leg { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-secondary); }
+  .lsw { width: 24px; height: 10px; border-radius: 3px; border: 1px solid; }
+  .lsw.bf   { background: var(--bf-bg);   border-color: var(--bf-border); }
+  .lsw.gf   { background: var(--gf-bg);   border-color: var(--gf-border); }
+  .lsw.both { background: linear-gradient(90deg, var(--bf-bg) 50%, var(--gf-bg) 50%); border-color: #c8d8e8; }
+  .legend-assets { display: flex; flex-wrap: wrap; gap: 6px; margin-left: auto; align-items: center; }
+  .hint { font-size: 10px; color: var(--text-tertiary); width: 100%; margin-top: 4px; }
+
+  /* ── Inline slide-down panel ── */
+  .inline-panel {
+    grid-column: 1 / -1;
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.32s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s ease;
+    opacity: 0;
+  }
+  .inline-panel.open {
+    max-height: 900px;
+    opacity: 1;
+  }
+  .inline-panel-inner {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin: 2px 0 4px;
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+  }
+
+  /* shared head styles */
+  .sp-head {
+    padding: 14px 18px 12px;
+    border-bottom: 1px solid var(--border-light);
+    display: flex; align-items: flex-start; gap: 10px;
+    background: var(--bg);
+  }
+  .sp-badges { display: flex; gap: 5px; align-items: center; }
+  .sp-titles { flex: 1; }
+  .sp-ttl  { font-size: 14px; font-weight: 600; letter-spacing: -0.2px; }
+  .sp-meta { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+  .sp-x {
+    background: none; border: none; cursor: pointer;
+    color: var(--text-tertiary); font-size: 16px;
+    padding: 2px 6px; border-radius: 4px;
+    transition: background 0.12s; flex-shrink: 0;
+    font-family: inherit; line-height: 1;
+  }
+  .sp-x:hover { background: var(--border-light); }
+
+  /* detail body — two-column */
+  .sp-body {
+    padding: 16px 18px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 24px;
+  }
+  .sp-col-hd {
+    font-size: 9px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    margin-bottom: 8px; margin-top: 14px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--border-light);
+    grid-column: span 1;
+  }
+  .sp-col-hd:first-child { margin-top: 0; }
+  .sp-col-hd.bf   { color: var(--bf-accent); }
+  .sp-col-hd.gf   { color: var(--gf-accent); }
+  .sp-col-hd.both { color: var(--text-tertiary); grid-column: span 2; }
+  .sp-item { display: flex; align-items: flex-start; gap: 7px; margin-bottom: 6px; }
+  .sp-dot  { width: 4px; height: 4px; border-radius: 50%; margin-top: 7px; flex-shrink: 0; }
+  .sp-dot.bf   { background: var(--bf-accent); }
+  .sp-dot.gf   { background: var(--gf-accent); }
+  .sp-dot.both { background: var(--text-tertiary); }
+  .sp-txt { font-size: 11.5px; color: var(--text-secondary); line-height: 1.55; }
+  .sp-col-both { grid-column: span 2; display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
+
+  /* asset panel body */
+  .asset-head {
+    padding: 14px 18px 12px;
+    border-bottom: 1px solid var(--border-light);
+    display: flex; align-items: center; gap: 12px;
+    background: var(--bg);
+  }
+  .asset-icon {
+    width: 32px; height: 32px;
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .asset-ttl  { font-size: 13px; font-weight: 600; letter-spacing: -0.2px; }
+  .asset-sub  { font-size: 10.5px; color: var(--text-tertiary); margin-top: 2px; }
+
+  .asset-body { padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
+  .asset-code {
+    font-family: 'DM Mono', monospace;
+    font-size: 10.5px;
+    color: var(--text-secondary);
+    background: var(--bg);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    white-space: pre-wrap;
+    overflow-y: auto;
+    line-height: 1.7;
+    max-height: 380px;
+  }
+  .asset-actions {
+    display: flex; gap: 8px;
+    justify-content: flex-end;
+  }
+  .abtn {
+    padding: 7px 16px;
+    font-size: 12px; font-weight: 500;
+    border-radius: 6px; cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-primary);
+    font-family: inherit;
+    transition: all 0.12s;
+  }
+  .abtn:hover { background: var(--bg); }
+  .abtn.primary {
+    background: var(--bf-accent);
+    border-color: var(--bf-accent);
+    color: white;
+  }
+  .abtn.primary:hover { background: #2d5cbf; border-color: #2d5cbf; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo">AI</div>
+    <h1>AI-Augmented Product Development Lifecycle</h1>
+    <span class="topbar-sub">Brownfield &amp; Greenfield · Product · Engineering · Ops · Security</span>
+  </div>
+  <div class="track-toggle">
+    <button class="tbtn a-all" onclick="setFilter('all')">All</button>
+    <button class="tbtn" onclick="setFilter('bf')">Brownfield</button>
+    <button class="tbtn" onclick="setFilter('gf')">Greenfield</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- Phase header -->
+  <div class="grid phase-row">
+    <div></div>
+    <div class="ph">Discover</div>
+    <div class="ph">Define</div>
+    <div class="ph">Design</div>
+    <div class="ph">Build</div>
+    <div class="ph">Validate</div>
+    <div class="ph">Scale</div>
+  </div>
+
+  <!-- Lanes -->
+  <div id="lanes"></div>
+
+  <!-- Milestone strip -->
+  <div class="grid ms-row">
+    <div class="ms-lbl">Gates</div>
+    <div class="ms-cell">Baseline metrics &amp; pilot cohort</div>
+    <div class="ms-cell">Agent roles &amp; context standards locked</div>
+    <div class="ms-cell">Async workflow prototype live</div>
+    <div class="ms-cell">Intelligent review in CI/CD</div>
+    <div class="ms-cell">Cross-team orchestration active</div>
+    <div class="ms-cell">Full rollout &amp; ROI verified</div>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="leg"><div class="lsw bf"></div>Brownfield</div>
+    <div class="leg"><div class="lsw gf"></div>Greenfield</div>
+    <div class="leg"><div class="lsw both"></div>Both tracks</div>
+    <div class="hint">Click any cell to expand activities and download assets</div>
+  </div>
+</div>
+
+
+
+<script>
+const phases = ['Discover','Define','Design','Build','Validate','Scale'];
+const lanes = [
+  { id:'product',     name:'Product',     icon:'P', ib:'#e8edfb', ic:'#1a3a80' },
+  { id:'engineering', name:'Engineering', icon:'E', ib:'#e6f4ec', ic:'#0a4a30' },
+  { id:'ops',         name:'Ops',         icon:'O', ib:'#fef5e4', ic:'#7a4f00' },
+  { id:'security',    name:'Security',    icon:'S', ib:'#fde8e8', ic:'#7a1515' },
+];
+
+const ASSETS = {
+  MRD: {
+    key:'MRD', label:'MRD', cls:'mrd', icon:'📋', iconBg:'#fde8e8',
+    title:'Market Requirements Document',
+    sub:'AI-Augmented Software Development Programme',
+    filename:'MRD-AI-Augmented-Development.md',
+    content:`# Market Requirements Document
+## AI-Augmented Software Development Programme
+
+**Document type:** MRD  |  **Status:** Draft  |  **Revision:** 1.0
+
+---
+
+## 1. Executive Summary
+
+Software engineering teams face a structural velocity gap: demand for new features grows
+faster than headcount can scale. AI-augmented development addresses this by embedding
+specialist agents across the development lifecycle — from requirements to release —
+enabling developers to operate as conductors of parallel agent workflows rather than
+individual contributors to serial ones.
+
+---
+
+## 2. Problem Statement
+
+### 2.1 Brownfield challenges
+- Legacy codebases have high context-establishment cost per developer per task
+- Serial peer review creates bottlenecks that scale with team size
+- Institutional knowledge is locked in individuals, not systems
+- Technical debt slows feature velocity disproportionately over time
+
+### 2.2 Greenfield challenges
+- New products must achieve competitive velocity from day one
+- Early architectural decisions compound — errors are expensive to unwind
+- Small founding teams cannot staff all specialist concerns simultaneously
+- Documentation and compliance obligations grow faster than writing capacity
+
+### 2.3 Shared opportunity
+- Both tracks benefit from parallel agent specialisation
+- Both tracks require governance and audit infrastructure for agent-generated work
+- Developer satisfaction improves when mechanical work is delegated
+
+---
+
+## 3. Market Requirements
+
+**MR-001 — Velocity improvement (P0)**
+Teams must achieve measurable velocity improvement (target: 2–3×) within two quarters.
+
+**MR-002 — Quality maintenance (P0)**
+Agent-assisted delivery must not increase bug escape rate.
+
+**MR-003 — Brownfield compatibility (P0)**
+Must integrate with existing CI/CD pipelines without requiring full codebase rewrites.
+
+**MR-004 — Greenfield acceleration (P1)**
+New products must adopt AI-native patterns from the first sprint.
+
+**MR-005 — Governance and auditability (P0)**
+All agent-generated work must be traceable: who assigned, what was generated, who approved.
+
+**MR-006 — Developer adoption (P1)**
+≥70% active usage among targeted developers within two quarters of rollout.
+
+**MR-007 — Cost predictability (P1)**
+Token spend bounded by per-team budgets. Cost per feature-point measurable.
+
+**MR-008 — Security boundary enforcement (P0)**
+Agents operate within data sensitivity tiers. Enforcement must be automated.
+
+---
+
+## 4. Success Metrics
+
+| Metric                  | Target (6 months)  |
+|-------------------------|--------------------|
+| Story velocity          | +40% minimum       |
+| Bug escape rate         | No regression      |
+| Review cycle time       | −40%               |
+| Developer NPS           | ≥+30               |
+| AI adoption rate        | ≥70% active        |
+| Compliance violations   | 0 agent-introduced |
+
+---
+
+## 5. Out of Scope
+
+- Replacement of human judgment on novel architectural decisions
+- Fully autonomous production deployments without human approval gate
+- Agent access to production data during development workflows
+- Consumer-facing AI features
+
+---
+
+*This MRD feeds into track-specific PRDs for Brownfield and Greenfield programmes.*`
+  },
+  PRD_BF: {
+    key:'PRD_BF', label:'PRD', cls:'prd', icon:'📄', iconBg:'#e8edfb',
+    title:'PRD — Brownfield AI Integration',
+    sub:'Product Requirements · Brownfield Track',
+    filename:'PRD-Brownfield-AI-Integration.md',
+    content:`# Product Requirements Document
+## AI Integration — Brownfield Track
+
+**Document type:** PRD  |  **Track:** Brownfield  |  **Status:** Draft  |  **Revision:** 1.0
+
+---
+
+## 1. Overview
+
+This PRD covers AI augmentation of existing, production software products. The brownfield
+track prioritises non-disruptive integration: agents are layered onto existing workflows,
+pipelines, and codebases without requiring architectural rewrites.
+
+---
+
+## 2. Goals
+
+1. Reduce per-developer mechanical burden on established codebases by 40%+
+2. Insert security, architecture, and performance pre-review into existing PR workflow
+3. Establish agent-readable context from existing documentation and code patterns
+4. Instrument existing pipelines for AI telemetry without pipeline rewrites
+
+---
+
+## 3. Non-Goals
+
+- Rewriting legacy modules to enable agent compatibility
+- Replacing existing code review culture with fully automated review
+- Mandating greenfield patterns on legacy teams before readiness
+
+---
+
+## 4. User Stories
+
+**Developer:** I want an AI assistant that already understands our codebase conventions
+so I don't have to re-explain context on every task.
+
+**Engineering lead:** I want to see velocity and quality deltas week-over-week so I can
+report AI programme value to stakeholders.
+
+**Security engineer:** I want a security agent scanning every PR for auth, encryption, and
+injection issues so critical findings don't reach production.
+
+---
+
+## 5. Functional Requirements
+
+**FR-BF-001 — Context file standard**
+Every existing repository must have a context file (CLAUDE.md) containing: architecture
+overview, build instructions, style guide, known gotchas, and key patterns. Enforced as
+a CI gate.
+
+**FR-BF-002 — Agent-assisted PR authoring**
+Developers can assign well-scoped stories to an agent. The agent produces a PR containing
+implementation, unit tests, and documentation update with a conflict resolution summary.
+
+**FR-BF-003 — Pre-review agent pipeline**
+Three agents run automatically on every PR before human review:
+- Security agent: checks auth patterns, encryption, injection vectors
+- Architecture agent: validates against repo context file standards
+- Performance agent: flags regressions against established baseline patterns
+
+**FR-BF-004 — Legacy pipeline integration**
+Agent pre-review steps must integrate with existing CI/CD tooling via a standard plugin
+interface. No pipeline rewrite required.
+
+**FR-BF-005 — Telemetry and metrics**
+Every agent interaction is logged: task assigned, output generated, human decision, time delta.
+
+**FR-BF-006 — Token budget enforcement**
+Per-team token budgets enforced at the platform level with weekly spend reports.
+
+---
+
+## 6. Acceptance Criteria
+
+| Requirement  | Acceptance test                                                  |
+|--------------|------------------------------------------------------------------|
+| FR-BF-001    | CI fails on PR from repo without valid context file              |
+| FR-BF-002    | Agent PR includes implementation + tests + docs in single branch |
+| FR-BF-003    | Pre-review results visible before first human reviewer notified  |
+| FR-BF-004    | Integration requires ≤1 day of pipeline engineer time per repo   |
+| FR-BF-005    | Dashboard shows per-team metrics within 24h of agent activity    |
+| FR-BF-006    | Budget alert fires within 1h of threshold breach                 |
+
+---
+
+## 7. Rollout Phases
+
+| Phase    | Scope                                          | Duration |
+|----------|------------------------------------------------|----------|
+| Pilot    | 1–2 teams, volunteer repos                     | 6 weeks  |
+| Expand   | All willing teams, context file adoption       | 8 weeks  |
+| Enforce  | Context file CI gate live, pre-review mandatory| 4 weeks  |
+| Optimise | Tune agent rulesets, measure ROI               | Ongoing  |
+
+---
+
+*See ADR-001 for context file format decision.*`
+  },
+  PRD_GF: {
+    key:'PRD_GF', label:'PRD', cls:'prd', icon:'📄', iconBg:'#e8edfb',
+    title:'PRD — Greenfield AI-Native',
+    sub:'Product Requirements · Greenfield Track',
+    filename:'PRD-Greenfield-AI-Native.md',
+    content:`# Product Requirements Document
+## AI-Native Development — Greenfield Track
+
+**Document type:** PRD  |  **Track:** Greenfield  |  **Status:** Draft  |  **Revision:** 1.0
+
+---
+
+## 1. Overview
+
+This PRD covers AI-native development of new products and modules. The greenfield track
+designs agent participation into the development process from the first sprint — no
+legacy constraints, no retrofit. Agent patterns are first-class architectural decisions.
+
+---
+
+## 2. Goals
+
+1. Achieve 2–3× feature velocity vs. equivalent non-AI-augmented team from sprint one
+2. Establish multi-agent orchestration as the default delivery model
+3. Build observability, security, and governance into the agent platform before feature work
+4. Produce agent-generated documentation, ADRs, and test coverage for every story
+
+---
+
+## 3. Non-Goals
+
+- Fully autonomous product delivery without human review gates
+- Consumer-facing agent experiences
+- Backfilling brownfield products with greenfield patterns before brownfield readiness
+
+---
+
+## 4. User Stories
+
+**Developer:** I want to assign a story and receive a reviewable PR from an agent so I
+can focus my time on architectural decisions and edge cases.
+
+**Product manager:** I want agent-generated PRDs and MRDs as starting drafts from
+discovery notes so I can iterate rather than write from scratch.
+
+**Security engineer:** I want zero-trust enforced at the agent platform level before the
+first line of product code is written.
+
+---
+
+## 5. Functional Requirements
+
+**FR-GF-001 — Agent-first repository setup**
+New repositories are initialised with: context file, agent instruction sets, ADR directory,
+feature flag configuration, and pre-review agent pipeline. Setup automated via repository
+template.
+
+**FR-GF-002 — Multi-agent orchestration**
+An orchestration layer coordinates specialist agents in parallel:
+- Architect agent: validates design against ADRs and context
+- Coder agent: implements to spec in isolated branch
+- Test agent: generates and runs test suite
+- Doc agent: produces documentation update and ADR if applicable
+
+**FR-GF-003 — Async-first delivery model**
+Every story follows the async pattern by default. Developer receives notification when PR
+is ready for review. Synchronous agent interaction is opt-in for exploratory work.
+
+**FR-GF-004 — Context graph continuous update**
+Merged PRs automatically update the repository context graph within one pipeline run.
+
+**FR-GF-005 — Native observability**
+Agent trace, cost, latency, and outcome data emitted from the first agent run.
+
+**FR-GF-006 — Zero-trust agent platform**
+Agent-to-service and agent-to-agent communication uses mutual authentication. Egress
+restricted to approved allowlist. Credentials are short-lived and rotated per session.
+
+---
+
+## 6. Rollout Phases
+
+| Phase      | Scope                                          | Duration |
+|------------|------------------------------------------------|----------|
+| Foundation | Platform, identity, observability, repo template| 4 weeks  |
+| Pilot      | First new product on greenfield platform       | 6 weeks  |
+| Validate   | Measure velocity, quality, cost vs. targets    | 4 weeks  |
+| Scale      | Additional new products onboard via template   | Ongoing  |
+
+---
+
+*See ADR-003 for orchestration framework decision.*`
+  },
+  ADR_TMPL: {
+    key:'ADR_TMPL', label:'ADR', cls:'adr', icon:'🏗', iconBg:'#fef5e4',
+    title:'ADR Template',
+    sub:'Architecture Decision Record — blank template',
+    filename:'ADR-Template.md',
+    content:`# Architecture Decision Record
+## ADR-[NUMBER]: [Short title]
+
+**Date:** YYYY-MM-DD
+**Status:** Proposed | Accepted | Deprecated | Superseded by ADR-[N]
+**Deciders:** [Names or roles]
+**Track applicability:** Both | Brownfield only | Greenfield only
+
+---
+
+## Context
+
+Describe the situation, forces, and constraints that make this decision necessary.
+What problem are we solving? What are the pressures? What options exist?
+
+---
+
+## Decision
+
+State the decision clearly and directly. "We will..." not "We considered..."
+
+---
+
+## Rationale
+
+Why this option over the alternatives? Reference evidence, prior art, team context,
+or constraints that make this the right call now.
+
+---
+
+## Alternatives considered
+
+### Option A: [Name]
+**Description:** ...
+**Rejected because:** ...
+
+### Option B: [Name]
+**Description:** ...
+**Rejected because:** ...
+
+---
+
+## Consequences
+
+### Positive
+- ...
+
+### Negative / trade-offs
+- ...
+
+### Risks
+- ...
+
+---
+
+## Agent instruction implications
+
+If this ADR affects how agents should behave, document the instruction delta here
+so it can be propagated to agent context files.
+
+\`\`\`
+# Agent instruction update (append to CLAUDE.md or equivalent)
+# ADR-[NUMBER]: [Short title]
+# Decision: [one-line summary]
+# Agents must: [specific behavioural instruction]
+# Agents must not: [specific prohibition]
+\`\`\`
+
+---
+
+## Review schedule
+
+This decision will be reviewed: [date or trigger condition]
+
+---
+
+*ADRs are stored in /docs/adr/ and indexed automatically into the agent context graph on merge.*`
+  },
+  ADR_001: {
+    key:'ADR_001', label:'ADR', cls:'adr', icon:'🏗', iconBg:'#fef5e4',
+    title:'ADR-001: Context File Standard',
+    sub:'Architecture Decision Record — accepted',
+    filename:'ADR-001-Context-File-Standard.md',
+    content:`# Architecture Decision Record
+## ADR-001: Context File Standard for Agent Instruction
+
+**Date:** 2026-01-15
+**Status:** Accepted
+**Deciders:** Architecture team, Engineering leads
+**Track applicability:** Both
+
+---
+
+## Context
+
+Agents invoked without shared context produce inconsistent output: they hallucinate
+conventions, repeat solved problems, and make decisions that conflict with established
+team standards. Each repository needs a machine-readable source of truth that agents
+consult before any task.
+
+---
+
+## Decision
+
+We will adopt a Markdown context file named CLAUDE.md at the repository root.
+All repositories must have this file. Its presence is enforced as a CI gate.
+Its contents are versioned alongside the code.
+
+---
+
+## Rationale
+
+Markdown is human-readable and agent-readable without a parser. It is editable in any
+tool. It co-locates context with code so it ages with the codebase. YAML manifests
+require schema maintenance; issue-tracker context is runtime-dynamic and unreliable.
+
+---
+
+## Alternatives considered
+
+### Option A: Structured YAML manifest
+**Rejected because:** Schema versioning overhead; less readable for humans; requires parser tooling.
+
+### Option B: Runtime issue-tracker context pull
+**Rejected because:** Latency at agent invocation; inconsistent availability; mixes
+transient requirements with stable conventions.
+
+---
+
+## Consequences
+
+### Positive
+- Agents have consistent, version-controlled context in every repo
+- Developers can read and edit context in the same tools they use for code
+- CI enforcement prevents context drift
+
+### Negative / trade-offs
+- Requires initial authoring effort per repository (estimated 2–4 hours per repo)
+- Context quality varies by author; requires a review standard
+
+### Risks
+- Stale context if teams don't update CLAUDE.md when conventions change
+- Mitigation: quarterly context review added to engineering calendar
+
+---
+
+## Agent instruction implications
+
+\`\`\`
+# ADR-001: Context File Standard
+# Agents must: read CLAUDE.md before any task in this repository
+# Agents must: flag conflicts between task requirements and CLAUDE.md conventions
+# Agents must not: assume conventions not stated in CLAUDE.md
+# Agents must not: modify CLAUDE.md without explicit human instruction
+\`\`\`
+
+---
+
+## Review schedule
+
+Review at 6-month mark or when a new agent capability requires new context fields.`
+  },
+  CLAUDE_MD: {
+    key:'CLAUDE_MD', label:'CLAUDE.md', cls:'ctx', icon:'⚙', iconBg:'#e8f5ee',
+    title:'CLAUDE.md — Agent Context File',
+    sub:'Repository-level agent instruction template',
+    filename:'CLAUDE.md',
+    content:`# Agent Context File
+## [Project / Repository Name]
+
+> This file is the authoritative context source for all AI agents working in this
+> repository. Read it fully before beginning any task. Do not assume conventions
+> not stated here.
+> Last updated: YYYY-MM-DD  |  Owner: [Engineering lead name or role]
+
+---
+
+## Repository overview
+
+**Purpose:** [One sentence describing what this repo does]
+**Track:** Brownfield | Greenfield
+**Primary language(s):** [e.g. TypeScript, Python, C#]
+**Runtime target:** [e.g. Node 20, .NET 8, Python 3.12]
+**Deployment target:** [e.g. AKS, Lambda, Cloud Run]
+
+---
+
+## Architecture
+
+[2–4 sentences describing the high-level architecture. What pattern does the codebase
+follow — vertical slice, clean architecture, modular monolith, microservices?]
+
+**Key boundaries:**
+- [Boundary 1 — e.g. "All database access goes through the repository layer.
+  Agents must not generate direct SQL in controllers."]
+- [Boundary 2]
+- [Boundary 3]
+
+**Architecture decision records:** /docs/adr/ — consult before proposing structural changes.
+
+---
+
+## Build and run
+
+\`\`\`bash
+# Install dependencies
+[install command]
+
+# Run locally
+[run command]
+
+# Run tests
+[test command]
+
+# Lint / format
+[lint command]
+\`\`\`
+
+---
+
+## Code style and conventions
+
+- **Naming:** [e.g. camelCase for variables, PascalCase for types, kebab-case for files]
+- **File structure:** [e.g. feature-first, not layer-first]
+- **Error handling:** [e.g. all errors must be typed; no raw catch (e: any)]
+- **Testing:** [e.g. unit tests co-located with source]
+- **Comments:** [e.g. comments explain why, not what]
+
+---
+
+## Known gotchas
+
+- [Gotcha 1 — e.g. "The legacy auth middleware runs before the new RBAC middleware.
+  Do not remove or reorder."]
+- [Gotcha 2]
+- [Gotcha 3]
+
+---
+
+## Agent instructions
+
+### What agents may do
+- Generate implementation code following conventions in this file
+- Generate unit and integration tests co-located with source
+- Generate documentation updates for changed interfaces
+- Propose ADRs for novel architectural decisions (flag for human review)
+
+### What agents must not do
+- Modify files in /infra/ without explicit human instruction
+- Disable or bypass security middleware
+- Introduce new dependencies without noting them for human approval
+- Commit directly to main or release/* branches
+
+### Async delivery
+- Agents work in isolated feature branches
+- PRs include: implementation, tests, documentation, and a conflict summary
+- Flag blockers in the PR description; do not attempt to resolve them autonomously
+
+### Pre-review checklist (agents self-verify before PR)
+- [ ] All new code has corresponding tests
+- [ ] No secrets, tokens, or credentials in code or comments
+- [ ] No disabled security controls
+- [ ] Conventions in this file are followed
+- [ ] Conflicts with existing code are documented in PR description
+
+---
+
+## Key contacts
+
+| Role                       | Contact |
+|----------------------------|---------|
+| Engineering lead           | [Name]  |
+| Architecture owner         | [Name]  |
+| Security point of contact  | [Name]  |
+
+---
+
+*This file is versioned. Changes require a PR. Substantive changes should reference
+or produce an ADR.*`
+  },
+  GITHUB_MD: {
+    key:'GITHUB_MD', label:'.github', cls:'ghub', icon:'🐙', iconBg:'#f0eafb',
+    title:'.github/agent-instructions.md',
+    sub:'GitHub-integrated agent workflow instructions',
+    filename:'agent-instructions.md',
+    content:`# Agent Instructions — GitHub Workflow Integration
+## .github/agent-instructions.md
+
+> Place this file at .github/agent-instructions.md in any repository.
+> It is consumed by agents operating via GitHub Actions, Copilot, or equivalent tooling.
+> For full repository context, also see CLAUDE.md at the repository root.
+
+---
+
+## Scope
+
+These instructions govern agent behaviour within GitHub-integrated workflows:
+- Pull request authoring and review
+- Issue triage and refinement
+- CI/CD pipeline interaction
+- Release note generation
+
+---
+
+## Pull request standards
+
+**Title format:** [type]: short description
+Types: feat | fix | refactor | docs | test | chore
+
+**PR description must contain:**
+
+### What
+[What does this PR do? One paragraph.]
+
+### Why
+[Why is this change needed? Link to issue or requirement.]
+
+### How
+[Key implementation decisions. Note anything non-obvious.]
+
+### Agent notes
+[What did the agent decide autonomously? What was flagged for human review?]
+
+### Checklist
+- [ ] Tests added or updated
+- [ ] Documentation updated
+- [ ] No secrets or credentials introduced
+- [ ] Security controls not modified
+- [ ] ADR created if architectural decision was made
+
+---
+
+## Review interaction
+
+When a human reviewer leaves a comment, agents should:
+- Address all comments before requesting re-review
+- Respond to each unresolved comment with a code change or reasoned explanation
+- Flag comments requiring human judgment with [needs human decision]
+- Never dismiss review comments without acknowledgment
+
+---
+
+## Issue triage
+
+Agents should add labels: bug | feat | question | security | needs-refinement
+Estimate complexity: size/S | size/M | size/L | size/XL
+
+Agents must not:
+- Close issues without human approval
+- Assign issues to individuals without human instruction
+- Modify issue priority labels set by a human
+
+---
+
+## CI/CD interaction
+
+Agents may:
+- Trigger CI runs on their own PRs
+- Read CI results and self-correct failing tests or lint errors
+
+Agents must not:
+- Modify deployment workflows in .github/workflows/deploy*.yml
+- Disable or bypass required status checks
+- Approve their own PRs
+
+---
+
+## Security
+
+- Never include secrets, tokens, API keys, or credentials in any PR, commit, or comment
+- If a secret is discovered in existing code, open a security issue immediately
+- Do not modify .github/workflows/ files handling secrets without explicit human instruction
+
+---
+
+## Escalation
+
+If an agent cannot complete a task within these guidelines:
+1. Open the PR in draft state
+2. Add a comment: [AGENT BLOCKED]: [clear description of blocker]
+3. Request human review explicitly
+4. Do not attempt to work around the blocker autonomously
+
+---
+
+*In case of conflict with CLAUDE.md, CLAUDE.md takes precedence.*`
+  }
+};
+
+const cellAssets = {
+  product:     { 0:['MRD'], 1:['PRD_BF','PRD_GF','ADR_TMPL'], 2:['PRD_GF'], 3:['ADR_TMPL'] },
+  engineering: { 0:['CLAUDE_MD','GITHUB_MD'], 1:['CLAUDE_MD','ADR_001'], 2:['ADR_TMPL'], 3:['GITHUB_MD'], 4:['ADR_TMPL'] },
+  ops:         { 1:['GITHUB_MD'], 3:['ADR_TMPL'] },
+  security:    { 0:['ADR_TMPL'], 1:['ADR_001'], 2:['ADR_TMPL'], 3:['GITHUB_MD','CLAUDE_MD'], 4:['ADR_TMPL'] }
+};
+
+const data = {
+  product: [
+    { track:'both', title:'AI opportunity assessment', sub:'Identify where AI accelerates value',
+      bf:['Audit existing backlog for AI-assist candidates','Map high-friction manual workflows as automation targets','Capture baseline velocity, quality, and delivery metrics'],
+      gf:['Define AI-native product vision for new surface areas','Identify modules best suited for AI-first design','Conduct user research on agent-assisted experiences'],
+      shared:['Align on feature flag tooling for AI rollout gates','Establish AI adoption KPI framework'] },
+    { track:'both', title:'Agent role definition', sub:'Specialist agent personas per domain',
+      bf:['Codify existing domain knowledge into agent instruction sets','Map current team expertise to agent specialisation areas','Define agent access levels aligned to existing permission model'],
+      gf:['Design agent roles from scratch without legacy constraints','Specify agents for each domain: logic, integration, compliance','Define inter-agent handoff and consensus protocols'],
+      shared:['Author agent specification document template','Establish agent instruction set governance standard'] },
+    { track:'gf', title:'AI-native UX design', sub:'Agent-augmented user journeys',
+      bf:[], gf:['Design agent-in-the-loop interaction patterns from day one','Define async notification UX: in-app, email, messaging','Prototype copilot-style surfaces for core user workflows'], shared:[] },
+    { track:'both', title:'Async workflow boundaries', sub:'Define sync vs. async delivery',
+      bf:['Identify existing features safe for background agent execution','Define PR-ready handoff criteria and review expectations','Establish notification-driven review flow for legacy modules'],
+      gf:['Design async-first feature delivery pipeline from inception','Agent branches: implement, test, and document before human review','Define conflict resolution and escalation paths for agent PRs'],
+      shared:['Async boundary framework document','Approval gate taxonomy across all agent work'] },
+    { track:'both', title:'Intelligent review rollout', sub:'Pre-review agents in product workflow',
+      bf:['Integrate agent pre-review into existing PR and release process','Reduce human review load on established code paths','Track review cycle time delta vs. pre-AI baseline'],
+      gf:['Architecture and security agents embedded in workflow from day one','Human reviewers focus exclusively on business logic and novelty'],
+      shared:['Product quality dashboard including AI review coverage','Review cycle time reduction target (40–60%)'] },
+    { track:'both', title:'ROI measurement & scale', sub:'Quantify value, expand adoption',
+      bf:['Measure velocity delta on established teams sprint-over-sprint','Track bug escape rate vs. pre-AI baseline'],
+      gf:['Quantify velocity gains for AI-native products','Developer NPS on agentic tooling and workflow','Cross-team ROI dashboard for executive reporting'],
+      shared:['Publish AI programme ROI report','Set next-cycle adoption and efficiency targets'] },
+  ],
+  engineering: [
+    { track:'both', title:'Toolchain pilot', sub:'30–50 devs, baseline metrics',
+      bf:['Deploy AI coding assistant on existing teams with instrumentation','Capture accept rate, bug rate, and velocity delta from day one','Introduce context files in legacy repos'],
+      gf:['Evaluate multi-agent orchestration frameworks for new repos','Greenfield repos adopt context files and agent specs from first commit','Pilot async background agent workflow with small team'],
+      shared:['Establish shared metrics dashboard across all pilots','Define token budget per developer and per team'] },
+    { track:'both', title:'Context layer build', sub:'Living system of record for agents',
+      bf:['Migrate existing architecture decisions into agent-readable context','Connect existing issue tracker requirements to agent context pipeline','Instrument established code patterns as agent reference examples'],
+      gf:['Design context graph from scratch with no legacy document debt','API-spec-first: schema automatically feeds agent instruction context'],
+      shared:['Context file standard enforced across all repositories','Cross-session memory integration for persistent agent learning'] },
+    { track:'gf', title:'Multi-agent architecture', sub:'Orchestrated specialist agent graph',
+      bf:[], gf:['Design agent orchestration graph: architect, coder, test, doc agents','Agents operate in parallel on isolated concerns simultaneously','Define consensus rules and arbitration for conflicting agent outputs'], shared:[] },
+    { track:'both', title:'Async background agents', sub:'Agents work; humans review results',
+      bf:['Identify established features safe for overnight agent execution','Agent-generated PRs include implementation, tests, and documentation','Conflict resolution summary included in every agent-authored PR'],
+      gf:['Agent-first branches standard for all new feature work','Developer assigns story; agent executes; human reviews output'],
+      shared:['Handoff criteria definition for all async agent work','Override and escalation path for rejected agent PRs'] },
+    { track:'both', title:'Intelligent code review', sub:'Security, arch, perf agents in CI',
+      bf:['Security agent: auth, encryption, and injection checks on existing PRs','Architecture agent: validates against established team standards','Performance agent: flags regressions against known baseline patterns'],
+      gf:['All three review agents active from first commit in new repos','Architecture agent references greenfield standards and ADRs'],
+      shared:['Code review checklist operationalised as agent ruleset','Human reviewers focus on tradeoffs, novelty, and business logic'] },
+    { track:'both', title:'Cross-team orchestration', sub:'Shared component agents',
+      bf:['Shared infrastructure agent identifies duplication across existing teams','Integration agent surfaces API contract inconsistencies in legacy systems'],
+      gf:['Integration agent designs event and API contracts from first principles','Agents identify shared component opportunities across new products'],
+      shared:['Inter-team boundary rules encoded in agent instruction sets','Cross-team agent coordination protocol and escalation path'] },
+  ],
+  ops: [
+    { track:'both', title:'Observability baseline', sub:'AI metrics infrastructure',
+      bf:['Add AI telemetry to existing CI/CD: accept rate, latency, coverage','Token spend tracking instrumented by team and project'],
+      gf:['Design observability-first: AI metrics built into platform from day one','Agent trace visibility in build and deploy pipeline from inception'],
+      shared:['AI metrics schema definition','Dashboard: velocity, quality, spend, and adoption'] },
+    { track:'bf', title:'Legacy pipeline integration', sub:'CI/CD augmentation for existing repos',
+      bf:['Add agent pre-review step to existing build pipelines','Agent-generated test scaffolds integrated into brownfield build process','Context file enforcement gate added to CI for legacy repositories'],
+      gf:[], shared:[] },
+    { track:'gf', title:'Cloud-native agent infrastructure', sub:'Agent runtime platform design',
+      bf:[], gf:['Design and deploy agent runtime platform for new services','Implement RBAC enforcement for agent access to data and APIs','Define scaling policy for agent compute based on team load'], shared:[] },
+    { track:'both', title:'Async ops workflow', sub:'Notification & handoff pipelines',
+      bf:['Alerting when agent PRs are ready for existing team review queues','Overnight agent run scheduling and health monitoring'],
+      gf:['Notification-driven ops designed into the platform from sprint one','Agent health dashboard: run status, failure rate, retry counts'],
+      shared:['Async boundary operations playbook','On-call rotation and incident runbook for agent failures'] },
+    { track:'both', title:'Spend & resource controls', sub:'Token budgets & cost governance',
+      bf:['Per-team token budget caps enforced in existing tooling','Cost alert thresholds defined per established team and product'],
+      gf:['Agent cost modelled into new product feature estimates from the start','Dynamic budget scaling based on sprint throughput and team size'],
+      shared:['Enterprise token budget framework','Cost per story-point AI delivery metric'] },
+    { track:'both', title:'Enterprise ops readiness', sub:'Full-scale agent operations',
+      bf:['SLA defined for agent-assisted releases in established products','Incident runbook for agent-introduced regressions in production'],
+      gf:['Agent ops playbook mature and staffed for all new product lines','Agent performance benchmarks published on a regular cadence'],
+      shared:['Cross-team agent operations centre','AI reliability SLOs published and reviewed quarterly'] },
+  ],
+  security: [
+    { track:'both', title:'Data sensitivity mapping', sub:'What agents can access',
+      bf:['Map existing permission model to agent access tier definitions','Flag sensitive data fields for agent exclusion in existing schemas'],
+      gf:['Define agent RBAC from scratch using principle of least privilege','Encode data classification policy into agent instruction sets'],
+      shared:['Data classification taxonomy for agent access across all teams','Cross-team data boundary policy document'] },
+    { track:'both', title:'Agent identity & authentication', sub:'Who agents are and what they can do',
+      bf:['Extend existing identity provider to cover agent authentication','Scope agent session tokens to least-privilege access on existing APIs'],
+      gf:['Design mutual authentication for agent-to-agent communication','Short-lived credential rotation built into agent session lifecycle'],
+      shared:['Agent identity standard across all teams and environments','Credential rotation policy and revocation procedure'] },
+    { track:'gf', title:'Security-by-design agent platform', sub:'Zero-trust from inception',
+      bf:[], gf:['Zero-trust network policy for agent mesh: no implicit trust','Agent egress controls: approved API and data source allowlist only','TLS validation enforced; no configuration options to disable'], shared:[] },
+    { track:'both', title:'Agent security pre-review', sub:'Security agent in CI/CD',
+      bf:['Security agent checks auth, encryption, and injection in existing PRs','Scan for known-bad patterns from existing security backlog'],
+      gf:['Security agent active in CI from first commit in new repositories','OWASP and compliance checks integrated as a merge gate'],
+      shared:['Security agent ruleset derived from existing code review standards','Zero critical findings gate enforced on all agent-authored PRs'] },
+    { track:'both', title:'Audit trail & compliance', sub:'Full traceability of agent work',
+      bf:['Audit log: task assignment, code generated, and human approval recorded','Integration with existing compliance and change management workflows'],
+      gf:['Immutable audit trail designed into platform from sprint one','Agent work traceable from requirement through PR to production approval'],
+      shared:['Enterprise audit trail schema for all agent work','Legal and compliance review of agent-generated intellectual property'] },
+    { track:'both', title:'Governance enforcement', sub:'Policy & compliance at scale',
+      bf:['Policy engine defines which agent types access which data classifications','Compliance violation alerting integrated with existing security operations'],
+      gf:['Governance layer native to agent platform architecture','Policy-as-code: agent constraints versioned alongside product source'],
+      shared:['AI Governance Framework v1.0 published and maintained','Cross-team policy enforcement dashboard reviewed regularly'] },
+  ]
+};
+
+let currentFilter = 'all';
+let currentAsset = null;
+
+function setFilter(f) {
+  currentFilter = f;
+  document.querySelectorAll('.tbtn').forEach(b => {
+    b.className = 'tbtn';
+    if (b.textContent.trim() === 'All' && f === 'all') b.classList.add('a-all');
+    if (b.textContent.trim() === 'Brownfield' && f === 'bf') b.classList.add('a-bf');
+    if (b.textContent.trim() === 'Greenfield' && f === 'gf') b.classList.add('a-gf');
+  });
+  document.querySelectorAll('.cell:not(.empty)').forEach(c => {
+    const t = c.dataset.track;
+    c.classList.toggle('dim', f !== 'all' && t !== f && t !== 'both');
+  });
+}
+
+// Track which panel is open: { rowEl, panelEl, laneId, idx, type }
+let openPanel = null;
+
+function closePanel() {
+  if (!openPanel) return;
+  openPanel.panelEl.classList.remove('open');
+  // remove after transition
+  const el = openPanel.panelEl;
+  el.addEventListener('transitionend', () => el.remove(), { once: true });
+  openPanel.cell && openPanel.cell.classList.remove('active-cell');
+  openPanel = null;
+  currentAsset = null;
+}
+
+function buildDetailHTML(item, assetKeys) {
+  const hasBf = item.bf && item.bf.length;
+  const hasGf = item.gf && item.gf.length;
+  const hasShared = item.shared && item.shared.length;
+  const bfItems = hasBf ? item.bf.map(t=>`<div class="sp-item"><div class="sp-dot bf"></div><div class="sp-txt">${t}</div></div>`).join('') : '';
+  const gfItems = hasGf ? item.gf.map(t=>`<div class="sp-item"><div class="sp-dot gf"></div><div class="sp-txt">${t}</div></div>`).join('') : '';
+  const shItems = hasShared ? item.shared.map(t=>`<div class="sp-item"><div class="sp-dot both"></div><div class="sp-txt">${t}</div></div>`).join('') : '';
+
+  // Build two-column layout: bf left, gf right, shared full-width below
+  let cols = '';
+  if (hasBf || hasGf) {
+    cols += `<div class="sp-col-hd bf" style="${!hasBf?'visibility:hidden':''}">Brownfield</div>`;
+    cols += `<div class="sp-col-hd gf" style="${!hasGf?'visibility:hidden':''}">Greenfield</div>`;
+    cols += `<div style="display:contents">${bfItems}</div>`;
+    cols += `<div style="display:contents">${gfItems}</div>`;
+  }
+  if (hasShared) {
+    cols += `<div class="sp-col-hd both">Shared — both tracks</div>`;
+    cols += `<div style="grid-column:span 2;display:grid;grid-template-columns:1fr 1fr;gap:0 24px">${shItems}</div>`;
+  }
+
+  // Asset download row
+  if (assetKeys && assetKeys.length) {
+    const chipHtml = assetKeys.map(k => {
+      const a = ASSETS[k];
+      return a ? `<span class="chip ${a.cls}" onclick="openAsset('${k}',event)">${a.label}</span>` : '';
+    }).join('');
+    cols += `<div style="grid-column:span 2;border-top:1px solid var(--border-light);margin-top:12px;padding-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span style="font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:var(--text-tertiary)">Assets</span>
+      ${chipHtml}
+    </div>`;
+  }
+
+  return cols;
+}
+
+function openDP(laneId, idx, cellEl) {
+  const item = data[laneId][idx];
+  if (!item) return;
+
+  // Toggle: clicking same cell closes it
+  if (openPanel && openPanel.laneId === laneId && openPanel.idx === idx && openPanel.type === 'dp') {
+    closePanel(); return;
+  }
+  closePanel();
+
+  const lane = lanes.find(l => l.id === laneId);
+  const assetKeys = (cellAssets[laneId] && cellAssets[laneId][idx]) || [];
+  const badges =
+    (item.track==='bf'||item.track==='both'?'<span class="bdg bf">BROWNFIELD</span>':'') +
+    (item.track==='gf'||item.track==='both'?'<span class="bdg gf">GREENFIELD</span>':'');
+
+  const panelEl = document.createElement('div');
+  panelEl.className = 'inline-panel';
+  panelEl.innerHTML = `<div class="inline-panel-inner">
+    <div class="sp-head">
+      <div class="sp-badges">${badges}</div>
+      <div class="sp-titles">
+        <div class="sp-ttl">${item.title}</div>
+        <div class="sp-meta">${lane.name} · ${phases[idx]}</div>
+      </div>
+      <button class="sp-x" onclick="closePanel()">✕</button>
+    </div>
+    <div class="sp-body">${buildDetailHTML(item, assetKeys)}</div>
+  </div>`;
+
+  // Insert after the row that contains the clicked cell
+  const rowEl = cellEl.closest('.grid.lane-row');
+  rowEl.insertAdjacentElement('afterend', panelEl);
+
+  // Trigger animation on next frame
+  requestAnimationFrame(() => { requestAnimationFrame(() => panelEl.classList.add('open')); });
+  panelEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  cellEl.classList.add('active-cell');
+  openPanel = { panelEl, laneId, idx, type: 'dp', cell: cellEl };
+}
+
+function openAsset(key, e) {
+  e.stopPropagation();
+  const asset = ASSETS[key];
+  if (!asset) return;
+
+  // Toggle same asset
+  if (openPanel && openPanel.assetKey === key && openPanel.type === 'asset') {
+    closePanel(); return;
+  }
+  closePanel();
+  currentAsset = asset;
+
+  const chipEl = e.currentTarget;
+  const cellEl = chipEl.closest('.cell');
+  const rowEl = cellEl ? cellEl.closest('.grid.lane-row') : null;
+
+  const panelEl = document.createElement('div');
+  panelEl.className = 'inline-panel';
+  panelEl.innerHTML = `<div class="inline-panel-inner">
+    <div class="asset-head">
+      <div class="asset-icon" style="background:${asset.iconBg}">${asset.icon}</div>
+      <div>
+        <div class="asset-ttl">${asset.title}</div>
+        <div class="asset-sub">${asset.sub}</div>
+      </div>
+      <button class="sp-x" style="margin-left:auto" onclick="closePanel()">✕</button>
+    </div>
+    <div class="asset-body">
+      <div class="asset-code">${asset.content.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+      <div class="asset-actions">
+        <button class="abtn" onclick="closePanel()">Close</button>
+        <button class="abtn primary" onclick="downloadAsset()">↓ Download .md</button>
+      </div>
+    </div>
+  </div>`;
+
+  if (rowEl) {
+    rowEl.insertAdjacentElement('afterend', panelEl);
+  } else {
+    document.getElementById('lanes').appendChild(panelEl);
+  }
+
+  requestAnimationFrame(() => { requestAnimationFrame(() => panelEl.classList.add('open')); });
+  panelEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  openPanel = { panelEl, type: 'asset', assetKey: key };
+}
+
+function closeAll() { closePanel(); }
+
+function downloadAsset() {
+  if (!currentAsset) return;
+  const blob = new Blob([currentAsset.content], { type: 'text/markdown' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = currentAsset.filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function render() {
+  const container = document.getElementById('lanes');
+  container.innerHTML = '';
+  lanes.forEach(lane => {
+    const row = document.createElement('div');
+    row.className = 'grid lane-row';
+    const lbl = document.createElement('div');
+    lbl.className = 'lane-lbl';
+    lbl.innerHTML = `<div class="l-icon" style="background:${lane.ib};color:${lane.ic}">${lane.icon}</div><div class="l-name">${lane.name}</div>`;
+    row.appendChild(lbl);
+    for (let i = 0; i < 6; i++) {
+      const item = data[lane.id][i];
+      const cell = document.createElement('div');
+      if (!item) {
+        cell.className = 'cell empty';
+      } else {
+        cell.className = `cell ${item.track}`;
+        cell.dataset.track = item.track;
+        cell.innerHTML = `
+          <div class="badges">
+            ${item.track==='bf'||item.track==='both'?'<span class="bdg bf">BF</span>':''}
+            ${item.track==='gf'||item.track==='both'?'<span class="bdg gf">GF</span>':''}
+          </div>
+          <div class="c-title">${item.title}</div>
+          <div class="c-sub">${item.sub}</div>`;
+        cell.addEventListener('click', () => openDP(lane.id, i, cell));
+      }
+      row.appendChild(cell);
+    }
+    container.appendChild(row);
+  });
+}
+
+render();
+</script>
+</body>
+</html>
