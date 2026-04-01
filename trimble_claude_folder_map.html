@@ -422,10 +422,12 @@ const columns = [
     id: 'qa', label: 'qa/', sub: 'QA + testing agents', theme: 'col-purple', isNew: true,
     items: [
       { name: 'unit-test-writer.md', desc: 'Generates unit tests for changed code', prompt: 'What goes in a unit-test-writer agent?',
+        file: '.claude/agents/unit-test-writer.md',
         detail: 'Reads changed files and their dependencies, identifies untested public functions, and writes co-located unit tests. Uses mocks for all external dependencies. Runs tests and fixes failures.',
         example: `---\ndescription: Unit test writer. Spawned\n  after implementation to add missing unit\n  tests for changed public functions.\nallowed-tools: Read, Glob, Edit, Bash\n---\n# Write unit tests for changed files.\n# Mock all external dependencies.\n# Co-locate with source files.\n# Run tests - fix any failures.`,
         badge: 'QA' },
       { name: 'integration-test-writer.md', desc: 'API + service integration test coverage', prompt: 'What goes in an integration-test-writer agent?',
+        file: '.claude/agents/integration-test-writer.md',
         detail: 'Identifies new or changed API endpoints and service boundaries, then writes integration tests covering happy path, error cases, auth boundaries, and edge conditions. Uses test DB, not production.',
         example: `---\ndescription: Integration test writer. Writes\n  tests covering API endpoints and service\n  boundaries. Runs against test DB only.\nallowed-tools: Read, Glob, Edit, Bash\n---`,
         badge: 'QA' },
