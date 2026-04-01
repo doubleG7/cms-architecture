@@ -1,0 +1,425 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.root { font-family: var(--font-sans); padding: 0 0 1.5rem; }
+
+/* root node */
+.root-node {
+  display: inline-flex; align-items: center; gap: 8px;
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: var(--border-radius-md);
+  padding: 7px 14px;
+  font-size: 13px; font-weight: 500;
+  background: var(--color-background-secondary);
+  margin-bottom: 6px;
+}
+.root-label { font-family: var(--font-mono); font-size: 12px; }
+.root-sub { font-size: 11px; color: var(--color-text-secondary); }
+
+/* connector lines */
+.h-line {
+  border-top: 0.5px solid var(--color-border-secondary);
+  margin: 0 0 0 20px;
+  margin-bottom: 6px;
+}
+
+/* column grid — 8 cols + label */
+.col-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 5px;
+  margin-bottom: 6px;
+}
+.col-head {
+  border-radius: var(--border-radius-md);
+  padding: 8px 8px 6px;
+  text-align: center;
+  cursor: pointer;
+  transition: opacity 0.12s;
+  border: 0.5px solid transparent;
+}
+.col-head:hover { opacity: 0.8; }
+.col-head-title { font-size: 11.5px; font-weight: 500; }
+.col-head-sub   { font-size: 9.5px; margin-top: 2px; }
+
+/* color themes per column */
+.col-blue   { background: #eef3fc; border-color: #c5d6f5; }
+.col-blue   .col-head-title { color: #1a3a80; }
+.col-blue   .col-head-sub   { color: #3a6fd8; }
+.col-blue   .item-file { border-left-color: #3a6fd8; }
+
+.col-teal   { background: #edf7f2; border-color: #b8e4cc; }
+.col-teal   .col-head-title { color: #0a4a30; }
+.col-teal   .col-head-sub   { color: #1d9e75; }
+.col-teal   .item-file { border-left-color: #1d9e75; }
+
+.col-purple { background: #f0ebfb; border-color: #c8aeef; }
+.col-purple .col-head-title { color: #3a1a6a; }
+.col-purple .col-head-sub   { color: #7f77dd; }
+.col-purple .item-file { border-left-color: #7f77dd; }
+
+.col-amber  { background: #fef5e4; border-color: #f0cc80; }
+.col-amber  .col-head-title { color: #7a4f00; }
+.col-amber  .col-head-sub   { color: #ba7517; }
+.col-amber  .item-file { border-left-color: #ba7517; }
+
+.col-coral  { background: #faece7; border-color: #f5c4b3; }
+.col-coral  .col-head-title { color: #712b13; }
+.col-coral  .col-head-sub   { color: #d85a30; }
+.col-coral  .item-file { border-left-color: #d85a30; }
+
+.col-green  { background: #eaf3de; border-color: #c0dd97; }
+.col-green  .col-head-title { color: #173404; }
+.col-green  .col-head-sub   { color: #3b6d11; }
+.col-green  .item-file { border-left-color: #3b6d11; }
+
+.col-pink   { background: #fbeaf0; border-color: #f4c0d1; }
+.col-pink   .col-head-title { color: #4b1528; }
+.col-pink   .col-head-sub   { color: #993556; }
+.col-pink   .item-file { border-left-color: #993556; }
+
+.col-gray   { background: var(--color-background-secondary); border-color: var(--color-border-secondary); }
+.col-gray   .col-head-title { color: var(--color-text-primary); }
+.col-gray   .col-head-sub   { color: var(--color-text-secondary); }
+.col-gray   .item-file { border-left-color: var(--color-text-tertiary); }
+
+/* file items */
+.col-items { display: flex; flex-direction: column; gap: 4px; }
+.item-file {
+  border-left: 2.5px solid;
+  border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0;
+  padding: 6px 8px;
+  background: var(--color-background-primary);
+  border-top: 0.5px solid var(--color-border-tertiary);
+  border-right: 0.5px solid var(--color-border-tertiary);
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+  cursor: pointer;
+  transition: opacity 0.12s, transform 0.1s;
+}
+.item-file:hover { opacity: 0.8; transform: translateX(1px); }
+.item-name { font-family: var(--font-mono); font-size: 10px; font-weight: 500; color: var(--color-text-primary); line-height: 1.3; }
+.item-desc { font-size: 9.5px; color: var(--color-text-secondary); margin-top: 2px; line-height: 1.3; }
+.item-badge {
+  display: inline-block; font-size: 8px; font-weight: 700;
+  padding: 1px 4px; border-radius: 3px; margin-top: 3px;
+  letter-spacing: 0.3px;
+}
+.badge-new  { background: #eaf3de; color: #173404; }
+.badge-qa   { background: #edf7f2; color: #0a4a30; }
+
+/* bottom rows */
+.bottom-row {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 5px; margin-top: 5px;
+}
+.bottom-cell {
+  border-radius: var(--border-radius-md);
+  border: 0.5px solid var(--color-border-secondary);
+  padding: 8px 12px;
+}
+.bc-title { font-family: var(--font-mono); font-size: 11px; font-weight: 500; }
+.bc-sub   { font-size: 10px; color: var(--color-text-secondary); margin-top: 2px; }
+
+/* detail drawer */
+.drawer {
+  margin-top: 8px;
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  display: none;
+}
+.drawer.open { display: block; }
+.dw-head {
+  padding: 10px 14px;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+  background: var(--color-background-secondary);
+  display: flex; align-items: center; gap: 8px;
+}
+.dw-name { font-family: var(--font-mono); font-size: 12px; font-weight: 500; flex: 1; }
+.dw-col  { font-size: 10px; color: var(--color-text-secondary); }
+.dw-x    { background: none; border: none; cursor: pointer; color: var(--color-text-secondary); font-size: 14px; padding: 2px 5px; font-family: var(--font-sans); }
+.dw-body { padding: 12px 14px; }
+.dw-desc { font-size: 12.5px; color: var(--color-text-secondary); line-height: 1.65; margin-bottom: 10px; }
+.dw-example {
+  font-family: var(--font-mono); font-size: 10.5px;
+  background: var(--color-background-secondary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-md);
+  padding: 10px 12px; line-height: 1.7;
+  white-space: pre-wrap; color: var(--color-text-secondary);
+}
+.dw-ask {
+  display: inline-block; margin-top: 10px;
+  padding: 6px 14px; font-size: 11px; font-weight: 500;
+  border-radius: 6px; cursor: pointer;
+  border: 0.5px solid var(--color-border-secondary);
+  background: var(--color-background-secondary);
+  color: var(--color-text-primary); font-family: var(--font-sans);
+  transition: background 0.12s;
+}
+.dw-ask:hover { background: var(--color-background-tertiary); }
+
+/* legend */
+.legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; padding-top: 10px; border-top: 0.5px solid var(--color-border-tertiary); }
+.leg { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--color-text-secondary); }
+.leg-sw { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+</style>
+
+<div class="root">
+
+  <!-- Root node -->
+  <div class="root-node">
+    <span class="root-label">.trimble/</span>
+    <span class="root-sub">repo root — Trimble CMS AI control plane</span>
+  </div>
+
+  <div class="h-line"></div>
+
+  <!-- 8-column grid -->
+  <div class="col-grid" id="col-grid"></div>
+
+  <!-- Bottom rows -->
+  <div class="bottom-row">
+    <div class="bottom-cell" style="background:#faece7;border-color:#f5c4b3">
+      <div class="bc-title" style="color:#712b13">CLAUDE.md <span style="font-size:9px;font-weight:400;color:#d85a30">(repo root, not .trimble/)</span></div>
+      <div class="bc-sub">Primary rules — loaded first on every session. Layer boundaries, API conventions, error handling, security. Keep under 200 lines.</div>
+    </div>
+    <div class="bottom-cell" style="background:var(--color-background-secondary)">
+      <div class="bc-title">~/.claude/CLAUDE.md <span style="font-size:9px;font-weight:400;color:var(--color-text-tertiary)">(global, personal)</span></div>
+      <div class="bc-sub">Personal preferences across all repos — never committed. Response style, tool preferences, personal shortcuts.</div>
+    </div>
+  </div>
+
+  <!-- Detail drawer -->
+  <div class="drawer" id="drawer">
+    <div class="dw-head">
+      <div class="dw-name" id="dw-name"></div>
+      <div class="dw-col" id="dw-col"></div>
+      <button class="dw-x" onclick="closeDrawer()">✕</button>
+    </div>
+    <div class="dw-body">
+      <div class="dw-desc" id="dw-desc"></div>
+      <div class="dw-example" id="dw-example"></div>
+      <button class="dw-ask" id="dw-ask"></button>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="leg"><div class="leg-sw" style="background:#eef3fc;border:0.5px solid #c5d6f5"></div>skills/ — slash commands + auto-invoked workflows</div>
+    <div class="leg"><div class="leg-sw" style="background:#edf7f2;border:0.5px solid #b8e4cc"></div>agents/ — specialist subagents Claude spawns</div>
+    <div class="leg"><div class="leg-sw" style="background:#f0ebfb;border:0.5px solid #c8aeef"></div>qa/ — QA, integration, unit, E2E test agents</div>
+    <div class="leg"><div class="leg-sw" style="background:#fef5e4;border:0.5px solid #f0cc80"></div>settings.json — tools, permissions, hooks, model</div>
+    <div class="leg"><div class="leg-sw" style="background:#faece7;border:0.5px solid #f5c4b3"></div>CLAUDE.md — rules files</div>
+    <div class="leg"><div class="leg-sw" style="background:#eaf3de;border:0.5px solid #c0dd97"></div>rules/ — scoped rules (path-conditional)</div>
+    <div class="leg"><div class="leg-sw" style="background:#fbeaf0;border:0.5px solid #f4c0d1"></div>agent-memory/ — persistent agent knowledge</div>
+    <div class="leg"><div class="leg-sw" style="background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary)"></div>worktrees/ — auto-managed parallel sessions</div>
+    <div class="leg" style="margin-left:auto;color:var(--color-text-tertiary)">Click any file to expand</div>
+  </div>
+
+</div>
+
+<script>
+const columns = [
+  {
+    id: 'skills', label: 'skills/', sub: 'slash commands', theme: 'col-blue',
+    items: [
+      { name: 'arch-review/SKILL.md', desc: '/arch-review — validates vs CLAUDE.md + ADRs', prompt: 'What goes in an arch-review SKILL.md?',
+        detail: 'Slash command that reviews code against CLAUDE.md standards and ADRs. Supports files, folders, git diffs, and PR numbers. Auto-triggered when you ask to review code or a PR.',
+        example: `---\nname: arch-review\ndescription: Validates code against CLAUDE.md\n  standards and ADRs. Use when reviewing PRs,\n  checking code quality, or before shipping.\nallowed-tools: Bash, Read, Glob\n---\n# Review $ARGUMENTS against CLAUDE.md rules...` },
+      { name: 'commit-push-pr/SKILL.md', desc: '/commit-push-pr — stage, commit, push, PR', prompt: 'What goes in commit-push-pr SKILL.md?',
+        detail: 'Reads the git diff, writes a conventional commit message, pushes, and opens a draft PR with a structured description. Refuses to push to main/master.',
+        example: `---\nname: commit-push-pr\ndescription: Stage, commit (conventional),\n  push, and open a draft PR. Use when\n  saying "ship it" or "open a PR".\nallowed-tools: Bash, Read\n---` },
+      { name: 'techdebt/SKILL.md', desc: '/techdebt — full codebase debt audit', prompt: 'What goes in a techdebt SKILL.md?',
+        detail: 'Scans for duplication, complexity, dead code, architectural drift, missing tests, and TODO accumulation. Produces a prioritised debt register with effort estimates.',
+        example: `---\nname: techdebt\ndescription: Debt audit. Duplication,\n  complexity, dead code, drift, deps.\nargument-hint: "[path] [--quick]"\nallowed-tools: Bash, Read, Glob\n---` },
+      { name: 'daily-standup/SKILL.md', desc: '/daily-standup — reads git, writes standup', prompt: 'What goes in a daily-standup SKILL.md?',
+        detail: 'Reads git log, open PRs, and blockers. Writes a standup update. Never asks what you did — it finds it. Produces both structured and Slack single-line formats.',
+        example: `---\nname: daily-standup\ndescription: Reads git log + PRs and writes\n  a standup. Use when asked for daily update,\n  standup, or "what did I do today".\n---` },
+      { name: 'prd-writer/SKILL.md', desc: '/prd-writer — interview → full PRD', prompt: 'What goes in a prd-writer SKILL.md?',
+        detail: 'Interviews the team with 20 discovery questions, then produces a complete PRD with user stories, functional requirements, acceptance criteria, and a definition of done.',
+        example: `---\nname: prd-writer\ndescription: Conducts discovery interview\n  and produces a complete PRD. Use when\n  defining a new feature or module.\n---` },
+    ]
+  },
+  {
+    id: 'agents', label: 'agents/', sub: 'subagent definitions', theme: 'col-teal',
+    items: [
+      { name: 'code-architect.md', desc: 'Design before implementation — read-only', prompt: 'What goes in a code-architect agent?',
+        detail: 'Read-only agent spawned before implementation. Loads CLAUDE.md and ADRs, asks design questions, evaluates options, and produces a design doc. Stops at "awaiting approval" — never writes code.',
+        example: `---\ndescription: Architecture design agent.\n  Spawned when structural decisions needed\n  before implementation. Read-only.\nallowed-tools: Read, Glob, Bash, WebFetch\n---` },
+      { name: 'code-simplifier.md', desc: 'Post-build cleanup, never changes behaviour', prompt: 'What goes in a code-simplifier agent?',
+        detail: 'Spawned after tests pass. Removes dead code, eliminates duplication, reduces complexity, improves names. Reverts any edit that causes test failures. Never changes observable behaviour.',
+        example: `---\ndescription: Post-build simplification.\n  Spawned after implementation and tests\n  pass. Reduces complexity without changing\n  behaviour.\nallowed-tools: Read, Glob, Edit, Bash\n---` },
+      { name: 'verify-app.md', desc: 'E2E: startup, journeys, regression', prompt: 'What goes in a verify-app agent?',
+        detail: 'Starts the application, hits the health endpoint, runs core user journeys with curl, re-runs the test suite, and scans logs for silent failures. Stops if startup fails.',
+        example: `---\ndescription: Application verification.\n  Confirms app starts, core journeys pass,\n  and nothing existing is broken.\nallowed-tools: Bash, Read, Glob\n---` },
+      { name: 'security-scanner.md', desc: 'Secrets, injection, auth, crypto scan', prompt: 'What goes in a security-scanner agent?',
+        detail: 'Scans for secrets, SQL injection, command injection, auth gaps, JWT issues, weak crypto, and supply chain risks. Read-only. Blocks merge on CRITICAL or HIGH findings.',
+        example: `---\ndescription: Security pre-review. Spawned\n  before human code review. Scans for\n  vulns and blocks merge on critical issues.\nallowed-tools: Read, Glob, Bash\n---` },
+      { name: 'prd-writer.md', desc: 'Discovery interview → structured PRD', prompt: 'What goes in a prd-writer agent?',
+        detail: 'Interviews stakeholders with 20 targeted questions, then writes a complete PRD including user stories, functional requirements, non-goals, assumptions, success metrics, and definition of done.',
+        example: `---\ndescription: PRD writer. Spawned when a\n  team needs to define what to build.\n  Conducts discovery, then writes PRD.\nallowed-tools: Read, Glob, Bash\n---` },
+      { name: 'oncall-guide.md', desc: 'Incident runbook & triage agent', prompt: 'What goes in an oncall-guide agent?',
+        detail: 'Spawned during incidents. Reads error logs, checks dashboards, walks through triage steps, and produces an incident summary. References existing runbooks in docs/runbooks/.',
+        example: `---\ndescription: Oncall incident guide. Spawned\n  during alerts or incidents to triage,\n  diagnose, and suggest remediation.\nallowed-tools: Bash, Read, Glob\n---` },
+    ]
+  },
+  {
+    id: 'qa', label: 'qa/', sub: 'QA + testing agents', theme: 'col-purple', isNew: true,
+    items: [
+      { name: 'unit-test-writer.md', desc: 'Generates unit tests for changed code', prompt: 'What goes in a unit-test-writer agent?',
+        detail: 'Reads changed files and their dependencies, identifies untested public functions, and writes co-located unit tests. Uses mocks for all external dependencies. Runs tests and fixes failures.',
+        example: `---\ndescription: Unit test writer. Spawned\n  after implementation to add missing unit\n  tests for changed public functions.\nallowed-tools: Read, Glob, Edit, Bash\n---\n# Write unit tests for changed files.\n# Mock all external dependencies.\n# Co-locate with source files.\n# Run tests — fix any failures.`,
+        badge: 'QA' },
+      { name: 'integration-test-writer.md', desc: 'API + service integration test coverage', prompt: 'What goes in an integration-test-writer agent?',
+        detail: 'Identifies new or changed API endpoints and service boundaries, then writes integration tests covering happy path, error cases, auth boundaries, and edge conditions. Uses test DB, not production.',
+        example: `---\ndescription: Integration test writer. Writes\n  tests covering API endpoints and service\n  boundaries. Runs against test DB only.\nallowed-tools: Read, Glob, Edit, Bash\n---`,
+        badge: 'QA' },
+      { name: 'e2e-test-writer.md', desc: 'End-to-end user journey test scripts', prompt: 'What goes in an e2e-test-writer agent?',
+        detail: 'Derives user journeys from the PRD or changed controllers, writes E2E test scripts (Playwright, Cypress, or curl-based), covers happy path and primary error cases, and verifies against the running app.',
+        example: `---\ndescription: E2E test writer. Derives user\n  journeys from PRD and changed routes,\n  then writes and runs E2E test scripts.\nallowed-tools: Bash, Read, Glob, Edit\n---`,
+        badge: 'QA' },
+      { name: 'test-coverage-reporter.md', desc: 'Coverage gaps + weak test quality audit', prompt: 'What goes in a test-coverage-reporter agent?',
+        detail: 'Runs the coverage tool, identifies files below threshold, flags tests with no assertions or external state dependencies, and produces a prioritised coverage improvement plan.',
+        example: `---\ndescription: Test coverage audit. Identifies\n  coverage gaps, weak assertions, and tests\n  with external state. Produces gap report.\nallowed-tools: Bash, Read, Glob\n---`,
+        badge: 'QA' },
+      { name: 'regression-guard.md', desc: 'Pre-merge regression detection', prompt: 'What goes in a regression-guard agent?',
+        detail: 'Runs the full test suite against the current branch, diffs results against the base branch, and reports any test that was passing before and is now failing. Blocks merge on regressions.',
+        example: `---\ndescription: Regression guard. Runs full\n  test suite and diffs against base branch.\n  Blocks merge if any passing test now fails.\nallowed-tools: Bash, Read\n---`,
+        badge: 'QA' },
+    ]
+  },
+  {
+    id: 'rules', label: 'rules/', sub: 'scoped rule files', theme: 'col-green', isNew: true,
+    items: [
+      { name: 'code-style.md', desc: 'Naming, formatting, structure conventions', prompt: 'What goes in a rules/code-style.md file?',
+        detail: 'Always-loaded rules for naming conventions, file structure, comment standards, and formatting. Lives alongside CLAUDE.md but kept separate so it can be updated independently.',
+        example: `# Code style rules\n# Loaded at startup — always in context\n\n- camelCase for variables, PascalCase for types\n- Feature-first folder structure\n- Comments explain why, not what\n- No bare catch — errors must be typed` },
+      { name: 'testing.md', desc: 'Test conventions, coverage requirements', prompt: 'What goes in a rules/testing.md file?',
+        detail: 'Testing standards: co-location rules, coverage thresholds, mock conventions, forbidden patterns (no network in unit tests, no shared DB state). Loaded at startup.',
+        example: `# Testing rules\n\n- Unit tests co-located with source\n- No live network calls in unit tests\n- No shared mutable state between tests\n- Coverage threshold: 80% on service layer\n- Integration tests in tests/integration/` },
+      { name: 'api-conventions.md', desc: 'Only loads when editing API files', prompt: 'What goes in a rules/api-conventions.md file?',
+        detail: 'Path-scoped rule — only loads when Claude is working on API files. Covers versioning, error envelopes, pagination, auth patterns. Keeps API rules out of context when editing non-API code.',
+        example: `---\npaths:\n  - "src/api/**/*.ts"\n  - "src/controllers/**/*.ts"\n---\n# API rules (path-scoped)\n- All endpoints versioned /v1/ /v2/\n- Error shape: { error, code, traceId }\n- Auth checked before business logic\n- Pagination: cursor-based, not offset` },
+      { name: 'security.md', desc: 'Security checklist — always loaded', prompt: 'What goes in a rules/security.md file?',
+        detail: 'Always-loaded security rules: no SQL concatenation, no eval on user input, no credentials in code, no TLS disabled. Agents self-check against this before every PR.',
+        example: `# Security rules\n\n- Parameterised queries only — no SQL concat\n- No eval() on user-supplied input\n- No credentials, tokens, or secrets in code\n- TLS must be validated — rejectUnauthorized\n  must never be false in non-test code\n- User input validated before use in paths` },
+    ]
+  },
+  {
+    id: 'settings', label: 'settings.json', sub: 'project config', theme: 'col-amber',
+    items: [
+      { name: 'allowedTools', desc: 'Bash, Read, Write, Edit, Glob, WebFetch', prompt: 'How do I configure allowedTools in settings.json?',
+        detail: 'Controls which tools Claude can use in this project. Scope down per-agent in the agent frontmatter. Most projects allow Bash, Read, Write, Edit, Glob.',
+        example: `{\n  "allowedTools": [\n    "Bash", "Read", "Write",\n    "Edit", "Glob", "WebFetch"\n  ]\n}` },
+      { name: 'permissions', desc: 'Allow/deny bash + file path patterns', prompt: 'How do I configure permissions in settings.json?',
+        detail: 'Fine-grained allow/deny for specific bash commands and file paths. Use to pre-allow safe commands (npm run *, git *) and deny dangerous ones (rm -rf *, direct prod commands).',
+        example: `{\n  "permissions": {\n    "allow": [\n      "Bash(npm run *)",\n      "Bash(git *)",\n      "Bash(dotnet *)",\n      "Bash(az *)",\n    ],\n    "deny": ["Bash(rm -rf *)"]\n  }\n}` },
+      { name: 'hooks', desc: 'PostToolUse, Stop, PostCompact events', prompt: 'How do I configure hooks in settings.json?',
+        detail: 'Lifecycle hooks that run on events. PostToolUse for auto-formatting after every edit. Stop for post-session cleanup. PostCompact to re-inject critical instructions after context compression.',
+        example: `{\n  "hooks": {\n    "PostToolUse": [{\n      "matcher": "Edit|Write",\n      "hooks": [{\n        "type": "command",\n        "command": "dotnet format || true"\n      }]\n    }]\n  }\n}` },
+      { name: 'model + env', desc: 'Default model, environment variables', prompt: 'What model and env settings go in settings.json?',
+        detail: 'Set the default model for this project and inject environment variables into every session. Use settings.local.json (gitignored) for personal values like API keys.',
+        example: `{\n  "model": "claude-sonnet-4-6",\n  "env": {\n    "NODE_ENV": "development",\n    "LOG_LEVEL": "debug"\n  }\n}` },
+    ]
+  },
+  {
+    id: 'agent-memory', label: 'agent-memory/', sub: 'persistent agent knowledge', theme: 'col-pink', isNew: true,
+    items: [
+      { name: 'code-architect/', desc: 'Design decisions remembered across sessions', prompt: 'How does agent-memory work in Claude Code?',
+        detail: 'Agents configured with memory:project store a MEMORY.md file here. Shared with the team via git. The architect agent remembers past design decisions, rejected patterns, and accepted trade-offs across sessions.',
+        example: `# .trimble/agent-memory/code-architect/MEMORY.md\n---\nname: past-decisions\ntype: project\n---\nDecision (2026-03-15): Use vertical slice\narchitecture for Prism Next Gen modules.\nRejected: horizontal layer approach.\nReason: ADR-007, team velocity data.` },
+      { name: 'security-scanner/', desc: 'Known-safe patterns for this codebase', prompt: 'What does security-scanner agent memory store?',
+        detail: 'The security scanner stores approved exceptions — known-safe patterns that have been reviewed and accepted for this codebase. Prevents re-flagging deliberate trade-offs on every scan.',
+        example: `# .trimble/agent-memory/security-scanner/MEMORY.md\n---\nname: approved-patterns\ntype: project\n---\nApproved: raw SQL in ReportRepository\n(performance requirement, ADR-009).\nApproved: self-signed cert in test env.` },
+    ]
+  },
+  {
+    id: 'worktrees', label: 'worktrees/', sub: 'auto-managed — do not edit', theme: 'col-gray',
+    items: [
+      { name: 'feat-invoice-export/', desc: 'Isolated checkout on feature branch', prompt: 'How do git worktrees work in Claude Code?',
+        detail: 'Created automatically by claude --worktree or the Claude Code Desktop app. Each is a full git checkout on a separate branch. Run 3–5 parallel sessions for 3–5× throughput on independent tasks. Never edit these manually.',
+        example: `# Create a worktree\ngit worktree add \\\n  .trimble/worktrees/feat-export \\\n  origin/main\n\n# Start Claude in it\ncd .trimble/worktrees/feat-export\nclaude --name "invoice-export"` },
+      { name: 'refactor-reporting/', desc: 'Parallel session on refactor branch', prompt: 'How many worktrees should I run?',
+        detail: 'Boris Cherny (creator of Claude Code) runs 3–5 worktrees simultaneously. Name your terminal tabs, color-code them, and use shell aliases (za, zb, zc) to hop between them in one keystroke.',
+        example: `# Pro tip: shell aliases\nalias za="cd .trimble/worktrees/feat-a"\nalias zb="cd .trimble/worktrees/refactor-b"\nalias zc="cd .trimble/worktrees/fix-c"\n\n# iTerm2: set tab title = worktree name` },
+    ]
+  },
+  {
+    id: 'mcp', label: '.mcp.json', sub: 'MCP server connections', theme: 'col-coral', isNew: true,
+    items: [
+      { name: 'azure-devops', desc: 'Story + PR context from ADO', prompt: 'How do I connect Azure DevOps via MCP?',
+        detail: 'MCP server connecting Claude to Azure DevOps. Lets agents read work items, pull request diffs, and pipeline status without leaving Claude Code. Used by the arch-review agent to load story context.',
+        example: `// .mcp.json\n{\n  "mcpServers": {\n    "azure-devops": {\n      "type": "url",\n      "url": "https://ado.mcp.trimble.com/sse",\n      "name": "ado"\n    }\n  }\n}` },
+      { name: 'databricks', desc: 'Unity Catalog + SQL query access', prompt: 'How do I connect Databricks via MCP?',
+        detail: 'MCP server for Databricks Unity Catalog. Lets the Finance AI Assistant agent query data, check RBAC, and read schema definitions. Scoped to read-only by agent permissions.',
+        example: `{\n  "mcpServers": {\n    "databricks": {\n      "type": "url",\n      "url": "https://db.mcp.trimble.com/sse",\n      "name": "databricks"\n    }\n  }\n}` },
+      { name: 'slack', desc: 'Post alerts + summaries to channels', prompt: 'How do I connect Slack via MCP?',
+        detail: 'MCP server for Slack. Agents can post standup summaries, security scan results, and PR notifications to Slack channels. The daily-standup skill uses this to post directly after generating the update.',
+        example: `{\n  "mcpServers": {\n    "slack": {\n      "type": "url",\n      "url": "https://mcp.slack.com/sse",\n      "name": "slack"\n    }\n  }\n}` },
+      { name: 'github', desc: 'PR diffs, issues, code search', prompt: 'How do I connect GitHub via MCP?',
+        detail: 'MCP server for GitHub. The arch-review skill uses gh pr diff when available. The MCP server extends this to full PR context, issue linking, and code search across the org.',
+        example: `{\n  "mcpServers": {\n    "github": {\n      "type": "url",\n      "url": "https://api.githubcopilot.com/mcp/",\n      "name": "github"\n    }\n  }\n}` },
+    ]
+  },
+];
+
+let openKey = null;
+
+function render() {
+  const grid = document.getElementById('col-grid');
+  grid.innerHTML = '';
+  columns.forEach(col => {
+    const wrapper = document.createElement('div');
+    wrapper.style.display = 'flex';
+    wrapper.style.flexDirection = 'column';
+    wrapper.style.gap = '4px';
+
+    const head = document.createElement('div');
+    head.className = `col-head ${col.theme}`;
+    head.innerHTML = `
+      <div class="col-head-title">${col.label}${col.isNew ? ' <span class="item-badge badge-new">NEW</span>' : ''}</div>
+      <div class="col-head-sub">${col.sub}</div>`;
+    head.onclick = () => sendPrompt(`Tell me about the .trimble/${col.label} directory in Claude Code`);
+    wrapper.appendChild(head);
+
+    const items = document.createElement('div');
+    items.className = 'col-items';
+    col.items.forEach(item => {
+      const div = document.createElement('div');
+      div.className = `item-file ${col.theme}`;
+      div.innerHTML = `
+        <div class="item-name">${item.name}</div>
+        <div class="item-desc">${item.desc}</div>
+        ${item.badge ? `<span class="item-badge badge-${item.badge.toLowerCase()}">${item.badge}</span>` : ''}`;
+      div.onclick = () => openDrawer(col.label, item);
+      items.appendChild(div);
+    });
+    wrapper.appendChild(items);
+    grid.appendChild(wrapper);
+  });
+}
+
+function openDrawer(colLabel, item) {
+  const key = colLabel + item.name;
+  if (openKey === key) { closeDrawer(); return; }
+  openKey = key;
+  document.getElementById('dw-name').textContent = item.name;
+  document.getElementById('dw-col').textContent = colLabel;
+  document.getElementById('dw-desc').textContent = item.detail;
+  document.getElementById('dw-example').textContent = item.example;
+  const btn = document.getElementById('dw-ask');
+  btn.textContent = `Ask: "${item.prompt}" ↗`;
+  btn.onclick = () => sendPrompt(item.prompt);
+  const drawer = document.getElementById('drawer');
+  drawer.classList.add('open');
+  drawer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function closeDrawer() {
+  document.getElementById('drawer').classList.remove('open');
+  openKey = null;
+}
+
+render();
+</script>

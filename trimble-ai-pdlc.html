@@ -973,7 +973,7 @@
 
   <footer>
     <span>Trimble CMS · Architecture Office · DoubleG</span>
-    <span>CMS Division · Construction ERP</span>
+    <span>CMS Division · Construction</span>
     <span>2026</span>
   </footer>
 </div>
@@ -1004,7 +1004,7 @@ const tracks = {
       tags: ['poc','model-eval','data-audit','ai'],
       color: '#007BC2',
       detail: {
-        activities: ['Model benchmark: latency, cost, accuracy (Sonnet, Gemini Flash, GPT-4o)', 'Grounding data audit: ERP schema availability', 'RAG vs. fine-tune decision', 'Prompt injection surface scan'],
+        activities: ['Model benchmark: latency, cost, accuracy (Sonnet, Gemini Flash, GPT-4o)', 'Grounding data audit: schema availability', 'RAG vs. fine-tune decision', 'Prompt injection surface scan'],
         artifacts: ['Spike report with eval metrics', 'Data readiness matrix', 'Model selection ADR', 'Prompt ensemble prototype'],
         aiRole: ['Automated eval harness via Azure AI Foundry', 'LLM-generated test case expansion', 'Schema introspection via MCP server', 'Databricks Foundation Model API benchmarks'],
         tooling: [
@@ -1022,7 +1022,7 @@ const tracks = {
       detail: {
         activities: ['AI-generated technical design from ADO story + codebase context', 'Senior Dev review via ADO discussion entry', 'Vertical slice definition (FastEndpoints module mapping)', 'Interface contract + data model design'],
         artifacts: ['Blueprint spec (CLAUDE.md-compliant)', 'Component diagram', 'API contract (OpenAPI)', 'Data flow + RBAC model'],
-        aiRole: ['Azure AI Foundry pipeline: story → design doc', 'Codebase-grounded generation from ERP context', 'Auto-commit design draft to ADO', 'Prompt Catalog MCP for design patterns'],
+        aiRole: ['Azure AI Foundry pipeline: story → design doc', 'Codebase-grounded generation from context', 'Auto-commit design draft to ADO', 'Prompt Catalog MCP for design patterns'],
         tooling: [
           {name:'Azure AI Foundry (pipeline)', tier:'primary'},{name:'Azure DevOps', tier:'primary'},
           {name:'Prompt Catalog MCP', tier:'primary'},{name:'CLAUDE.md', tier:'primary'},
@@ -1053,7 +1053,7 @@ const tracks = {
       tags: ['evals','red-team','regression','hot'],
       color: '#FF4757',
       detail: {
-        activities: ['Define eval dimensions: accuracy, groundedness, latency, safety', 'Golden dataset curation from ERP domain experts', 'Prompt injection + jailbreak testing', 'Regression suite on model updates'],
+        activities: ['Define eval dimensions: accuracy, groundedness, latency, safety', 'Golden dataset curation from domain experts', 'Prompt injection + jailbreak testing', 'Regression suite on model updates'],
         artifacts: ['Eval scorecard (per feature)', 'Failure mode catalog', 'Red team report', 'Baseline snapshot in Azure AI Foundry'],
         aiRole: ['LLM-as-judge evaluation', 'Auto-generated adversarial prompts', 'Drift detection via Databricks monitoring', 'Azure AI Foundry eval pipeline'],
         tooling: [
@@ -1220,7 +1220,7 @@ const tracks = {
       detail: {
         activities: ['Azure AI Content Safety integration (CMS-tuned)', 'Grounding validation: citations required for financial data', 'PII detection + redaction before LLM context injection', 'Output schema enforcement + rejection on malformed response'],
         artifacts: ['Guardrail config per CMS product', 'PII handling policy', 'Output validation middleware', 'Hallucination rate threshold SLA'],
-        aiRole: ['LLM-as-judge for hallucination detection', 'Auto-classify sensitive ERP schema fields', 'Grounding score computation', 'Rejection + fallback orchestration'],
+        aiRole: ['LLM-as-judge for hallucination detection', 'Auto-classify sensitive schema fields', 'Grounding score computation', 'Rejection + fallback orchestration'],
         tooling: [
           {name:'Azure AI Content Safety', tier:'primary'},{name:'Microsoft Presidio (PII)', tier:'primary'},
           {name:'Guardrails AI', tier:'warning'},{name:'NeMo Guardrails', tier:'warning'},
@@ -1235,7 +1235,7 @@ const tracks = {
       color: '#007BC2',
       detail: {
         activities: ['OBO OAuth flow for M365 / Copilot Studio surfaces', 'RBAC enforcement at RAG retrieval (not just query)', 'Multi-tenant data isolation (company boundaries)', 'Session token security: HttpOnly cookies, not sessionStorage'],
-        artifacts: ['Auth architecture diagram (TrimbleID + OBO)', 'RBAC policy matrix (20 finance personas)', 'Multi-tenancy isolation test plan', 'ERP web security remediation checklist'],
+        artifacts: ['Auth architecture diagram (TrimbleID + OBO)', 'RBAC policy matrix (20 finance personas)', 'Multi-tenancy isolation test plan', 'Web security remediation checklist'],
         aiRole: ['AI-assisted OBO token flow validation', 'Auto-generate RBAC test cases from persona matrix', 'Session vulnerability scanning', 'ADR: enterprise RBAC for memory retrieval systems'],
         tooling: [
           {name:'Trimble ID (OIDC)', tier:'primary'},{name:'Microsoft MSAL (.NET)', tier:'primary'},
@@ -1250,7 +1250,7 @@ const tracks = {
       tags: ['red-team','adversarial','jailbreak','hot'],
       color: '#FF4757',
       detail: {
-        activities: ['Structured red team sprint before each major AI release', 'Jailbreak corpus execution against product prompts', 'Indirect prompt injection via ERP data fields', 'Cross-tenant data exfil attempt simulation'],
+        activities: ['Structured red team sprint before each major AI release', 'Jailbreak corpus execution against product prompts', 'Indirect prompt injection via data fields', 'Cross-tenant data exfil attempt simulation'],
         artifacts: ['Red team report (per feature)', 'Jailbreak test corpus (CMS-specific)', 'Vulnerability findings in ADO', 'Remediation SLA by severity'],
         aiRole: ['AI-generated adversarial prompt variants', 'Auto-escalation on critical findings', 'LLM simulation of attacker personas', 'Remediation suggestion generation'],
         tooling: [
@@ -1353,8 +1353,8 @@ const gateData = [
     blocker: 'Hard blocker — no design or implementation work begins until this gate is cleared.',
     tracks: {
       dev: {
-        summary: 'Architecture team validates whether the AI approach is viable before any design work begins. This covers model selection rationale, data availability in ERP schemas, and the build vs. buy decision.',
-        checklist: ['AI leverage score documented (automation vs. augmentation)', 'Data availability confirmed in ERP schema', 'Build vs. buy ADR signal drafted', 'Exec opportunity brief approved']
+        summary: 'Architecture team validates whether the AI approach is viable before any design work begins. This covers model selection rationale, data availability in schemas, and the build vs. buy decision.',
+        checklist: ['AI leverage score documented (automation vs. augmentation)', 'Data availability confirmed in schema', 'Build vs. buy ADR signal drafted', 'Exec opportunity brief approved']
       },
       ops: {
         summary: 'Confirms Azure infrastructure can support the workload at the intended scale — AKS cluster sizing, Databricks tier selection, egress cost estimates, and AI Foundry workspace availability.',
@@ -1362,7 +1362,7 @@ const gateData = [
       },
       secops: {
         summary: 'Initial threat model review ensuring the feature\'s attack surface is understood before any design work starts. Prompt injection surface, data sensitivity, and multi-tenant boundaries are scoped.',
-        checklist: ['STRIDE scope defined for the feature surface', 'Prompt injection exposure classified', 'ERP data sensitivity level confirmed', 'Multi-tenant boundary risk acknowledged']
+        checklist: ['STRIDE scope defined for the feature surface', 'Prompt injection exposure classified', 'Data sensitivity level confirmed', 'Multi-tenant boundary risk acknowledged']
       }
     }
   },
@@ -1390,15 +1390,15 @@ const gateData = [
     tracks: {
       dev: {
         summary: 'Before shipping to users, a documented baseline of feature performance is required against the golden dataset: accuracy, groundedness, latency, and hallucination rate. This is the Azure AI Foundry eval pipeline run and is the gate your ADO pipeline can enforce automatically.',
-        checklist: ['Golden dataset curated from ERP domain experts', 'Accuracy and groundedness score above threshold', 'Latency p95 within SLA', 'Hallucination rate below defined ceiling', 'Baseline snapshot committed to AI Foundry']
+        checklist: ['Golden dataset curated from domain experts', 'Accuracy and groundedness score above threshold', 'Latency p95 within SLA', 'Hallucination rate below defined ceiling', 'Baseline snapshot committed to AI Foundry']
       },
       ops: {
         summary: 'Validates that the observability stack is correctly capturing LLM spans, tool call traces, and token cost telemetry before any user traffic is routed. Ensures the monitoring foundation is solid before canary begins.',
         checklist: ['OTel LLM spans confirmed in Application Insights', 'Token cost telemetry flowing to Databricks', 'SignalR async status verified for long-running agents', 'Azure Monitor alert rules validated']
       },
       secops: {
-        summary: 'Guardrail validation — confirming PII redaction, Azure AI Content Safety filters, and output schema enforcement are all functioning correctly before the feature touches real production ERP data.',
-        checklist: ['PII redaction confirmed on ERP field samples', 'Content Safety filter thresholds validated', 'Output schema enforcement tested on malformed responses', 'Grounding score computation verified']
+        summary: 'Guardrail validation — confirming PII redaction, Azure AI Content Safety filters, and output schema enforcement are all functioning correctly before the feature touches real production data.',
+        checklist: ['PII redaction confirmed on field samples', 'Content Safety filter thresholds validated', 'Output schema enforcement tested on malformed responses', 'Grounding score computation verified']
       }
     }
   },
@@ -1415,8 +1415,8 @@ const gateData = [
         checklist: ['FIPS 140-2 compliance verified for inference endpoints', 'Key Vault access policy reviewed and scoped', 'TLS enforced on all AI service connections', 'Azure Policy compliance scan passed']
       },
       secops: {
-        summary: 'The most rigorous gate in the SecOps track. Requires completed PyRIT adversarial test run, jailbreak corpus results reviewed, cross-tenant isolation confirmed under simulated attack, and the full RBAC policy matrix validated against real ERP security groups.',
-        checklist: ['PyRIT red team run completed with results reviewed', 'Jailbreak corpus executed — no critical bypasses', 'Cross-tenant isolation confirmed under attack simulation', 'RBAC policy validated against ERP security groups', 'Indirect prompt injection via ERP data fields tested']
+        summary: 'The most rigorous gate in the SecOps track. Requires completed PyRIT adversarial test run, jailbreak corpus results reviewed, cross-tenant isolation confirmed under simulated attack, and the full RBAC policy matrix validated against real security groups.',
+        checklist: ['PyRIT red team run completed with results reviewed', 'Jailbreak corpus executed — no critical bypasses', 'Cross-tenant isolation confirmed under attack simulation', 'RBAC policy validated against security groups', 'Indirect prompt injection via data fields tested']
       }
     }
   },
