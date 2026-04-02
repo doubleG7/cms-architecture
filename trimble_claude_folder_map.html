@@ -432,14 +432,17 @@ const columns = [
         example: `---\ndescription: Integration test writer. Writes\n  tests covering API endpoints and service\n  boundaries. Runs against test DB only.\nallowed-tools: Read, Glob, Edit, Bash\n---`,
         badge: 'QA' },
       { name: 'e2e-test-writer.md', desc: 'End-to-end user journey test scripts', prompt: 'What goes in an e2e-test-writer agent?',
+        file: '.claude/agents/e2e-test-writer.md',
         detail: 'Derives user journeys from the PRD or changed controllers, writes E2E test scripts (Playwright, Cypress, or curl-based), covers happy path and primary error cases, and verifies against the running app.',
         example: `---\ndescription: E2E test writer. Derives user\n  journeys from PRD and changed routes,\n  then writes and runs E2E test scripts.\nallowed-tools: Bash, Read, Glob, Edit\n---`,
         badge: 'QA' },
       { name: 'test-coverage-reporter.md', desc: 'Coverage gaps + weak test quality audit', prompt: 'What goes in a test-coverage-reporter agent?',
+        file: '.claude/agents/test-coverage-reporter.md',
         detail: 'Runs the coverage tool, identifies files below threshold, flags tests with no assertions or external state dependencies, and produces a prioritised coverage improvement plan.',
         example: `---\ndescription: Test coverage audit. Identifies\n  coverage gaps, weak assertions, and tests\n  with external state. Produces gap report.\nallowed-tools: Bash, Read, Glob\n---`,
         badge: 'QA' },
       { name: 'regression-guard.md', desc: 'Pre-merge regression detection', prompt: 'What goes in a regression-guard agent?',
+        file: '.claude/agents/regression-guard.md',
         detail: 'Runs the full test suite against the current branch, diffs results against the base branch, and reports any test that was passing before and is now failing. Blocks merge on regressions.',
         example: `---\ndescription: Regression guard. Runs full\n  test suite and diffs against base branch.\n  Blocks merge if any passing test now fails.\nallowed-tools: Bash, Read\n---`,
         badge: 'QA' },
@@ -660,7 +663,7 @@ async function openDrawer(colLabel, item) {
   if (item.file) {
     const content = await fetchFile(item.file);
     if (openKey === key) {
-      preview.textContent = content !== null ? content : `(Could not load ${item.file})\n\n${getDownloadContent(item)}`;
+      preview.textContent = content !== null ? content : getDownloadContent(item);
     }
   }
 }
