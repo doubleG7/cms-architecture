@@ -464,18 +464,22 @@ const columns = [
     ]
   },
   {
-    id: 'rules', label: 'rules/', sub: 'scoped rule files', theme: 'col-green', isNew: true,
+    id: 'rules', label: 'rules/', sub: 'scoped rule files', theme: 'col-green',
     items: [
       { name: 'code-style.md', desc: 'Naming, formatting, structure conventions', prompt: 'What goes in a rules/code-style.md file?',
+        file: '.claude/rules/code-style.md',
         detail: 'Always-loaded rules for naming conventions, file structure, comment standards, and formatting. Lives alongside CLAUDE.md but kept separate so it can be updated independently.',
         example: `# Code style rules\n# Loaded at startup - always in context\n\n- camelCase for variables, PascalCase for types\n- Feature-first folder structure\n- Comments explain why, not what\n- No bare catch - errors must be typed` },
       { name: 'testing.md', desc: 'Test conventions, coverage requirements', prompt: 'What goes in a rules/testing.md file?',
+        file: '.claude/rules/testing.md',
         detail: 'Testing standards: co-location rules, coverage thresholds, mock conventions, forbidden patterns (no network in unit tests, no shared DB state). Loaded at startup.',
         example: `# Testing rules\n\n- Unit tests co-located with source\n- No live network calls in unit tests\n- No shared mutable state between tests\n- Coverage threshold: 80% on service layer\n- Integration tests in tests/integration/` },
       { name: 'api-conventions.md', desc: 'Only loads when editing API files', prompt: 'What goes in a rules/api-conventions.md file?',
+        file: '.claude/rules/api-conventions.md',
         detail: 'Path-scoped rule - only loads when Claude is working on API files. Covers versioning, error envelopes, pagination, auth patterns. Keeps API rules out of context when editing non-API code.',
         example: `---\npaths:\n  - "src/api/**/*.ts"\n  - "src/controllers/**/*.ts"\n---\n# API rules (path-scoped)\n- All endpoints versioned /v1/ /v2/\n- Error shape: { error, code, traceId }\n- Auth checked before business logic\n- Pagination: cursor-based, not offset` },
       { name: 'security.md', desc: 'Security checklist - always loaded', prompt: 'What goes in a rules/security.md file?',
+        file: '.claude/rules/security.md',
         detail: 'Always-loaded security rules: no SQL concatenation, no eval on user input, no credentials in code, no TLS disabled. Agents self-check against this before every PR.',
         example: `# Security rules\n\n- Parameterised queries only - no SQL concat\n- No eval() on user-supplied input\n- No credentials, tokens, or secrets in code\n- TLS must be validated - rejectUnauthorized\n  must never be false in non-test code\n- User input validated before use in paths` },
     ]
