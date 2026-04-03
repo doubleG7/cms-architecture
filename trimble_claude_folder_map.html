@@ -482,6 +482,10 @@ const columns = [
         file: '.claude/rules/security.md',
         detail: 'Always-loaded security rules: no SQL concatenation, no eval on user input, no credentials in code, no TLS disabled. Agents self-check against this before every PR.',
         example: `# Security rules\n\n- Parameterised queries only - no SQL concat\n- No eval() on user-supplied input\n- No credentials, tokens, or secrets in code\n- TLS must be validated - rejectUnauthorized\n  must never be false in non-test code\n- User input validated before use in paths` },
+      { name: 'agent-memory.md', desc: 'Memory scopes, read/write rules, storage conventions', prompt: 'What goes in a rules/agent-memory.md file?',
+        file: '.claude/rules/agent-memory.md',
+        detail: 'Always-loaded rules governing how agents use the three memory scopes: user (/memories/), session (/memories/session/), and repository (/memories/repo/). Defines when to read before starting a task, when to write discoveries back, what never to store (credentials, PII, unverified assumptions), and kebab-case file naming conventions for repo memory.',
+        example: `# Agent memory rules\n# Loaded at startup - always in context\n\n## Scopes\n- /memories/        — user (permanent, all workspaces)\n- /memories/session/ — session (current conv only)\n- /memories/repo/   — repo (permanent, this workspace)\n\n## Read before every non-trivial task\n## Write when you confirm a build command,\n#  discover a non-obvious convention,\n#  or hit a gotcha worth remembering\n## NEVER store: credentials, PII,\n#  temporary thoughts, unverified assumptions` },
     ]
   },
   {
