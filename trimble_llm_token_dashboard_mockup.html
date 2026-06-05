@@ -1,0 +1,343 @@
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font-sans, "Aptos", "Segoe UI", sans-serif);
+  color: #1f2328;
+  background: #f4f4f3;
+}
+.dash {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 24px;
+}
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.topbar h2 {
+  font-size: 15px;
+  line-height: 1.15;
+  font-weight: 600;
+  color: #222426;
+  letter-spacing: -0.01em;
+}
+.topbar-right { display: flex; gap: 10px; align-items: center; }
+.pill {
+  font-size: 12px;
+  line-height: 1;
+  padding: 7px 14px;
+  border-radius: 10px;
+  border: 1px solid #cfd2d4;
+  color: #2f3439;
+  cursor: pointer;
+  background: #ececeb;
+}
+.pill.active {
+  background: #ffffff;
+  border-color: #babec2;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+}
+.select-wrap { position: relative; }
+.select-wrap::after {
+  content: "▾";
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #555b62;
+  pointer-events: none;
+  font-size: 13px;
+}
+.team-filter {
+  font-size: 12px;
+  padding: 7px 30px 7px 10px;
+  border-radius: 10px;
+  border: 1px solid #cfd2d4;
+  background: #efefee;
+  color: #272b30;
+  appearance: none;
+}
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.kpi {
+  background: #ececeb;
+  border: 1px solid #dddfdf;
+  border-radius: 14px;
+  padding: 16px 18px;
+}
+.kpi-label { font-size: 12px; color: #3a3f45; margin-bottom: 6px; }
+.kpi-val { font-size: 22px; font-weight: 650; color: #1d2024; line-height: 1; }
+.kpi-sub { font-size: 11px; color: #4e5359; margin-top: 6px; }
+.kpi-up { color: #2f6b2f; }
+.kpi-down { color: #7d2e2e; }
+.mid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.card {
+  background: #f7f7f6;
+  border: 1px solid #d8dbdc;
+  border-radius: 16px;
+  padding: 16px 18px;
+}
+.card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #23262a;
+  margin-bottom: 12px;
+}
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  font-size: 12px;
+}
+.bar-label {
+  width: 108px;
+  color: #373d43;
+  text-align: left;
+  flex-shrink: 0;
+}
+.bar-track {
+  flex: 1;
+  height: 10px;
+  background: #e5e5e3;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.bar-fill { height: 100%; border-radius: 999px; transition: width 0.4s; }
+.bar-val { width: 56px; color: #1f2428; text-align: right; flex-shrink: 0; }
+.metric-divider {
+  height: 1px;
+  background: #d4d7d8;
+  margin: 12px 0 14px;
+}
+.table-wrap { width: 100%; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th {
+  text-align: left;
+  font-weight: 550;
+  font-size: 11px;
+  color: #4a5057;
+  padding: 10px 8px;
+  border-bottom: 1px solid #d7dadb;
+  white-space: nowrap;
+}
+td {
+  padding: 9px 8px;
+  border-bottom: 1px solid #e1e3e4;
+  color: #1f2328;
+  white-space: nowrap;
+}
+tr:last-child td { border-bottom: none; }
+.badge {
+  display: inline-block;
+  font-size: 10px;
+  padding: 2px 11px;
+  border-radius: 999px;
+  font-weight: 550;
+}
+.badge-copilot { background: #ddebd4; color: #436b2c; }
+.badge-claude { background: #d7e3f6; color: #3e5f9a; }
+.badge-cursor { background: #e9ddc3; color: #7c5d22; }
+.alert-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  border: 1px solid #dbddde;
+  background: #fafaf9;
+}
+.alert-icon {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+.alert-red .alert-icon { background: #9f4a4a; }
+.alert-amber .alert-icon { background: #8a6f30; }
+.alert-green .alert-icon { background: #2f6d2d; }
+.alert-text { color: #444a51; }
+.alert-text strong { color: #22272b; font-weight: 650; }
+
+@media (max-width: 1100px) {
+  .kpi-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 760px) {
+  .dash { padding: 14px; }
+  .topbar h2 { font-size: 14px; }
+  .pill, .team-filter { font-size: 12px; padding: 8px 12px; border-radius: 10px; }
+  .kpi-row { grid-template-columns: 1fr; }
+  .kpi-label { font-size: 13px; }
+  .kpi-val { font-size: 22px; }
+  .kpi-sub { font-size: 12px; }
+  .card-title { font-size: 13px; }
+  .bar-row { font-size: 13px; }
+  .bar-label { width: 96px; }
+  .bar-val { width: 58px; }
+  .alert-row { font-size: 13px; }
+  th { font-size: 12px; }
+  td { font-size: 13px; }
+  .badge { font-size: 11px; }
+}
+</style>
+<div class="dash">
+<div class="topbar">
+  <h2>LLM Token &amp; Cost Dashboard — Trimble CMS</h2>
+  <div class="topbar-right">
+    <button class="pill active" onclick="setRange('30d',this)">30d</button>
+    <button class="pill" onclick="setRange('7d',this)">7d</button>
+    <button class="pill" onclick="setRange('mtd',this)">MTD</button>
+    <div class="select-wrap">
+      <select class="team-filter" onchange="filterTeam(this.value)">
+        <option value="">All 2,000 users</option>
+        <option value="cms">CMS Core</option>
+        <option value="api">Vista API (Mexicali)</option>
+        <option value="infra">Platform Infra</option>
+        <option value="chennai">Chennai</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<div class="kpi-row">
+  <div class="kpi">
+    <div class="kpi-label">Total tokens (30d)</div>
+    <div class="kpi-val" id="kv-tok">4.2B</div>
+    <div class="kpi-sub"><span class="kpi-up">↑ 18%</span> vs prior period</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Estimated cost (30d)</div>
+    <div class="kpi-val" id="kv-cost">$31,400</div>
+    <div class="kpi-sub"><span class="kpi-up">↑ 12%</span> MoM · $15.70/seat</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Active seats</div>
+    <div class="kpi-val" id="kv-seats">1,847</div>
+    <div class="kpi-sub">of 2,000 licensed · <span class="kpi-down">153 inactive</span></div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Acceptance rate (Copilot)</div>
+    <div class="kpi-val" id="kv-acc">28.4%</div>
+    <div class="kpi-sub"><span class="kpi-up">↑ 3.2pp</span> vs 30d ago</div>
+  </div>
+</div>
+
+<div class="mid">
+  <div class="card">
+    <div class="card-title">Token burn by tool</div>
+    <div class="bar-row">
+      <span class="bar-label">GitHub Copilot</span>
+      <div class="bar-track"><div class="bar-fill" style="width:58%;background:#1D9E75"></div></div>
+      <span class="bar-val">2.44B</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Claude Code</span>
+      <div class="bar-track"><div class="bar-fill" style="width:31%;background:#534AB7"></div></div>
+      <span class="bar-val">1.30B</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Cursor</span>
+      <div class="bar-track"><div class="bar-fill" style="width:11%;background:#BA7517"></div></div>
+      <span class="bar-val">0.46B</span>
+    </div>
+    <div class="metric-divider"></div>
+    <div class="card-title">Cost by tool (30d)</div>
+    <div class="bar-row">
+      <span class="bar-label">Claude Code</span>
+      <div class="bar-track"><div class="bar-fill" style="width:62%;background:#534AB7"></div></div>
+      <span class="bar-val">$19,500</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">GitHub Copilot</span>
+      <div class="bar-track"><div class="bar-fill" style="width:27%;background:#1D9E75"></div></div>
+      <span class="bar-val">$8,400</span>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">Cursor</span>
+      <div class="bar-track"><div class="bar-fill" style="width:11%;background:#BA7517"></div></div>
+      <span class="bar-val">$3,500</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Alerts &amp; governance flags</div>
+    <div class="alert-row alert-red">
+      <div class="alert-icon"></div>
+      <div class="alert-text"><strong>4 users exceeded $500/mo budget</strong> — claude-opus model, agent loops. Review or cap.</div>
+    </div>
+    <div class="alert-row alert-amber">
+      <div class="alert-icon"></div>
+      <div class="alert-text"><strong>153 inactive Copilot seats</strong> — no activity in 30d. Eligible for reclaim.</div>
+    </div>
+    <div class="alert-row alert-amber">
+      <div class="alert-icon"></div>
+      <div class="alert-text"><strong>Cursor proxy gap</strong> — 38 users not routing through LiteLLM. Token data incomplete.</div>
+    </div>
+    <div class="alert-row alert-green">
+      <div class="alert-icon"></div>
+      <div class="alert-text"><strong>Cache hit rate 41%</strong> on Claude API. Prompt caching saving ~$3,200/mo.</div>
+    </div>
+    <div class="alert-row alert-green">
+      <div class="alert-icon"></div>
+      <div class="alert-text"><strong>Copilot acceptance rate up 3.2pp</strong> — strongest gains in Vista API team.</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:10px;flex-wrap:wrap">
+    <span class="card-title" style="margin:0">Top users by token burn (30d)</span>
+    <button class="pill" onclick="sendPrompt('Show me anomaly detection rules for LLM token budgets at the user level')">Anomaly rules ↗</button>
+  </div>
+  <div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>User</th>
+        <th>Team</th>
+        <th>Tool</th>
+        <th>Model</th>
+        <th>Input tok</th>
+        <th>Output tok</th>
+        <th>Cost (30d)</th>
+        <th>vs budget</th>
+      </tr>
+    </thead>
+    <tbody id="user-table">
+      <tr><td>k.costenbader</td><td>Architecture</td><td><span class="badge badge-claude">Claude Code</span></td><td>Opus 4.6</td><td>142M</td><td>38M</td><td>$847</td><td><span class="kpi-down">169%</span></td></tr>
+      <tr><td>g.piltzer</td><td>Architecture</td><td><span class="badge badge-claude">Claude Code</span></td><td>Sonnet 4.6</td><td>98M</td><td>24M</td><td>$380</td><td><span class="kpi-up">76%</span></td></tr>
+      <tr><td>j.ramirez</td><td>Vista API</td><td><span class="badge badge-copilot">Copilot</span></td><td>GPT-5.1</td><td>88M</td><td>12M</td><td>$142</td><td><span class="kpi-up">28%</span></td></tr>
+      <tr><td>t.johnson</td><td>Platform</td><td><span class="badge badge-cursor">Cursor</span></td><td>Claude Sonnet</td><td>72M</td><td>19M</td><td>$248</td><td><span class="kpi-up">50%</span></td></tr>
+      <tr><td>s.patel</td><td>Chennai</td><td><span class="badge badge-copilot">Copilot</span></td><td>Gemini 3 Pro</td><td>65M</td><td>8M</td><td>$104</td><td><span class="kpi-up">21%</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+</div>
+<script>
+function setRange(r,el){document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));el.classList.add('active');
+  const m={'30d':['4.2B','$31,400','1,847','28.4%'],'7d':['1.1B','$8,200','1,612','26.1%'],'mtd':['2.9B','$21,800','1,790','27.8%']};
+  const v=m[r];
+  ['kv-tok','kv-cost','kv-seats','kv-acc'].forEach((id,i)=>document.getElementById(id).textContent=v[i]);
+}
+function filterTeam(t){document.querySelectorAll('#user-table tr').forEach(row=>{
+  row.style.display=(!t||row.cells[1].textContent.toLowerCase().includes(t))?'':'none';
+});}
+</script>
