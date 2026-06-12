@@ -39,6 +39,12 @@ body {
   background: #f6f9fc;
 }
 
+.page-shell {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 24px clamp(16px, 3vw, 40px) 40px;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -194,6 +200,7 @@ body {
 .ai-desc { color: var(--color-text-secondary); line-height: 1.5; }
 </style>
 
+<div class="page-shell">
 <div class="nav" role="tablist" aria-label="Traqspera HCM system design sections">
   <button type="button" class="active" role="tab" aria-selected="true" aria-controls="pods" onclick="show('pods', this)">POD Structure</button>
   <button type="button" role="tab" aria-selected="false" aria-controls="arch" onclick="show('arch', this)">System Architecture</button>
@@ -958,3 +965,4 @@ function show(id, trigger) {
   });
 }
 </script>
+</div>
