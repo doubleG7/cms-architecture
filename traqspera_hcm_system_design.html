@@ -1,0 +1,914 @@
+
+<h2 class="sr-only">Traqspera HCM System Design — POD Structure, Architecture, Gap Analysis, and Competitive Benchmarking</h2>
+<style>
+:root { --gap: 12px; --rad: var(--border-radius-lg); }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); color: var(--color-text-primary); }
+
+.nav { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
+.nav button {
+  font-size: 12px; font-weight: 500; padding: 6px 14px;
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: 20px; background: transparent;
+  cursor: pointer; color: var(--color-text-secondary); transition: all .15s;
+}
+.nav button.active {
+  background: var(--color-background-info);
+  color: var(--color-text-info);
+  border-color: var(--color-border-info);
+}
+.nav button:hover:not(.active) { background: var(--color-background-secondary); }
+
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* Cards */
+.card {
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--rad); padding: 16px 20px; margin-bottom: var(--gap);
+}
+.card-header { font-size: 11px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: var(--color-text-secondary); margin-bottom: 10px; }
+.card-title { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+.card-sub { font-size: 12px; color: var(--color-text-secondary); }
+
+/* Badges */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 500; padding: 2px 8px;
+  border-radius: 20px;
+}
+.badge-blue  { background: var(--color-background-info); color: var(--color-text-info); }
+.badge-green { background: var(--color-background-success); color: var(--color-text-success); }
+.badge-amber { background: var(--color-background-warning); color: var(--color-text-warning); }
+.badge-red   { background: var(--color-background-danger); color: var(--color-text-danger); }
+.badge-gray  { background: var(--color-background-secondary); color: var(--color-text-secondary); }
+
+/* Grid helpers */
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--gap); }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--gap); }
+.grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--gap); }
+
+/* Section labels */
+.section-label {
+  font-size: 11px; font-weight: 500; letter-spacing: .07em; text-transform: uppercase;
+  color: var(--color-text-tertiary); margin: 20px 0 10px;
+}
+
+/* POD cards */
+.pod {
+  border-radius: var(--rad); border: 0.5px solid var(--color-border-tertiary);
+  background: var(--color-background-primary); overflow: hidden;
+}
+.pod-header {
+  padding: 12px 16px; font-size: 13px; font-weight: 500;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.pod-body { padding: 12px 16px; }
+.pod-row {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 12px; padding: 5px 0;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+}
+.pod-row:last-child { border-bottom: none; }
+.pod-role { color: var(--color-text-secondary); }
+
+/* Architecture layers */
+.layer {
+  border-radius: var(--border-radius-md); border: 0.5px dashed var(--color-border-secondary);
+  padding: 10px 14px; margin-bottom: 8px;
+}
+.layer-label { font-size: 11px; font-weight: 500; letter-spacing: .05em; color: var(--color-text-secondary); margin-bottom: 8px; }
+.svc-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.svc-pill {
+  font-size: 11px; font-weight: 500; padding: 4px 10px;
+  border-radius: 20px; border: 0.5px solid var(--color-border-secondary);
+  background: var(--color-background-secondary); color: var(--color-text-primary);
+  cursor: pointer; transition: all .15s;
+}
+.svc-pill:hover { background: var(--color-background-info); color: var(--color-text-info); border-color: var(--color-border-info); }
+.svc-pill.new { background: var(--color-background-success); color: var(--color-text-success); border-color: var(--color-border-success); }
+.svc-pill.lift { background: var(--color-background-warning); color: var(--color-text-warning); border-color: var(--color-border-warning); }
+.svc-pill.core { background: var(--color-background-secondary); color: var(--color-text-secondary); }
+
+/* Gap table */
+.gap-row {
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr; gap: 8px;
+  font-size: 12px; padding: 7px 0; border-bottom: 0.5px solid var(--color-border-tertiary);
+  align-items: center;
+}
+.gap-row:last-child { border-bottom: none; }
+.gap-hdr { font-size: 11px; font-weight: 500; color: var(--color-text-secondary); letter-spacing: .05em; text-transform: uppercase; }
+.check { color: var(--color-text-success); font-size: 14px; }
+.cross { color: var(--color-text-danger); font-size: 14px; }
+.partial { color: var(--color-text-warning); font-size: 14px; }
+
+/* Comp table */
+.comp-table { width: 100%; font-size: 12px; border-collapse: collapse; }
+.comp-table th { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: .05em; color: var(--color-text-secondary); padding: 8px 10px; text-align: left; border-bottom: 0.5px solid var(--color-border-secondary); }
+.comp-table td { padding: 7px 10px; border-bottom: 0.5px solid var(--color-border-tertiary); vertical-align: top; }
+.comp-table tr:last-child td { border-bottom: none; }
+.comp-table .highlight { background: var(--color-background-info); }
+.comp-table .highlight td { color: var(--color-text-primary); }
+
+/* Milestone */
+.milestone-track { position: relative; margin: 24px 0 8px; }
+.milestone-line { height: 2px; background: var(--color-border-secondary); border-radius: 1px; }
+.milestone-dots { display: flex; justify-content: space-between; margin-top: -10px; }
+.milestone-dot {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+.dot {
+  width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--color-border-secondary);
+  background: var(--color-background-primary); position: relative; z-index: 1;
+  display: flex; align-items: center; justify-content: center; font-size: 9px;
+}
+.dot.done { background: var(--color-background-success); border-color: var(--color-border-success); }
+.dot.active { background: var(--color-background-info); border-color: var(--color-border-info); }
+.dot.future { background: var(--color-background-secondary); border-color: var(--color-border-secondary); }
+.dot-label { font-size: 11px; font-weight: 500; text-align: center; max-width: 80px; }
+.dot-date { font-size: 10px; color: var(--color-text-secondary); }
+
+/* Stack chips */
+.stack-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; padding: 4px 10px; border-radius: var(--border-radius-md);
+  border: 0.5px solid var(--color-border-tertiary); background: var(--color-background-secondary);
+  color: var(--color-text-secondary); font-weight: 500; margin: 3px;
+}
+
+/* AI row */
+.ai-row {
+  display: flex; align-items: flex-start; gap: 10px; padding: 8px 0;
+  border-bottom: 0.5px solid var(--color-border-tertiary); font-size: 12px;
+}
+.ai-row:last-child { border-bottom: none; }
+.ai-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.ai-title { font-weight: 500; margin-bottom: 2px; font-size: 13px; }
+.ai-desc { color: var(--color-text-secondary); line-height: 1.5; }
+</style>
+
+<div class="nav" role="tablist" aria-label="Traqspera HCM system design sections">
+  <button type="button" class="active" role="tab" aria-selected="true" aria-controls="pods" onclick="show('pods', this)">POD Structure</button>
+  <button type="button" role="tab" aria-selected="false" aria-controls="arch" onclick="show('arch', this)">System Architecture</button>
+  <button type="button" role="tab" aria-selected="false" aria-controls="gaps" onclick="show('gaps', this)">HRIS Gap Analysis</button>
+  <button type="button" role="tab" aria-selected="false" aria-controls="comp" onclick="show('comp', this)">Competitor Benchmark</button>
+  <button type="button" role="tab" aria-selected="false" aria-controls="ai" onclick="show('ai', this)">AI Roadmap</button>
+  <button type="button" role="tab" aria-selected="false" aria-controls="stack" onclick="show('stack', this)">Tech Stack</button>
+</div>
+
+<!-- ====== PODS ====== -->
+<div id="pods" class="panel active" role="tabpanel" aria-hidden="false">
+  <div class="card" style="border-color: var(--color-border-info);">
+    <div class="card-header">Resource model</div>
+    <div style="font-size: 13px; line-height: 1.6; color: var(--color-text-secondary);">
+      4 PODs × (1 Product Definer + 4 Product Builders). Total headcount: 20 ICs + shared Dev Manager. Each POD owns a distinct lifecycle lane through Alpha → Beta → GR.
+    </div>
+    <div style="margin-top: 10px;">
+      <div class="milestone-track">
+        <div class="milestone-line"></div>
+        <div class="milestone-dots">
+          <div class="milestone-dot"><div class="dot done">✓</div><div class="dot-label">Phase 1<br>Freeze HRIS</div><div class="dot-date">Now</div></div>
+          <div class="milestone-dot"><div class="dot active">●</div><div class="dot-label">Alpha<br>Time import live</div><div class="dot-date">June 2026</div></div>
+          <div class="milestone-dot"><div class="dot future"></div><div class="dot-label">Beta<br>Onboarding + cohort 1</div><div class="dot-date">Oct 2026</div></div>
+          <div class="milestone-dot"><div class="dot future"></div><div class="dot-label">GR<br>Benefits + Perf</div><div class="dot-date">Dec 2026</div></div>
+          <div class="milestone-dot"><div class="dot future"></div><div class="dot-label">Post-GR<br>HRIS sunset</div><div class="dot-date">2027</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+
+    <!-- POD: Maintenance -->
+    <div class="pod">
+      <div class="pod-header" style="background: var(--color-background-secondary);">
+        <span>🔧 PC — Maintenance</span>
+        <span class="badge badge-gray">5 heads</span>
+      </div>
+      <div class="pod-body">
+        <div class="card-sub" style="margin-bottom:10px;">Keep HRIS alive in bug-fix-only mode through GR. Zero net-new features.</div>
+        <div class="pod-row"><span class="pod-role">Product Definer (PD)</span><span>1</span></div>
+        <div class="pod-row"><span class="pod-role">HRIS dev (backend)</span><span>2 (current)</span></div>
+        <div class="pod-row"><span class="pod-role">HRIS QA</span><span>1 (current)</span></div>
+        <div class="pod-row"><span class="pod-role">Ops/SRE</span><span>1 (current)</span></div>
+        <div style="margin-top: 10px;">
+          <div class="section-label">Owns</div>
+          <div class="svc-pills">
+            <span class="svc-pill core">hris-employee</span>
+            <span class="svc-pill core">hris-notification</span>
+            <span class="svc-pill core">hris-formsmanagement</span>
+            <span class="svc-pill core">hris-printservice</span>
+            <span class="svc-pill core">hris-gateway</span>
+          </div>
+        </div>
+        <div style="margin-top: 10px;">
+          <div class="section-label">Alpha deliverable</div>
+          <div style="font-size: 12px; color: var(--color-text-secondary);">Data parity validation for migrated tenants. Freeze integration contracts.</div>
+        </div>
+        <div style="margin-top: 8px;">
+          <div class="section-label">GR deliverable</div>
+          <div style="font-size: 12px; color: var(--color-text-secondary);">Full tenant migration. HRIS decommission + data archival per retention policy.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- POD: HCM 1 Feature -->
+    <div class="pod">
+      <div class="pod-header" style="background: var(--color-background-info);">
+        <span>🚀 HCM 1 — Feature</span>
+        <span class="badge badge-blue">5 heads</span>
+      </div>
+      <div class="pod-body">
+        <div class="card-sub" style="margin-bottom:10px;">Net-new capabilities: onboarding, benefits, performance. Builds on Traqspera substrate.</div>
+        <div class="pod-row"><span class="pod-role">Product Definer (PD)</span><span>1</span></div>
+        <div class="pod-row"><span class="pod-role">.NET / C# backend</span><span>2 (1 open req)</span></div>
+        <div class="pod-row"><span class="pod-role">React/TS + React Native</span><span>1</span></div>
+        <div class="pod-row"><span class="pod-role">QA / SDET</span><span>1</span></div>
+        <div style="margin-top: 10px;">
+          <div class="section-label">Owns</div>
+          <div class="svc-pills">
+            <span class="svc-pill new">Onboarding svc</span>
+            <span class="svc-pill new">Benefits svc</span>
+            <span class="svc-pill new">Performance svc</span>
+            <span class="svc-pill new">Notifications svc</span>
+          </div>
+        </div>
+        <div style="margin-top: 10px;">
+          <div class="section-label">Alpha deliverable</div>
+          <div style="font-size: 12px; color: var(--color-text-secondary);">Lock onboarding requirements. Begin module build against Team platform flows.</div>
+        </div>
+        <div style="margin-top: 8px;">
+          <div class="section-label">Beta deliverable</div>
+          <div style="font-size: 12px; color: var(--color-text-secondary);">Onboarding shipped. Print/doc service callable. GR: benefits + performance modules.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- POD: HCM 2 Modernization -->
+    <div class="pod">
+      <div class="pod-header" style="background: var(--color-background-success);">
+        <span>⚙️ HCM 2 — Modernization</span>
+        <span class="badge badge-green">5 heads</span>
+      </div>
+      <div class="pod-body">
+        <div class="card-sub" style="margin-bottom:10px;">Tech debt remediation on Traqspera core. Migrate frontend toolchain. Refactor God-class controllers.</div>
+        <div class="pod-row"><span class="pod-role">Product Definer (PD)</span><span>1</span></div>
+        <div class="pod-row"><span class="pod-role">PHP / Laravel senior</span><span>1 (current Traqs)</span></div>
+        <div class="pod-row"><span class="pod-role">React + TypeScript</span><span>1 (current Traqs)</span></div>
+        <div class="pod-row"><span class="pod-role">DevOps / Platform</span><span>1</span></div>
+        <div class="pod-row"><span class="pod-role">QA</span><span>1</span></div>
+        <div style="margin-top: 10px;">
+          <div class="section-label">Owns</div>
+          <div class="svc-pills">
+            <span class="svc-pill lift">Laravel → .NET extraction</span>
+            <span class="svc-pill lift">Mix → Vite/TS migration</span>
+            <span class="svc-pill lift">Postgres migration</span>
+            <span class="svc-pill lift">OpenTelemetry rollout</span>
+            <span class="svc-pill lift">GitHub Actions CI</span>
+          </div>
+        </div>
+        <div style="margin-top: 10px;">
+          <div class="section-label">Alpha deliverable</div>
+          <div style="font-size: 12px; color: var(--color-text-secondary);">OTel on critical paths. Strangler-fig extraction scaffolding. God-class refactor backlog sized.</div>
+        </div>
+        <div style="margin-top: 8px;">
+          <div class="section-label">Post-GR deliverable</div>
+          <div style="font-size: 12px; color: var(--color-text-secondary);">Vite + TS frontend complete. Shared TS contract package (web ↔ mobile). Postgres migration done.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- POD: HCM 3 Migration -->
+    <div class="pod">
+      <div class="pod-header" style="background: var(--color-background-warning);">
+        <span>🔄 HCM 3 — App Migration</span>
+        <span class="badge badge-amber">5 heads</span>
+      </div>
+      <div class="pod-body">
+        <div class="card-sub" style="margin-bottom:10px;">Feature-parity migration of HRIS capabilities onto Traqspera. Tenant-by-tenant cutover through GR.</div>
+        <div class="pod-row"><span class="pod-role">Product Definer (PD)</span><span>1</span></div>
+        <div class="pod-row"><span class="pod-role">Full-stack (.NET + React)</span><span>2 (open reqs)</span></div>
+        <div class="pod-row"><span class="pod-role">Data migration engineer</span><span>1 (ProContractor?)</span></div>
+        <div class="pod-row"><span class="pod-role">QA / migration tester</span><span>1 (ProContractor?)</span></div>
+        <div style="margin-top: 10px;">
+          <div class="section-label">Owns</div>
+          <div class="svc-pills">
+            <span class="svc-pill lift">Paystub/doc parity</span>
+            <span class="svc-pill lift">Forms mgmt port</span>
+            <span class="svc-pill lift">Notification parity</span>
+            <span class="svc-pill lift">Employee core delta</span>
+            <span class="svc-pill lift">External data / Kafka sync</span>
+            <span class="svc-pill lift">Per-tenant cutover playbook</span>
+          </div>
+        </div>
+        <div style="margin-top: 10px;">
+          <div class="section-label">Alpha deliverable</div>
+          <div style="font-size: 12px; color: var(--color-text-secondary);">Pilot tenant data parity validated. Employee + paystub read parity confirmed.</div>
+        </div>
+        <div style="margin-top: 8px;">
+          <div class="section-label">Beta / GR deliverable</div>
+          <div style="font-size: 12px; color: var(--color-text-secondary);">Cohort 1 migrated (Beta). All HRIS tenants on Traqspera by GR. HRIS sunset initiated.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="card" style="margin-top: 4px;">
+    <div class="card-header">Open headcount gaps (needs resolution before Alpha)</div>
+    <div class="grid-3" style="margin-top: 4px;">
+      <div>
+        <div style="font-size: 13px; font-weight: 500; margin-bottom: 4px;">Dev Manager</div>
+        <div class="badge badge-red">1 req to open</div>
+        <div class="card-sub" style="margin-top: 4px;">Cross-POD coordination, sprint health, capacity planning</div>
+      </div>
+      <div>
+        <div style="font-size: 13px; font-weight: 500; margin-bottom: 4px;">HCM 1 backend</div>
+        <div class="badge badge-amber">1 open req</div>
+        <div class="card-sub" style="margin-top: 4px;">.NET / C# for onboarding + benefits service build</div>
+      </div>
+      <div>
+        <div style="font-size: 13px; font-weight: 500; margin-bottom: 4px;">HCM 3 migration</div>
+        <div class="badge badge-amber">2 open reqs</div>
+        <div class="card-sub" style="margin-top: 4px;">2 ProContractor resources under evaluation for data migration + QA</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== ARCHITECTURE ====== -->
+<div id="arch" class="panel" role="tabpanel" aria-hidden="true">
+  <div class="card" style="border-color: var(--color-border-info); margin-bottom: 14px;">
+    <div class="card-header">Architectural pattern</div>
+    <div style="font-size: 13px; line-height: 1.6; color: var(--color-text-secondary);">
+      <strong style="color: var(--color-text-primary);">Strangler-fig modular monolith.</strong> Laravel core stays for stable capabilities (time, paystubs, employee, direct deposit). New HR modules are clean .NET services extracted outside the monolith, connected over versioned Kafka topics and REST contracts. The PHP monolith shrinks as each module is extracted; it is never rewritten in place.
+    </div>
+  </div>
+
+  <div class="section-label">Mobile-first client layer</div>
+  <div class="layer">
+    <div class="layer-label">Field user surface</div>
+    <div class="svc-pills">
+      <span class="svc-pill new">traqmobile (React Native / Expo)</span>
+      <span class="svc-pill lift">Web app → Vite + TS + Modus DS</span>
+      <span class="svc-pill new">Shared TS contract package</span>
+    </div>
+  </div>
+
+  <div class="section-label">API gateway &amp; identity</div>
+  <div class="layer">
+    <div class="layer-label">Edge</div>
+    <div class="svc-pills">
+      <span class="svc-pill new">Versioned REST gateway (v1/v2)</span>
+      <span class="svc-pill new">OAuth2 / OIDC + JWT (Trimble IdP)</span>
+      <span class="svc-pill core">Sub-domain tenancy middleware</span>
+    </div>
+  </div>
+
+  <div class="section-label">New .NET services (HCM 1 builds) — clean architecture · MediatR · Postgres</div>
+  <div class="layer" style="border-color: var(--color-border-success);">
+    <div class="layer-label" style="color: var(--color-text-success);">Net-new modules</div>
+    <div class="svc-pills">
+      <span class="svc-pill new">Onboarding svc</span>
+      <span class="svc-pill new">Benefits svc</span>
+      <span class="svc-pill new">Performance svc</span>
+      <span class="svc-pill new">Notifications svc</span>
+      <span class="svc-pill new">Documents & Forms svc (lifted from hris-printservice)</span>
+      <span class="svc-pill new">Payroll Integration svc</span>
+    </div>
+  </div>
+
+  <div class="section-label">Laravel core — stable, in maintenance mode until extracted</div>
+  <div class="layer">
+    <div class="layer-label">Traqspera monolith (PHP 8.2 / Laravel 9)</div>
+    <div class="svc-pills">
+      <span class="svc-pill core">Employee &amp; Identity</span>
+      <span class="svc-pill core">Time &amp; Field</span>
+      <span class="svc-pill core">Paystubs &amp; Tax forms</span>
+      <span class="svc-pill core">Direct deposit</span>
+      <span class="svc-pill core">Assets &amp; Equipment</span>
+      <span class="svc-pill core">Crew, Safety, Training</span>
+      <span class="svc-pill core">Job &amp; Cost linkage (Prism)</span>
+      <span class="svc-pill core">Multi-tenancy</span>
+    </div>
+  </div>
+
+  <div class="section-label">Eventing &amp; integration backbone</div>
+  <div class="layer">
+    <div class="layer-label">Kafka (Confluent, single cluster/env) · Avro + schema registry</div>
+    <div class="svc-pills">
+      <span class="svc-pill lift">time-events → payroll-integration</span>
+      <span class="svc-pill lift">employee-events → notifications</span>
+      <span class="svc-pill lift">onboarding-events → employee</span>
+      <span class="svc-pill lift">Azure AD → Trimble IdP migration consumer</span>
+    </div>
+  </div>
+
+  <div class="section-label">Data layer</div>
+  <div class="layer">
+    <div class="layer-label">One DB per service · no shared schemas · data exchanged via events / explicit APIs</div>
+    <div class="svc-pills">
+      <span class="svc-pill new">Postgres (new services)</span>
+      <span class="svc-pill lift">Traqs core DB → Postgres (GR horizon)</span>
+      <span class="svc-pill core">SQL Server (HRIS read-only through GR)</span>
+    </div>
+  </div>
+
+  <div class="section-label">Downstream integrations</div>
+  <div class="layer">
+    <div class="layer-label">Trimble Construction ecosystem</div>
+    <div class="svc-pills">
+      <span class="svc-pill new">Prism / Financials (existing + payroll)</span>
+      <span class="svc-pill core">Dimensions (Beta milestone)</span>
+      <span class="svc-pill core">Spectrum payroll (tax field mapping)</span>
+      <span class="svc-pill lift">ATS connector (onboarding)</span>
+      <span class="svc-pill new">Carrier feeds (benefits)</span>
+    </div>
+  </div>
+
+  <div class="section-label">Observability &amp; CI</div>
+  <div class="layer">
+    <div class="layer-label">Platform (HCM 2 owns)</div>
+    <div class="svc-pills">
+      <span class="svc-pill lift">OpenTelemetry → unified backend (traces + metrics + logs)</span>
+      <span class="svc-pill lift">GitHub Actions → containerized deploys</span>
+      <span class="svc-pill core">Bugsnag (until OTel cutover)</span>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top: 14px;">
+    <div class="card-header">Architectural principles</div>
+    <div style="display: flex; flex-direction: column; gap: 7px; font-size: 12px;">
+      <div>🏛️ <strong>Clean architecture</strong> in every new service — dependencies point inward; domain has zero framework imports</div>
+      <div>📡 <strong>Event-driven by default</strong> for cross-service comms; synchronous calls only when latency demands it</div>
+      <div>🌿 <strong>Strangler-fig</strong> — every new capability built outside the monolith; monolith reduces over time, never rewritten in place</div>
+      <div>🗃️ <strong>One DB per service</strong> — no shared schemas; data exchanged via events or explicit APIs only</div>
+      <div>📋 <strong>Contracts before code</strong> — every Kafka topic and REST endpoint has a published, versioned schema before implementation</div>
+      <div>📱 <strong>Field-first</strong> — every HR capability ships mobile + web in the same release</div>
+      <div>🔒 <strong>Tenant isolation</strong> is non-negotiable and enforced at the data layer, not just request layer</div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== GAPS ====== -->
+<div id="gaps" class="panel" role="tabpanel" aria-hidden="true">
+  <div class="card" style="margin-bottom: 14px;">
+    <div class="card-header">Legend</div>
+    <div style="display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px;">
+      <span><span class="check">✓</span> Mature / production</span>
+      <span><span class="partial">◑</span> Partial / scaffolded</span>
+      <span><span class="cross">✗</span> Not present</span>
+      <span><span class="badge badge-blue" style="vertical-align:middle;">Build</span> Must build on Traqspera</span>
+      <span><span class="badge badge-amber" style="vertical-align:middle;">Lift</span> Lift from HRIS</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="gap-row gap-hdr" style="padding-bottom: 8px; border-bottom: 1px solid var(--color-border-secondary);">
+      <span>HR Capability</span>
+      <span>HRIS today</span>
+      <span>Traqspera today</span>
+      <span>Gap / Action</span>
+    </div>
+
+    <div class="gap-row">
+      <div><strong>Employee master data</strong></div>
+      <div><span class="check">✓</span> Mature</div>
+      <div><span class="check">✓</span> Mature</div>
+      <div><span class="badge badge-amber">Lift</span> Pending-change workflow, cost-center filtering, audit trail</div>
+    </div>
+    <div class="gap-row">
+      <div><strong>Onboarding (new-hire wizard)</strong></div>
+      <div><span class="partial">◑</span> Partial — Team platform</div>
+      <div><span class="cross">✗</span> Not present</div>
+      <div><span class="badge badge-blue">Build</span> 10 capabilities: wizard, tasks, ATS connector, ERP write-back, profile groups</div>
+    </div>
+    <div class="gap-row">
+      <div><strong>Time tracking (field)</strong></div>
+      <div><span class="cross">✗</span> Not present</div>
+      <div><span class="check">✓</span> Core differentiator</div>
+      <div>No action — HRIS users gain for free on migration</div>
+    </div>
+    <div class="gap-row">
+      <div><strong>Paystubs &amp; tax forms (W2, T4, 1095-C)</strong></div>
+      <div><span class="check">✓</span> PDFTron print svc</div>
+      <div><span class="check">✓</span> Mobile + web</div>
+      <div><span class="badge badge-amber">Lift</span> Port hris-printservice to Traqspera-aligned Document svc</div>
+    </div>
+    <div class="gap-row">
+      <div><strong>Direct deposit</strong></div>
+      <div><span class="check">✓</span> Mature</div>
+      <div><span class="check">✓</span> Mobile-first</div>
+      <div>No action — parity confirmed</div>
+    </div>
+    <div class="gap-row">
+      <div><strong>Benefits administration</strong></div>
+      <div><span class="cross">✗</span> Not present</div>
+      <div><span class="cross">✗</span> Not present</div>
+      <div><span class="badge badge-blue">Build</span> New Benefits svc — plan setup, enrollment, life events, carrier feeds (GR milestone)</div>
+    </div>
+    <div class="gap-row">
+      <div><strong>Performance management</strong></div>
+      <div><span class="cross">✗</span> Not present</div>
+      <div><span class="cross">✗</span> Not present</div>
+      <div><span class="badge badge-blue">Build</span> New Performance svc — goals, reviews, check-ins, calibration (GR milestone)</div>
+    </div>
+    <div class="gap-row">
+      <div><strong>Notifications (W2, 1095-C alerts)</strong></div>
+      <div><span class="check">✓</span> Mature .NET 10 svc</div>
+      <div><span class="partial">◑</span> Light</div>
+      <div><span class="badge badge-amber">Lift</span> Port + expand to cross-channel orchestration: email, push, in-app</div>
+    </div>
+    <div class="gap-row">
+      <div><strong>Dynamic forms management</strong></div>
+      <div><span class="check">✓</span> Mature — template CRUD, versioning, conditional logic</div>
+      <div><span class="partial">◑</span> Light</div>
+      <div><span class="badge badge-amber">Lift</span> Full dynamic form engine: template CRUD, versioning, state, soft-delete</div>
+    </div>
+    <div class="gap-row">
+      <div><strong>Mobile self-service</strong></div>
+      <div><span class="cross">✗</span> No native mobile</div>
+      <div><span class="check">✓</span> Production React Native</div>
+      <div>No action — HRIS users gain React Native app on migration</div>
+    </div>
+    <div class="gap-row">
+      <div><strong>Job / cost / equipment linkage</strong></div>
+      <div><span class="partial">◑</span> Indirect</div>
+      <div><span class="check">✓</span> Native Prism integration</div>
+      <div>No action — existing integration preserved</div>
+    </div>
+    <div class="gap-row">
+      <div><strong>Payroll integration (Prism)</strong></div>
+      <div><span class="cross">✗</span> Not integrated</div>
+      <div><span class="partial">◑</span> PI3 in flight</div>
+      <div><span class="badge badge-blue">Build</span> Time → Payroll event-driven pipeline. Alpha gate item. HCM 1 + HCM 3 joint.</div>
+    </div>
+    <div class="gap-row">
+      <div><strong>Multi-tenancy</strong></div>
+      <div><span class="check">✓</span> Azure AD + RBAC</div>
+      <div><span class="check">✓</span> Sub-domain isolation</div>
+      <div><span class="badge badge-amber">Lift</span> Azure AD → Trimble IdP per-tenant migration via Kafka consumer</div>
+    </div>
+    <div class="gap-row">
+      <div><strong>External data sync (Kafka dual-host)</strong></div>
+      <div><span class="check">✓</span> Mature (legacy encryption migrating)</div>
+      <div><span class="partial">◑</span> Laravel Kafka bridge</div>
+      <div><span class="badge badge-amber">Lift</span> Migrate to single Confluent cluster; retire legacy encryption stack</div>
+    </div>
+    <div class="gap-row">
+      <div><strong>Certified payroll / multi-state crew</strong></div>
+      <div><span class="cross">✗</span> Not present</div>
+      <div><span class="partial">◑</span> Spectrum mapping</div>
+      <div>Future scope — GR+ (compliance automation via AI)</div>
+    </div>
+    <div class="gap-row">
+      <div><strong>Crew, safety, training / certifications</strong></div>
+      <div><span class="cross">✗</span> Not present</div>
+      <div><span class="check">✓</span> Crew lifecycle, incident, cert expiry</div>
+      <div>No action — HRIS users gain full crew ops on migration</div>
+    </div>
+    <div class="gap-row">
+      <div><strong>Observability (unified traces + logs)</strong></div>
+      <div><span class="partial">◑</span> Serilog / SumoLogic / New Relic</div>
+      <div><span class="partial">◑</span> Bugsnag only</div>
+      <div><span class="badge badge-amber">Lift</span> OpenTelemetry → unified backend. HCM 2 owns. Beta gate.</div>
+    </div>
+    <div class="gap-row">
+      <div><strong>CI / CD pipeline (standardized)</strong></div>
+      <div><span class="partial">◑</span> Azure DevOps</div>
+      <div><span class="partial">◑</span> Bitbucket Pipelines</div>
+      <div><span class="badge badge-amber">Lift</span> GitHub Actions → containerized deploys. HCM 2 owns. Paved road by Alpha.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== COMPETITOR BENCHMARK ====== -->
+<div id="comp" class="panel" role="tabpanel" aria-hidden="true">
+  <div class="card" style="margin-bottom: 14px;">
+    <div class="card-header">Competitive positioning</div>
+    <div style="font-size: 13px; line-height: 1.6; color: var(--color-text-secondary);">
+      Traqspera's defensible position is the intersection of <strong style="color: var(--color-text-primary);">construction-native workforce data</strong> and the broader Trimble Construction One ecosystem. No peer in the field-first segment has the ERP integration depth; no ERP suite has the mobile-first field UX.
+    </div>
+  </div>
+
+  <div style="overflow-x: auto;">
+  <table class="comp-table" style="min-width: 560px;">
+    <thead>
+      <tr>
+        <th style="min-width:120px;">Capability</th>
+        <th style="min-width:110px; color: var(--color-text-info);">Traqspera (target)</th>
+        <th>Workday / UKG Pro</th>
+        <th>BambooHR / Rippling</th>
+        <th>Arcoro / Foundation</th>
+        <th>Procore Workforce</th>
+        <th>busybusy / Raken</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Field time capture</strong></td>
+        <td style="color: var(--color-text-success); font-weight: 500;">✓ Native, offline</td>
+        <td class="cross" style="color: var(--color-text-danger);">✗ Weak</td>
+        <td class="cross" style="color: var(--color-text-danger);">✗ Office-first</td>
+        <td style="color: var(--color-text-warning);">◑ Varies</td>
+        <td style="color: var(--color-text-success);">✓ Strong</td>
+        <td style="color: var(--color-text-success);">✓ Core</td>
+      </tr>
+      <tr>
+        <td><strong>Mobile-first UX</strong></td>
+        <td style="color: var(--color-text-success); font-weight: 500;">✓ React Native</td>
+        <td style="color: var(--color-text-warning);">◑ Bolted on</td>
+        <td style="color: var(--color-text-warning);">◑ Responsive web</td>
+        <td style="color: var(--color-text-danger);">✗ Aging</td>
+        <td style="color: var(--color-text-success);">✓ Good</td>
+        <td style="color: var(--color-text-success);">✓ Excellent</td>
+      </tr>
+      <tr>
+        <td><strong>Job cost / ERP integration</strong></td>
+        <td style="color: var(--color-text-success); font-weight: 500;">✓ Native Prism</td>
+        <td style="color: var(--color-text-warning);">◑ Generic API</td>
+        <td class="cross" style="color: var(--color-text-danger);">✗ None</td>
+        <td style="color: var(--color-text-success);">✓ Strong</td>
+        <td style="color: var(--color-text-success);">✓ Procore core</td>
+        <td class="cross" style="color: var(--color-text-danger);">✗ None</td>
+      </tr>
+      <tr>
+        <td><strong>Payroll integration</strong></td>
+        <td style="color: var(--color-text-warning); font-weight: 500;">◑ PI3 in flight</td>
+        <td style="color: var(--color-text-success);">✓ Native</td>
+        <td style="color: var(--color-text-success);">✓ Strong</td>
+        <td style="color: var(--color-text-success);">✓ Yes</td>
+        <td style="color: var(--color-text-warning);">◑ External</td>
+        <td class="cross" style="color: var(--color-text-danger);">✗ None</td>
+      </tr>
+      <tr>
+        <td><strong>Core HR / onboarding</strong></td>
+        <td style="color: var(--color-text-warning); font-weight: 500;">◑ Building Beta</td>
+        <td style="color: var(--color-text-success);">✓ Deep</td>
+        <td style="color: var(--color-text-success);">✓ Fast</td>
+        <td style="color: var(--color-text-warning);">◑ Bolt-on</td>
+        <td style="color: var(--color-text-warning);">◑ Limited</td>
+        <td class="cross" style="color: var(--color-text-danger);">✗ External</td>
+      </tr>
+      <tr>
+        <td><strong>Benefits admin</strong></td>
+        <td style="color: var(--color-text-warning); font-weight: 500;">◑ Building GR</td>
+        <td style="color: var(--color-text-success);">✓ Mature</td>
+        <td style="color: var(--color-text-success);">✓ Strong</td>
+        <td style="color: var(--color-text-danger);">✗ Thin</td>
+        <td class="cross" style="color: var(--color-text-danger);">✗ None</td>
+        <td class="cross" style="color: var(--color-text-danger);">✗ None</td>
+      </tr>
+      <tr>
+        <td><strong>Performance mgmt</strong></td>
+        <td style="color: var(--color-text-warning); font-weight: 500;">◑ Building GR</td>
+        <td style="color: var(--color-text-success);">✓ Mature</td>
+        <td style="color: var(--color-text-success);">✓ Strong</td>
+        <td class="cross" style="color: var(--color-text-danger);">✗ None</td>
+        <td class="cross" style="color: var(--color-text-danger);">✗ None</td>
+        <td class="cross" style="color: var(--color-text-danger);">✗ None</td>
+      </tr>
+      <tr>
+        <td><strong>Certified payroll / compliance</strong></td>
+        <td style="color: var(--color-text-warning); font-weight: 500;">◑ Future scope</td>
+        <td style="color: var(--color-text-danger);">✗ Edge case</td>
+        <td class="cross" style="color: var(--color-text-danger);">✗ None</td>
+        <td style="color: var(--color-text-success);">✓ Strong</td>
+        <td style="color: var(--color-text-success);">✓ Yes</td>
+        <td class="cross" style="color: var(--color-text-danger);">✗ None</td>
+      </tr>
+      <tr>
+        <td><strong>Crew / crew mgmt</strong></td>
+        <td style="color: var(--color-text-success); font-weight: 500;">✓ Mature</td>
+        <td class="cross" style="color: var(--color-text-danger);">✗ None</td>
+        <td class="cross" style="color: var(--color-text-danger);">✗ None</td>
+        <td style="color: var(--color-text-warning);">◑ Varies</td>
+        <td style="color: var(--color-text-success);">✓ Strong</td>
+        <td style="color: var(--color-text-success);">✓ Core</td>
+      </tr>
+      <tr>
+        <td><strong>Equipment / asset linkage</strong></td>
+        <td style="color: var(--color-text-success); font-weight: 500;">✓ Native</td>
+        <td class="cross" style="color: var(--color-text-danger);">✗ None</td>
+        <td class="cross" style="color: var(--color-text-danger);">✗ None</td>
+        <td style="color: var(--color-text-warning);">◑ Partial</td>
+        <td style="color: var(--color-text-success);">✓ Yes</td>
+        <td style="color: var(--color-text-warning);">◑ Partial</td>
+      </tr>
+      <tr>
+        <td><strong>AI / ML capabilities</strong></td>
+        <td style="color: var(--color-text-warning); font-weight: 500;">◑ Roadmap</td>
+        <td style="color: var(--color-text-success);">✓ Copilot integrations</td>
+        <td style="color: var(--color-text-warning);">◑ Basic</td>
+        <td class="cross" style="color: var(--color-text-danger);">✗ Minimal</td>
+        <td style="color: var(--color-text-warning);">◑ Early</td>
+        <td class="cross" style="color: var(--color-text-danger);">✗ None</td>
+      </tr>
+      <tr>
+        <td><strong>Trimble ecosystem fit</strong></td>
+        <td style="color: var(--color-text-success); font-weight: 500;">✓ Native Trimble</td>
+        <td class="cross" style="color: var(--color-text-danger);">✗ None</td>
+        <td class="cross" style="color: var(--color-text-danger);">✗ None</td>
+        <td class="cross" style="color: var(--color-text-danger);">✗ None</td>
+        <td class="cross" style="color: var(--color-text-danger);">✗ None</td>
+        <td class="cross" style="color: var(--color-text-danger);">✗ None</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="card" style="margin-top: 14px;">
+    <div class="card-header">Unique competitive moat — post-GR</div>
+    <div class="grid-3" style="margin-top: 4px;">
+      <div>
+        <div style="font-size: 13px; font-weight: 500; margin-bottom: 4px;">Trimble-native ERP depth</div>
+        <div class="card-sub">Only HR platform with native Prism/Financials job-cost and payroll integration. No competitor can replicate without a Trimble partnership.</div>
+      </div>
+      <div>
+        <div style="font-size: 13px; font-weight: 500; margin-bottom: 4px;">Field-first full stack</div>
+        <div class="card-sub">Mobile-first time → paystub → onboarding → benefits in a single app. Field workers don't need a separate tool for each workflow.</div>
+      </div>
+      <div>
+        <div style="font-size: 13px; font-weight: 500; margin-bottom: 4px;">Construction-context AI</div>
+        <div class="card-sub">Time anomaly detection, certified payroll compliance, crew attrition forecasting trained on construction-domain data — not generic HR data.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== AI ====== -->
+<div id="ai" class="panel" role="tabpanel" aria-hidden="true">
+  <div class="card" style="border-color: var(--color-border-info); margin-bottom: 14px;">
+    <div class="card-header">AI architectural principles</div>
+    <div style="display: flex; flex-direction: column; gap: 6px; font-size: 12px;">
+      <div>📡 AI features consume the same Kafka event streams as the rest of the platform — no out-of-band data extraction</div>
+      <div>🔁 Inference is a service, not an embedded library — model swaps do not require service redeploys</div>
+      <div>🏢 Tenant data is never used to train cross-tenant models without explicit, contractual opt-in</div>
+      <div>📋 Every AI-assisted action is auditable: prompt, response, and downstream change recorded</div>
+      <div>🧑‍⚖️ Human-in-the-loop is the default for any action touching pay, benefits, or performance ratings</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">AI opportunity map — module by module</div>
+    <div class="ai-row">
+      <div class="ai-icon">📋</div>
+      <div>
+        <div class="ai-title">Onboarding intelligence <span class="badge badge-blue" style="margin-left: 6px;">Beta</span></div>
+        <div class="ai-desc">Document understanding (I-9, W-4, certifications) with field auto-fill. Risk scoring on missing or inconsistent paperwork before day one. ATS connector data enrichment for profile pre-population.</div>
+      </div>
+    </div>
+    <div class="ai-row">
+      <div class="ai-icon">⏱️</div>
+      <div>
+        <div class="ai-title">Time &amp; payroll anomaly detection <span class="badge badge-blue" style="margin-left: 6px;">Alpha+</span></div>
+        <div class="ai-desc">Flags impossible shifts, duplicate punches, job-geofence drift before entries reach payroll. Supervisor review surface surfaces top anomalies ranked by risk. Estimated reduction: 60-80% of payroll correction cycles.</div>
+      </div>
+    </div>
+    <div class="ai-row">
+      <div class="ai-icon">💊</div>
+      <div>
+        <div class="ai-title">Benefits personalization <span class="badge badge-gray" style="margin-left: 6px;">GR</span></div>
+        <div class="ai-desc">Personalized plan recommendations surfaced at enrollment and life events. Natural-language Q&amp;A grounded in carrier plan documents. Life-event prompts ("You've added a dependent — do you want to review coverage?").</div>
+      </div>
+    </div>
+    <div class="ai-row">
+      <div class="ai-icon">🎯</div>
+      <div>
+        <div class="ai-title">Performance draft assist <span class="badge badge-gray" style="margin-left: 6px;">GR</span></div>
+        <div class="ai-desc">Draft-assist for manager reviews and goal setting. Bias-checking on review language before submission. Topic clustering across check-ins to surface longitudinal themes for calibration panels.</div>
+      </div>
+    </div>
+    <div class="ai-row">
+      <div class="ai-icon">📱</div>
+      <div>
+        <div class="ai-title">Field self-service — voice + NL <span class="badge badge-gray" style="margin-left: 6px;">Post-GR</span></div>
+        <div class="ai-desc">Voice and natural-language interfaces in traqmobile for paystubs, PTO requests, and personal info — critical for low-literacy or ESL field users. Estimated ~40% of construction workforce benefits directly.</div>
+      </div>
+    </div>
+    <div class="ai-row">
+      <div class="ai-icon">📊</div>
+      <div>
+        <div class="ai-title">Workforce insights <span class="badge badge-gray" style="margin-left: 6px;">Post-GR</span></div>
+        <div class="ai-desc">Attrition risk scoring per crew member tied to job profitability data. Certification expiry forecasting with crew-composition optimization. Cross-domain warehouse fed from time, employee, job, and equipment event streams.</div>
+      </div>
+    </div>
+    <div class="ai-row">
+      <div class="ai-icon">⚖️</div>
+      <div>
+        <div class="ai-title">Compliance automation <span class="badge badge-gray" style="margin-left: 6px;">Post-GR</span></div>
+        <div class="ai-desc">Automated review of jurisdiction-specific labor rules against actual time data. Certified payroll exception detection before submission. Multi-state crew movement compliance alerting.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== STACK ====== -->
+<div id="stack" class="panel" role="tabpanel" aria-hidden="true">
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header">Backend — new services (HCM 1 builds)</div>
+      <div class="svc-pills" style="margin-bottom: 10px;">
+        <span class="stack-chip"><i class="ti ti-brand-csharp" aria-hidden="true"></i> C# / .NET latest LTS</span>
+        <span class="stack-chip">Clean architecture (Api → Application → Domain → Infrastructure)</span>
+        <span class="stack-chip">MediatR (commands / queries)</span>
+        <span class="stack-chip">Minimal APIs (thin services)</span>
+        <span class="stack-chip">EF Core + Postgres</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">Backend — Laravel core (maintenance)</div>
+      <div class="svc-pills">
+        <span class="stack-chip">PHP 8.2 / Laravel 9</span>
+        <span class="stack-chip">Eloquent ORM (271 models)</span>
+        <span class="stack-chip">Service layer extraction (new features → .NET)</span>
+        <span class="stack-chip">God-class refactor behind service classes</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">Frontend — web</div>
+      <div class="svc-pills">
+        <span class="stack-chip"><i class="ti ti-brand-react" aria-hidden="true"></i> React 18+</span>
+        <span class="stack-chip">TypeScript (mandatory net-new)</span>
+        <span class="stack-chip">Vite (replacing Laravel Mix)</span>
+        <span class="stack-chip">TailwindCSS</span>
+        <span class="stack-chip">Modus React Components (design system)</span>
+        <span class="stack-chip">Shared TS contract package (web ↔ mobile)</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">Mobile</div>
+      <div class="svc-pills">
+        <span class="stack-chip"><i class="ti ti-device-mobile" aria-hidden="true"></i> React Native (Expo)</span>
+        <span class="stack-chip">traqmobile — production app</span>
+        <span class="stack-chip">TypeScript types shared with web</span>
+        <span class="stack-chip">Offline sync (field time)</span>
+        <span class="stack-chip">Firebase JWT (mobile auth)</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">Data</div>
+      <div class="svc-pills">
+        <span class="stack-chip">PostgreSQL — all new services</span>
+        <span class="stack-chip">Traqs core DB → Postgres (GR horizon)</span>
+        <span class="stack-chip">SQL Server — HRIS read-only to GR</span>
+        <span class="stack-chip">One DB per service — no shared schemas</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">Eventing</div>
+      <div class="svc-pills">
+        <span class="stack-chip">Kafka (Confluent — single cluster/env)</span>
+        <span class="stack-chip">Avro + schema registry</span>
+        <span class="stack-chip">Replaces Azure Service Bus (HRIS) + ad-hoc Laravel events</span>
+        <span class="stack-chip">Contracts before code — versioned schemas before impl</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">Auth &amp; identity</div>
+      <div class="svc-pills">
+        <span class="stack-chip">OAuth2 / OIDC — Trimble IdP</span>
+        <span class="stack-chip">JWT (mobile)</span>
+        <span class="stack-chip">OIDC code + PKCE (web)</span>
+        <span class="stack-chip">Azure AD → Trimble IdP (per-tenant migration)</span>
+        <span class="stack-chip">Sub-domain tenancy middleware</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">Observability &amp; CI / CD</div>
+      <div class="svc-pills">
+        <span class="stack-chip">OpenTelemetry → unified backend</span>
+        <span class="stack-chip">Traces + metrics + logs</span>
+        <span class="stack-chip">Replaces Bugsnag-only + Serilog/SumoLogic split</span>
+        <span class="stack-chip">GitHub Actions → containerized deploys</span>
+        <span class="stack-chip">Replaces Bitbucket Pipelines + Azure DevOps</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top: 4px;">
+    <div class="card-header">Service color key</div>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; font-size: 12px; align-items: center;">
+      <span><span class="svc-pill new" style="cursor:default;">Green = net-new .NET service</span></span>
+      <span><span class="svc-pill lift" style="cursor:default;">Amber = lift / modernize from HRIS or Traqs</span></span>
+      <span><span class="svc-pill core" style="cursor:default;">Gray = stable Traqspera core</span></span>
+    </div>
+  </div>
+</div>
+
+<script>
+function show(id, trigger) {
+  document.querySelectorAll('.panel').forEach(p => {
+    const isActive = p.id === id;
+    p.classList.toggle('active', isActive);
+    p.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+  });
+
+  document.querySelectorAll('.nav button').forEach(b => {
+    const isActive = b === trigger;
+    b.classList.toggle('active', isActive);
+    b.setAttribute('aria-selected', isActive ? 'true' : 'false');
+  });
+}
+</script>
