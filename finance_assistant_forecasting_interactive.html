@@ -1,0 +1,395 @@
+<script src="https://cdn.tailwindcss.com"></script>
+
+<h2 class="sr-only">
+  Interactive forecasting prototype: selecting a project in the portfolio rail loads its scenario,
+  and adjusting the market conditions toggle, subcontractor efficiency, and expedited fee sliders
+  recomputes the forecast, delta, status, and driver breakdown live.
+</h2>
+
+<div class="grid grid-cols-1 gap-5 md:grid-cols-[168px_minmax(0,1fr)]">
+  <div class="flex flex-col">
+    <p class="mb-2 text-[11px] text-[var(--text-muted)]">Portfolio</p>
+
+    <div
+      class="port-row flex cursor-pointer items-center justify-between border-b border-[var(--border)] border-l-2 border-l-transparent py-2 pl-2"
+      id="row-delta"
+      onclick="selectProject('delta')"
+    >
+      <div>
+        <p class="m-0 text-[13px] font-medium">P-Delta</p>
+        <p class="m-0 text-[11px] text-[var(--text-secondary)]" id="pct-delta"></p>
+      </div>
+      <span class="h-[7px] w-[7px] shrink-0 rounded-full" id="dot-delta"></span>
+    </div>
+
+    <div
+      class="port-row flex cursor-pointer items-center justify-between border-b border-[var(--border)] border-l-2 border-l-transparent py-2 pl-2"
+      id="row-bravo"
+      onclick="selectProject('bravo')"
+    >
+      <div>
+        <p class="m-0 text-[13px]">P-Bravo</p>
+        <p class="m-0 text-[11px] text-[var(--text-secondary)]" id="pct-bravo"></p>
+      </div>
+      <span class="h-[7px] w-[7px] shrink-0 rounded-full" id="dot-bravo"></span>
+    </div>
+
+    <div
+      class="port-row flex cursor-pointer items-center justify-between border-b border-[var(--border)] border-l-2 border-l-transparent py-2 pl-2"
+      id="row-echo"
+      onclick="selectProject('echo')"
+    >
+      <div>
+        <p class="m-0 text-[13px]">P-Echo</p>
+        <p class="m-0 text-[11px] text-[var(--text-secondary)]" id="pct-echo"></p>
+      </div>
+      <span class="h-[7px] w-[7px] shrink-0 rounded-full" id="dot-echo"></span>
+    </div>
+
+    <div
+      class="port-row flex cursor-pointer items-center justify-between border-b border-[var(--border)] border-l-2 border-l-transparent py-2 pl-2"
+      id="row-charlie"
+      onclick="selectProject('charlie')"
+    >
+      <div>
+        <p class="m-0 text-[13px]">P-Charlie</p>
+        <p class="m-0 text-[11px] text-[var(--text-secondary)]" id="pct-charlie"></p>
+      </div>
+      <span class="h-[7px] w-[7px] shrink-0 rounded-full" id="dot-charlie"></span>
+    </div>
+
+    <div
+      class="port-row flex cursor-pointer items-center justify-between border-l-2 border-l-transparent py-2 pl-2"
+      id="row-foxtrot"
+      onclick="selectProject('foxtrot')"
+    >
+      <div>
+        <p class="m-0 text-[13px]">P-Foxtrot</p>
+        <p class="m-0 text-[11px] text-[var(--text-secondary)]" id="pct-foxtrot"></p>
+      </div>
+      <span class="h-[7px] w-[7px] shrink-0 rounded-full" id="dot-foxtrot"></span>
+    </div>
+  </div>
+
+  <div class="flex min-w-0 flex-col gap-[14px]">
+    <p class="m-0 text-[14px] leading-[1.6]" id="narrative"></p>
+
+    <div class="rounded-xl bg-[var(--surface-1)] px-4 py-[14px]">
+      <div class="mb-1.5 flex items-baseline justify-between gap-3">
+        <div>
+          <p class="mb-0.5 text-[12px] text-[var(--text-secondary)]">Scenario overrun</p>
+          <p class="m-0 text-[20px] font-medium" id="scenario-out"></p>
+        </div>
+        <span class="rounded-[var(--radius)] px-2.5 py-1 text-[12px]" id="status-badge"></span>
+      </div>
+
+      <p class="mb-3 text-[12px] text-[var(--text-secondary)]">
+        Baseline <span id="baseline-out"></span> · delta <span id="delta-out"></span>
+      </p>
+
+      <div class="flex flex-col gap-2">
+        <div class="bar-row" data-key="market">
+          <div class="mb-0.5 flex justify-between text-[11px] text-[var(--text-secondary)]">
+            <span>Market conditions</span>
+            <span class="bar-val"></span>
+          </div>
+          <div class="h-[5px] overflow-hidden rounded-[3px] bg-[var(--surface-2)]">
+            <div class="bar-fill h-full w-0"></div>
+          </div>
+        </div>
+
+        <div class="bar-row" data-key="eff">
+          <div class="mb-0.5 flex justify-between text-[11px] text-[var(--text-secondary)]">
+            <span>Subcontractor efficiency</span>
+            <span class="bar-val"></span>
+          </div>
+          <div class="h-[5px] overflow-hidden rounded-[3px] bg-[var(--surface-2)]">
+            <div class="bar-fill h-full w-0"></div>
+          </div>
+        </div>
+
+        <div class="bar-row" data-key="fee">
+          <div class="mb-0.5 flex justify-between text-[11px] text-[var(--text-secondary)]">
+            <span>Expedited intervention</span>
+            <span class="bar-val"></span>
+          </div>
+          <div class="h-[5px] overflow-hidden rounded-[3px] bg-[var(--surface-2)]">
+            <div class="bar-fill h-full w-0"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex gap-2">
+      <button
+        class="ext-btn flex-1 rounded-md border border-[var(--border-strong)] bg-transparent px-2 py-1.5 text-[12px] text-[var(--text-primary)] transition-colors"
+        data-level="0.85"
+        type="button"
+      >
+        Stable
+      </button>
+      <button
+        class="ext-btn flex-1 rounded-md border border-[var(--border-strong)] bg-transparent px-2 py-1.5 text-[12px] text-[var(--text-primary)] transition-colors"
+        data-level="1.0"
+        type="button"
+      >
+        Moderate
+      </button>
+      <button
+        class="ext-btn flex-1 rounded-md border border-[var(--border-strong)] bg-transparent px-2 py-1.5 text-[12px] text-[var(--text-primary)] transition-colors"
+        data-level="1.35"
+        type="button"
+      >
+        Severe
+      </button>
+    </div>
+
+    <div>
+      <div class="mb-0.5 flex justify-between text-[13px]">
+        <label for="eff">Subcontractor efficiency</label>
+        <span class="font-medium" id="eff-out"></span>
+      </div>
+      <input class="w-full" id="eff" max="1.2" min="0.7" step="0.01" type="range" />
+    </div>
+
+    <div>
+      <div class="mb-0.5 flex justify-between text-[13px]">
+        <label for="fee">Expedited intervention fee</label>
+        <span class="font-medium" id="fee-out"></span>
+      </div>
+      <input class="w-full" id="fee" max="10" min="0" step="0.5" type="range" />
+    </div>
+
+    <div class="flex flex-wrap gap-2">
+      <button
+        class="rounded-md border border-[var(--border-strong)] px-2.5 py-1.5 text-[12px] text-[var(--text-primary)]"
+        onclick="askCompare()"
+        type="button"
+      >
+        Compare to Q2 ↗
+      </button>
+      <button
+        class="rounded-md border border-[var(--border-strong)] px-2.5 py-1.5 text-[12px] text-[var(--text-primary)]"
+        onclick="askSetBaseline()"
+        type="button"
+      >
+        Set as new baseline ↗
+      </button>
+    </div>
+
+    <div class="flex items-center gap-2 border-t border-[var(--border)] pt-3">
+      <input
+        class="flex-1"
+        id="ask-input"
+        placeholder="Ask about a project or scenario"
+        type="text"
+      />
+      <button
+        aria-label="Send"
+        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[var(--border-strong)]"
+        onclick="const v=document.getElementById('ask-input').value.trim(); if(v){sendPrompt(v);}"
+        type="button"
+      >
+        <i aria-hidden="true" class="ti ti-arrow-right text-[16px]"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+const projects = {
+  delta: { name: 'P-Delta', baseline: 827190, ext: 1.35, eff: 0.75, fee: 3 },
+  bravo: { name: 'P-Bravo', baseline: 612400, ext: 1.0, eff: 0.85, fee: 1 },
+  echo: { name: 'P-Echo', baseline: 445000, ext: 1.0, eff: 0.88, fee: 0.5 },
+  charlie: { name: 'P-Charlie', baseline: 958000, ext: 0.85, eff: 1.05, fee: 0 },
+  foxtrot: { name: 'P-Foxtrot', baseline: 310000, ext: 0.85, eff: 1.0, fee: 0 }
+};
+
+const state = {};
+Object.keys(projects).forEach((key) => {
+  state[key] = { ...projects[key] };
+});
+
+let activeKey = 'delta';
+
+function formatCurrency(value) {
+  return `$${Math.round(value).toLocaleString()}`;
+}
+
+function computeScenario(baseline, ext, eff, fee) {
+  const effFactor = 1 + (1 - eff) * 0.6;
+  const feeFactor = 1 - fee * 0.025;
+  const feeCost = fee * baseline * 0.003;
+  return baseline * ext * effFactor * feeFactor + feeCost;
+}
+
+function statusFor(ratio) {
+  if (ratio <= 1.05) {
+    return {
+      text: 'On track',
+      bg: 'var(--bg-success)',
+      color: 'var(--text-success)',
+      dot: 'var(--text-success)'
+    };
+  }
+
+  if (ratio <= 1.2) {
+    return {
+      text: 'At risk',
+      bg: 'var(--bg-warning)',
+      color: 'var(--text-warning)',
+      dot: 'var(--text-warning)'
+    };
+  }
+
+  return {
+    text: 'Over budget',
+    bg: 'var(--bg-danger)',
+    color: 'var(--text-danger)',
+    dot: 'var(--text-danger)'
+  };
+}
+
+function setBar(key, value) {
+  const row = document.querySelector(`.bar-row[data-key="${key}"]`);
+  const fill = row.querySelector('.bar-fill');
+  const valueEl = row.querySelector('.bar-val');
+  const percentage = Math.min(100, (Math.abs(value) / 200000) * 100);
+
+  fill.style.width = `${percentage}%`;
+  fill.style.background = value >= 0 ? 'var(--text-danger)' : 'var(--text-success)';
+  valueEl.textContent = `${value >= 0 ? '+' : '-'}$${Math.abs(Math.round(value)).toLocaleString()}`;
+}
+
+function setActiveExt(level) {
+  document.querySelectorAll('.ext-btn').forEach((button) => {
+    const isActive = parseFloat(button.dataset.level) === level;
+    button.style.background = isActive ? 'var(--bg-accent)' : 'transparent';
+    button.style.borderColor = isActive ? 'var(--border-accent)' : 'var(--border-strong)';
+    button.style.color = isActive ? 'var(--text-accent)' : 'var(--text-primary)';
+  });
+}
+
+function syncControls() {
+  const project = state[activeKey];
+
+  setActiveExt(project.ext);
+  document.getElementById('eff').value = project.eff;
+  document.getElementById('fee').value = project.fee;
+  document.getElementById('eff-out').textContent = project.eff.toFixed(2);
+  document.getElementById('fee-out').textContent = `${project.fee.toFixed(1)}%`;
+}
+
+function renderPortfolio() {
+  Object.keys(state).forEach((key) => {
+    const project = state[key];
+    const scenario = computeScenario(project.baseline, project.ext, project.eff, project.fee);
+    const percentage = Math.round(((scenario - project.baseline) / project.baseline) * 100);
+    const status = statusFor(scenario / project.baseline);
+
+    document.getElementById(`pct-${key}`).textContent = `${percentage >= 0 ? '+' : ''}${percentage}%`;
+    document.getElementById(`dot-${key}`).style.background = status.dot;
+    document.getElementById(`row-${key}`).style.borderLeft =
+      key === activeKey ? '2px solid var(--border-accent)' : '2px solid transparent';
+  });
+}
+
+function renderCard() {
+  const project = state[activeKey];
+  const scenario = computeScenario(project.baseline, project.ext, project.eff, project.fee);
+  const delta = scenario - project.baseline;
+  const percentage = Math.round((delta / project.baseline) * 100);
+  const status = statusFor(scenario / project.baseline);
+
+  const baselineText = formatCurrency(project.baseline);
+  const scenarioText = formatCurrency(scenario);
+
+  document.getElementById('baseline-out').textContent = baselineText;
+  document.getElementById('scenario-out').textContent = scenarioText;
+
+  const deltaOut = document.getElementById('delta-out');
+  deltaOut.textContent =
+    `${delta >= 0 ? '+' : '-'}${formatCurrency(Math.abs(delta))} ` +
+    `(${percentage >= 0 ? '+' : ''}${percentage}%)`;
+  deltaOut.style.color =
+    delta > 0 ? 'var(--text-danger)' : delta < 0 ? 'var(--text-success)' : 'var(--text-secondary)';
+
+  const statusBadge = document.getElementById('status-badge');
+  statusBadge.textContent = status.text;
+  statusBadge.style.background = status.bg;
+  statusBadge.style.color = status.color;
+
+  const marketContribution = computeScenario(project.baseline, project.ext, 1.0, 0) - project.baseline;
+  const efficiencyContribution =
+    computeScenario(project.baseline, 1.0, project.eff, 0) - project.baseline;
+  const feeContribution = computeScenario(project.baseline, 1.0, 1.0, project.fee) - project.baseline;
+
+  setBar('market', marketContribution);
+  setBar('eff', efficiencyContribution);
+  setBar('fee', feeContribution);
+
+  const primaryDriver =
+    Math.abs(marketContribution) >= Math.abs(efficiencyContribution)
+      ? 'market conditions'
+      : 'subcontractor efficiency';
+
+  let narrative =
+    `${project.name}'s projected overrun is ${scenarioText} against a ${baselineText} baseline, ` +
+    `mainly from ${primaryDriver}.`;
+
+  if (project.fee > 0) {
+    narrative += ` Expediting is offsetting about ${formatCurrency(Math.abs(feeContribution))}.`;
+  }
+
+  document.getElementById('narrative').textContent = narrative;
+}
+
+function renderAll() {
+  renderPortfolio();
+  renderCard();
+}
+
+function selectProject(key) {
+  activeKey = key;
+  syncControls();
+  renderAll();
+}
+
+function askCompare() {
+  sendPrompt(`Compare ${state[activeKey].name} to its Q2 baseline`);
+}
+
+function askSetBaseline() {
+  sendPrompt(`Set the current forecast as the new baseline for ${state[activeKey].name}`);
+}
+
+document.querySelectorAll('.ext-btn').forEach((button) => {
+  button.addEventListener('click', () => {
+    state[activeKey].ext = parseFloat(button.dataset.level);
+    renderAll();
+    setActiveExt(state[activeKey].ext);
+  });
+});
+
+document.getElementById('eff').addEventListener('input', (event) => {
+  state[activeKey].eff = parseFloat(event.target.value);
+  document.getElementById('eff-out').textContent = state[activeKey].eff.toFixed(2);
+  renderAll();
+});
+
+document.getElementById('fee').addEventListener('input', (event) => {
+  state[activeKey].fee = parseFloat(event.target.value);
+  document.getElementById('fee-out').textContent = `${state[activeKey].fee.toFixed(1)}%`;
+  renderAll();
+});
+
+document.getElementById('ask-input').addEventListener('keydown', (event) => {
+  if (event.key === 'Enter' && event.target.value.trim()) {
+    sendPrompt(event.target.value.trim());
+    event.target.value = '';
+  }
+});
+
+syncControls();
+renderAll();
+</script>
