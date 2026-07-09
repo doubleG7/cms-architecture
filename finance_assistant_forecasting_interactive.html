@@ -1,395 +1,428 @@
-<script src="https://cdn.tailwindcss.com"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finance Assistant — Forecasting</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --text-primary:    #111827;
+      --text-secondary:  #6b7280;
+      --text-muted:      #9ca3af;
+      --text-accent:     #2563eb;
+      --text-success:    #15803d;
+      --text-warning:    #92400e;
+      --text-danger:     #991b1b;
+      --bg-accent:       #dbeafe;
+      --bg-success:      #dcfce7;
+      --bg-warning:      #fef3c7;
+      --bg-danger:       #fee2e2;
+      --surface-0:       #ffffff;
+      --surface-1:       #f9fafb;
+      --surface-2:       #e5e7eb;
+      --border:          #e5e7eb;
+      --border-strong:   #d1d5db;
+      --border-accent:   #2563eb;
+      --radius:          6px;
+    }
 
-<h2 class="sr-only">
-  Interactive forecasting prototype: selecting a project in the portfolio rail loads its scenario,
-  and adjusting the market conditions toggle, subcontractor efficiency, and expedited fee sliders
-  recomputes the forecast, delta, status, and driver breakdown live.
-</h2>
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #f3f4f6;
+      color: var(--text-primary);
+    }
 
-<div class="grid grid-cols-1 gap-5 md:grid-cols-[168px_minmax(0,1fr)]">
-  <div class="flex flex-col">
-    <p class="mb-2 text-[11px] text-[var(--text-muted)]">Portfolio</p>
+    /* Range slider reset */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 4px;
+      border-radius: 9999px;
+      background: var(--surface-2);
+      outline: none;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 2px solid var(--border-strong);
+      box-shadow: 0 1px 3px rgba(0,0,0,.15);
+      cursor: pointer;
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 2px solid var(--border-strong);
+      box-shadow: 0 1px 3px rgba(0,0,0,.15);
+      cursor: pointer;
+    }
 
-    <div
-      class="port-row flex cursor-pointer items-center justify-between border-b border-[var(--border)] border-l-2 border-l-transparent py-2 pl-2"
-      id="row-delta"
-      onclick="selectProject('delta')"
-    >
-      <div>
-        <p class="m-0 text-[13px] font-medium">P-Delta</p>
-        <p class="m-0 text-[11px] text-[var(--text-secondary)]" id="pct-delta"></p>
+    /* Text input */
+    input[type="text"] {
+      background: var(--surface-1);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 8px 12px;
+      font-size: 13px;
+      color: var(--text-primary);
+      outline: none;
+      width: 100%;
+    }
+    input[type="text"]::placeholder { color: var(--text-muted); }
+    input[type="text"]:focus { border-color: var(--border-accent); box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+
+    /* Port row hover */
+    .port-row:hover { background: var(--surface-1); }
+  </style>
+</head>
+<body>
+
+  <div class="min-h-screen p-6 md:p-10">
+    <div class="mx-auto max-w-3xl rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5">
+
+      <h2 class="sr-only">
+        Interactive forecasting prototype: selecting a project in the portfolio rail loads its scenario,
+        and adjusting the market conditions toggle, subcontractor efficiency, and expedited fee sliders
+        recomputes the forecast, delta, status, and driver breakdown live.
+      </h2>
+
+      <!-- Two-column layout: portfolio rail + detail panel -->
+      <div class="grid grid-cols-[168px_minmax(0,1fr)] gap-6">
+
+        <!-- Portfolio rail -->
+        <div class="flex flex-col">
+          <p class="mb-2 text-[11px] font-medium uppercase tracking-wide" style="color:var(--text-muted)">Portfolio</p>
+
+          <div class="port-row flex cursor-pointer items-center justify-between rounded-sm border-l-2 border-l-transparent py-2 pl-2 pr-1 transition-colors"
+               id="row-delta" onclick="selectProject('delta')">
+            <div>
+              <p class="m-0 text-[13px] font-semibold" style="color:var(--text-primary)">P-Delta</p>
+              <p class="m-0 text-[11px]" id="pct-delta" style="color:var(--text-secondary)"></p>
+            </div>
+            <span class="h-[7px] w-[7px] shrink-0 rounded-full" id="dot-delta"></span>
+          </div>
+          <div style="height:1px;background:var(--border);margin:0 0 0 2px"></div>
+
+          <div class="port-row flex cursor-pointer items-center justify-between rounded-sm border-l-2 border-l-transparent py-2 pl-2 pr-1 transition-colors"
+               id="row-bravo" onclick="selectProject('bravo')">
+            <div>
+              <p class="m-0 text-[13px]" style="color:var(--text-primary)">P-Bravo</p>
+              <p class="m-0 text-[11px]" id="pct-bravo" style="color:var(--text-secondary)"></p>
+            </div>
+            <span class="h-[7px] w-[7px] shrink-0 rounded-full" id="dot-bravo"></span>
+          </div>
+          <div style="height:1px;background:var(--border);margin:0 0 0 2px"></div>
+
+          <div class="port-row flex cursor-pointer items-center justify-between rounded-sm border-l-2 border-l-transparent py-2 pl-2 pr-1 transition-colors"
+               id="row-echo" onclick="selectProject('echo')">
+            <div>
+              <p class="m-0 text-[13px]" style="color:var(--text-primary)">P-Echo</p>
+              <p class="m-0 text-[11px]" id="pct-echo" style="color:var(--text-secondary)"></p>
+            </div>
+            <span class="h-[7px] w-[7px] shrink-0 rounded-full" id="dot-echo"></span>
+          </div>
+          <div style="height:1px;background:var(--border);margin:0 0 0 2px"></div>
+
+          <div class="port-row flex cursor-pointer items-center justify-between rounded-sm border-l-2 border-l-transparent py-2 pl-2 pr-1 transition-colors"
+               id="row-charlie" onclick="selectProject('charlie')">
+            <div>
+              <p class="m-0 text-[13px]" style="color:var(--text-primary)">P-Charlie</p>
+              <p class="m-0 text-[11px]" id="pct-charlie" style="color:var(--text-secondary)"></p>
+            </div>
+            <span class="h-[7px] w-[7px] shrink-0 rounded-full" id="dot-charlie"></span>
+          </div>
+          <div style="height:1px;background:var(--border);margin:0 0 0 2px"></div>
+
+          <div class="port-row flex cursor-pointer items-center justify-between rounded-sm border-l-2 border-l-transparent py-2 pl-2 pr-1 transition-colors"
+               id="row-foxtrot" onclick="selectProject('foxtrot')">
+            <div>
+              <p class="m-0 text-[13px]" style="color:var(--text-primary)">P-Foxtrot</p>
+              <p class="m-0 text-[11px]" id="pct-foxtrot" style="color:var(--text-secondary)"></p>
+            </div>
+            <span class="h-[7px] w-[7px] shrink-0 rounded-full" id="dot-foxtrot"></span>
+          </div>
+        </div>
+
+        <!-- Detail panel -->
+        <div class="flex min-w-0 flex-col gap-4">
+
+          <!-- Narrative -->
+          <p class="m-0 text-[14px] leading-relaxed" id="narrative" style="color:var(--text-primary)"></p>
+
+          <!-- Scenario card -->
+          <div class="rounded-xl p-4" style="background:var(--surface-1)">
+            <div class="mb-1 flex items-start justify-between gap-3">
+              <div>
+                <p class="mb-0.5 text-[12px]" style="color:var(--text-secondary)">Scenario overrun</p>
+                <p class="m-0 text-[22px] font-semibold tracking-tight" id="scenario-out" style="color:var(--text-primary)"></p>
+              </div>
+              <span class="mt-0.5 rounded-md px-2.5 py-1 text-[12px] font-medium" id="status-badge"></span>
+            </div>
+
+            <p class="mb-3 text-[12px]" style="color:var(--text-secondary)">
+              Baseline <span id="baseline-out"></span> · delta <span id="delta-out"></span>
+            </p>
+
+            <!-- Driver bars -->
+            <div class="flex flex-col gap-2.5">
+              <div class="bar-row" data-key="market">
+                <div class="mb-1 flex justify-between text-[12px]" style="color:var(--text-secondary)">
+                  <span>Market conditions</span>
+                  <span class="bar-val font-medium" style="color:var(--text-primary)"></span>
+                </div>
+                <div class="h-[5px] overflow-hidden rounded-full" style="background:var(--surface-2)">
+                  <div class="bar-fill h-full w-0 rounded-full transition-all duration-300"></div>
+                </div>
+              </div>
+
+              <div class="bar-row" data-key="eff">
+                <div class="mb-1 flex justify-between text-[12px]" style="color:var(--text-secondary)">
+                  <span>Subcontractor efficiency</span>
+                  <span class="bar-val font-medium" style="color:var(--text-primary)"></span>
+                </div>
+                <div class="h-[5px] overflow-hidden rounded-full" style="background:var(--surface-2)">
+                  <div class="bar-fill h-full w-0 rounded-full transition-all duration-300"></div>
+                </div>
+              </div>
+
+              <div class="bar-row" data-key="fee">
+                <div class="mb-1 flex justify-between text-[12px]" style="color:var(--text-secondary)">
+                  <span>Expedited intervention</span>
+                  <span class="bar-val font-medium" style="color:var(--text-primary)"></span>
+                </div>
+                <div class="h-[5px] overflow-hidden rounded-full" style="background:var(--surface-2)">
+                  <div class="bar-fill h-full w-0 rounded-full transition-all duration-300"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Market condition toggle -->
+          <div class="grid grid-cols-3 gap-2">
+            <button type="button" class="ext-btn rounded-lg border py-2 text-[13px] font-medium transition-colors" data-level="0.85">Stable</button>
+            <button type="button" class="ext-btn rounded-lg border py-2 text-[13px] font-medium transition-colors" data-level="1.0">Moderate</button>
+            <button type="button" class="ext-btn rounded-lg border py-2 text-[13px] font-medium transition-colors" data-level="1.35">Severe</button>
+          </div>
+
+          <!-- Sliders -->
+          <div class="flex flex-col gap-3">
+            <div>
+              <div class="mb-1.5 flex items-center justify-between">
+                <label for="eff" class="text-[13px] font-medium" style="color:var(--text-primary)">Subcontractor efficiency</label>
+                <span class="text-[13px] font-semibold" id="eff-out" style="color:var(--text-primary)"></span>
+              </div>
+              <input type="range" id="eff" min="0.7" max="1.2" step="0.01" />
+            </div>
+
+            <div>
+              <div class="mb-1.5 flex items-center justify-between">
+                <label for="fee" class="text-[13px] font-medium" style="color:var(--text-primary)">Expedited intervention fee</label>
+                <span class="text-[13px] font-semibold" id="fee-out" style="color:var(--text-primary)"></span>
+              </div>
+              <input type="range" id="fee" min="0" max="10" step="0.5" />
+            </div>
+          </div>
+
+          <!-- Action buttons -->
+          <div class="flex flex-wrap gap-2">
+            <button type="button"
+              class="rounded-lg border px-3.5 py-2 text-[13px] font-medium transition-colors hover:bg-gray-50"
+              style="border-color:var(--border-strong);color:var(--text-primary)"
+              onclick="askCompare()">
+              Compare to Q2 ↗
+            </button>
+            <button type="button"
+              class="rounded-lg border px-3.5 py-2 text-[13px] font-medium transition-colors hover:bg-gray-50"
+              style="border-color:var(--border-strong);color:var(--text-primary)"
+              onclick="askSetBaseline()">
+              Set as new baseline ↗
+            </button>
+          </div>
+
+          <!-- Ask input -->
+          <div class="flex items-center gap-2 border-t pt-4" style="border-color:var(--border)">
+            <input type="text" id="ask-input" placeholder="Ask about a project or scenario" />
+            <button type="button" aria-label="Send"
+              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border transition-colors hover:bg-gray-50"
+              style="border-color:var(--border-strong)"
+              onclick="const v=document.getElementById('ask-input').value.trim();if(v){sendPrompt(v);}">
+              <span aria-hidden="true" style="font-size:15px;line-height:1">→</span>
+            </button>
+          </div>
+
+        </div>
       </div>
-      <span class="h-[7px] w-[7px] shrink-0 rounded-full" id="dot-delta"></span>
-    </div>
 
-    <div
-      class="port-row flex cursor-pointer items-center justify-between border-b border-[var(--border)] border-l-2 border-l-transparent py-2 pl-2"
-      id="row-bravo"
-      onclick="selectProject('bravo')"
-    >
-      <div>
-        <p class="m-0 text-[13px]">P-Bravo</p>
-        <p class="m-0 text-[11px] text-[var(--text-secondary)]" id="pct-bravo"></p>
-      </div>
-      <span class="h-[7px] w-[7px] shrink-0 rounded-full" id="dot-bravo"></span>
-    </div>
-
-    <div
-      class="port-row flex cursor-pointer items-center justify-between border-b border-[var(--border)] border-l-2 border-l-transparent py-2 pl-2"
-      id="row-echo"
-      onclick="selectProject('echo')"
-    >
-      <div>
-        <p class="m-0 text-[13px]">P-Echo</p>
-        <p class="m-0 text-[11px] text-[var(--text-secondary)]" id="pct-echo"></p>
-      </div>
-      <span class="h-[7px] w-[7px] shrink-0 rounded-full" id="dot-echo"></span>
-    </div>
-
-    <div
-      class="port-row flex cursor-pointer items-center justify-between border-b border-[var(--border)] border-l-2 border-l-transparent py-2 pl-2"
-      id="row-charlie"
-      onclick="selectProject('charlie')"
-    >
-      <div>
-        <p class="m-0 text-[13px]">P-Charlie</p>
-        <p class="m-0 text-[11px] text-[var(--text-secondary)]" id="pct-charlie"></p>
-      </div>
-      <span class="h-[7px] w-[7px] shrink-0 rounded-full" id="dot-charlie"></span>
-    </div>
-
-    <div
-      class="port-row flex cursor-pointer items-center justify-between border-l-2 border-l-transparent py-2 pl-2"
-      id="row-foxtrot"
-      onclick="selectProject('foxtrot')"
-    >
-      <div>
-        <p class="m-0 text-[13px]">P-Foxtrot</p>
-        <p class="m-0 text-[11px] text-[var(--text-secondary)]" id="pct-foxtrot"></p>
-      </div>
-      <span class="h-[7px] w-[7px] shrink-0 rounded-full" id="dot-foxtrot"></span>
     </div>
   </div>
-
-  <div class="flex min-w-0 flex-col gap-[14px]">
-    <p class="m-0 text-[14px] leading-[1.6]" id="narrative"></p>
-
-    <div class="rounded-xl bg-[var(--surface-1)] px-4 py-[14px]">
-      <div class="mb-1.5 flex items-baseline justify-between gap-3">
-        <div>
-          <p class="mb-0.5 text-[12px] text-[var(--text-secondary)]">Scenario overrun</p>
-          <p class="m-0 text-[20px] font-medium" id="scenario-out"></p>
-        </div>
-        <span class="rounded-[var(--radius)] px-2.5 py-1 text-[12px]" id="status-badge"></span>
-      </div>
-
-      <p class="mb-3 text-[12px] text-[var(--text-secondary)]">
-        Baseline <span id="baseline-out"></span> · delta <span id="delta-out"></span>
-      </p>
-
-      <div class="flex flex-col gap-2">
-        <div class="bar-row" data-key="market">
-          <div class="mb-0.5 flex justify-between text-[11px] text-[var(--text-secondary)]">
-            <span>Market conditions</span>
-            <span class="bar-val"></span>
-          </div>
-          <div class="h-[5px] overflow-hidden rounded-[3px] bg-[var(--surface-2)]">
-            <div class="bar-fill h-full w-0"></div>
-          </div>
-        </div>
-
-        <div class="bar-row" data-key="eff">
-          <div class="mb-0.5 flex justify-between text-[11px] text-[var(--text-secondary)]">
-            <span>Subcontractor efficiency</span>
-            <span class="bar-val"></span>
-          </div>
-          <div class="h-[5px] overflow-hidden rounded-[3px] bg-[var(--surface-2)]">
-            <div class="bar-fill h-full w-0"></div>
-          </div>
-        </div>
-
-        <div class="bar-row" data-key="fee">
-          <div class="mb-0.5 flex justify-between text-[11px] text-[var(--text-secondary)]">
-            <span>Expedited intervention</span>
-            <span class="bar-val"></span>
-          </div>
-          <div class="h-[5px] overflow-hidden rounded-[3px] bg-[var(--surface-2)]">
-            <div class="bar-fill h-full w-0"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="flex gap-2">
-      <button
-        class="ext-btn flex-1 rounded-md border border-[var(--border-strong)] bg-transparent px-2 py-1.5 text-[12px] text-[var(--text-primary)] transition-colors"
-        data-level="0.85"
-        type="button"
-      >
-        Stable
-      </button>
-      <button
-        class="ext-btn flex-1 rounded-md border border-[var(--border-strong)] bg-transparent px-2 py-1.5 text-[12px] text-[var(--text-primary)] transition-colors"
-        data-level="1.0"
-        type="button"
-      >
-        Moderate
-      </button>
-      <button
-        class="ext-btn flex-1 rounded-md border border-[var(--border-strong)] bg-transparent px-2 py-1.5 text-[12px] text-[var(--text-primary)] transition-colors"
-        data-level="1.35"
-        type="button"
-      >
-        Severe
-      </button>
-    </div>
-
-    <div>
-      <div class="mb-0.5 flex justify-between text-[13px]">
-        <label for="eff">Subcontractor efficiency</label>
-        <span class="font-medium" id="eff-out"></span>
-      </div>
-      <input class="w-full" id="eff" max="1.2" min="0.7" step="0.01" type="range" />
-    </div>
-
-    <div>
-      <div class="mb-0.5 flex justify-between text-[13px]">
-        <label for="fee">Expedited intervention fee</label>
-        <span class="font-medium" id="fee-out"></span>
-      </div>
-      <input class="w-full" id="fee" max="10" min="0" step="0.5" type="range" />
-    </div>
-
-    <div class="flex flex-wrap gap-2">
-      <button
-        class="rounded-md border border-[var(--border-strong)] px-2.5 py-1.5 text-[12px] text-[var(--text-primary)]"
-        onclick="askCompare()"
-        type="button"
-      >
-        Compare to Q2 ↗
-      </button>
-      <button
-        class="rounded-md border border-[var(--border-strong)] px-2.5 py-1.5 text-[12px] text-[var(--text-primary)]"
-        onclick="askSetBaseline()"
-        type="button"
-      >
-        Set as new baseline ↗
-      </button>
-    </div>
-
-    <div class="flex items-center gap-2 border-t border-[var(--border)] pt-3">
-      <input
-        class="flex-1"
-        id="ask-input"
-        placeholder="Ask about a project or scenario"
-        type="text"
-      />
-      <button
-        aria-label="Send"
-        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[var(--border-strong)]"
-        onclick="const v=document.getElementById('ask-input').value.trim(); if(v){sendPrompt(v);}"
-        type="button"
-      >
-        <i aria-hidden="true" class="ti ti-arrow-right text-[16px]"></i>
-      </button>
-    </div>
-  </div>
-</div>
 
 <script>
 const projects = {
-  delta: { name: 'P-Delta', baseline: 827190, ext: 1.35, eff: 0.75, fee: 3 },
-  bravo: { name: 'P-Bravo', baseline: 612400, ext: 1.0, eff: 0.85, fee: 1 },
-  echo: { name: 'P-Echo', baseline: 445000, ext: 1.0, eff: 0.88, fee: 0.5 },
+  delta:   { name: 'P-Delta',   baseline: 827190, ext: 1.35, eff: 0.75, fee: 3 },
+  bravo:   { name: 'P-Bravo',   baseline: 612400, ext: 1.0,  eff: 0.85, fee: 1 },
+  echo:    { name: 'P-Echo',    baseline: 445000, ext: 1.0,  eff: 0.88, fee: 0.5 },
   charlie: { name: 'P-Charlie', baseline: 958000, ext: 0.85, eff: 1.05, fee: 0 },
-  foxtrot: { name: 'P-Foxtrot', baseline: 310000, ext: 0.85, eff: 1.0, fee: 0 }
+  foxtrot: { name: 'P-Foxtrot', baseline: 310000, ext: 0.85, eff: 1.0,  fee: 0 }
 };
 
 const state = {};
-Object.keys(projects).forEach((key) => {
-  state[key] = { ...projects[key] };
-});
-
+Object.keys(projects).forEach((key) => { state[key] = { ...projects[key] }; });
 let activeKey = 'delta';
 
-function formatCurrency(value) {
-  return `$${Math.round(value).toLocaleString()}`;
+function fmt(value) {
+  return '$' + Math.round(value).toLocaleString();
 }
 
 function computeScenario(baseline, ext, eff, fee) {
   const effFactor = 1 + (1 - eff) * 0.6;
   const feeFactor = 1 - fee * 0.025;
-  const feeCost = fee * baseline * 0.003;
+  const feeCost   = fee * baseline * 0.003;
   return baseline * ext * effFactor * feeFactor + feeCost;
 }
 
 function statusFor(ratio) {
-  if (ratio <= 1.05) {
-    return {
-      text: 'On track',
-      bg: 'var(--bg-success)',
-      color: 'var(--text-success)',
-      dot: 'var(--text-success)'
-    };
-  }
-
-  if (ratio <= 1.2) {
-    return {
-      text: 'At risk',
-      bg: 'var(--bg-warning)',
-      color: 'var(--text-warning)',
-      dot: 'var(--text-warning)'
-    };
-  }
-
-  return {
-    text: 'Over budget',
-    bg: 'var(--bg-danger)',
-    color: 'var(--text-danger)',
-    dot: 'var(--text-danger)'
-  };
+  if (ratio <= 1.05) return { text: 'On track',    bg: 'var(--bg-success)', color: 'var(--text-success)', dot: '#15803d' };
+  if (ratio <= 1.2)  return { text: 'At risk',     bg: 'var(--bg-warning)', color: 'var(--text-warning)', dot: '#b45309' };
+  return               { text: 'Over budget', bg: 'var(--bg-danger)',  color: 'var(--text-danger)',  dot: '#b91c1c' };
 }
 
 function setBar(key, value) {
-  const row = document.querySelector(`.bar-row[data-key="${key}"]`);
+  const row  = document.querySelector('.bar-row[data-key="' + key + '"]');
   const fill = row.querySelector('.bar-fill');
-  const valueEl = row.querySelector('.bar-val');
-  const percentage = Math.min(100, (Math.abs(value) / 200000) * 100);
-
-  fill.style.width = `${percentage}%`;
-  fill.style.background = value >= 0 ? 'var(--text-danger)' : 'var(--text-success)';
-  valueEl.textContent = `${value >= 0 ? '+' : '-'}$${Math.abs(Math.round(value)).toLocaleString()}`;
+  const val  = row.querySelector('.bar-val');
+  const pct  = Math.min(100, (Math.abs(value) / 200000) * 100);
+  fill.style.width      = pct + '%';
+  fill.style.background = value >= 0 ? '#991b1b' : '#15803d';
+  val.textContent       = (value >= 0 ? '+' : '-') + '$' + Math.abs(Math.round(value)).toLocaleString();
+  val.style.color       = value >= 0 ? 'var(--text-danger)' : 'var(--text-success)';
 }
 
 function setActiveExt(level) {
-  document.querySelectorAll('.ext-btn').forEach((button) => {
-    const isActive = parseFloat(button.dataset.level) === level;
-    button.style.background = isActive ? 'var(--bg-accent)' : 'transparent';
-    button.style.borderColor = isActive ? 'var(--border-accent)' : 'var(--border-strong)';
-    button.style.color = isActive ? 'var(--text-accent)' : 'var(--text-primary)';
+  document.querySelectorAll('.ext-btn').forEach((btn) => {
+    const on = parseFloat(btn.dataset.level) === level;
+    btn.style.background   = on ? 'var(--bg-accent)'    : '#ffffff';
+    btn.style.borderColor  = on ? 'var(--border-accent)' : 'var(--border-strong)';
+    btn.style.color        = on ? 'var(--text-accent)'  : 'var(--text-primary)';
   });
 }
 
 function syncControls() {
-  const project = state[activeKey];
-
-  setActiveExt(project.ext);
-  document.getElementById('eff').value = project.eff;
-  document.getElementById('fee').value = project.fee;
-  document.getElementById('eff-out').textContent = project.eff.toFixed(2);
-  document.getElementById('fee-out').textContent = `${project.fee.toFixed(1)}%`;
+  const p = state[activeKey];
+  setActiveExt(p.ext);
+  document.getElementById('eff').value = p.eff;
+  document.getElementById('fee').value = p.fee;
+  document.getElementById('eff-out').textContent = p.eff.toFixed(2);
+  document.getElementById('fee-out').textContent = p.fee.toFixed(1) + '%';
 }
 
 function renderPortfolio() {
   Object.keys(state).forEach((key) => {
-    const project = state[key];
-    const scenario = computeScenario(project.baseline, project.ext, project.eff, project.fee);
-    const percentage = Math.round(((scenario - project.baseline) / project.baseline) * 100);
-    const status = statusFor(scenario / project.baseline);
-
-    document.getElementById(`pct-${key}`).textContent = `${percentage >= 0 ? '+' : ''}${percentage}%`;
-    document.getElementById(`dot-${key}`).style.background = status.dot;
-    document.getElementById(`row-${key}`).style.borderLeft =
-      key === activeKey ? '2px solid var(--border-accent)' : '2px solid transparent';
+    const p        = state[key];
+    const scenario = computeScenario(p.baseline, p.ext, p.eff, p.fee);
+    const pct      = Math.round(((scenario - p.baseline) / p.baseline) * 100);
+    const st       = statusFor(scenario / p.baseline);
+    document.getElementById('pct-' + key).textContent = (pct >= 0 ? '+' : '') + pct + '%';
+    document.getElementById('dot-' + key).style.background = st.dot;
+    const row = document.getElementById('row-' + key);
+    row.style.borderLeftColor = key === activeKey ? 'var(--border-accent)' : 'transparent';
+    row.style.background      = key === activeKey ? 'var(--surface-1)'     : '';
   });
 }
 
 function renderCard() {
-  const project = state[activeKey];
-  const scenario = computeScenario(project.baseline, project.ext, project.eff, project.fee);
-  const delta = scenario - project.baseline;
-  const percentage = Math.round((delta / project.baseline) * 100);
-  const status = statusFor(scenario / project.baseline);
+  const p        = state[activeKey];
+  const scenario = computeScenario(p.baseline, p.ext, p.eff, p.fee);
+  const delta    = scenario - p.baseline;
+  const pct      = Math.round((delta / p.baseline) * 100);
+  const st       = statusFor(scenario / p.baseline);
 
-  const baselineText = formatCurrency(project.baseline);
-  const scenarioText = formatCurrency(scenario);
+  const baselineText = fmt(p.baseline);
+  const scenarioText = fmt(scenario);
 
   document.getElementById('baseline-out').textContent = baselineText;
   document.getElementById('scenario-out').textContent = scenarioText;
 
   const deltaOut = document.getElementById('delta-out');
-  deltaOut.textContent =
-    `${delta >= 0 ? '+' : '-'}${formatCurrency(Math.abs(delta))} ` +
-    `(${percentage >= 0 ? '+' : ''}${percentage}%)`;
-  deltaOut.style.color =
-    delta > 0 ? 'var(--text-danger)' : delta < 0 ? 'var(--text-success)' : 'var(--text-secondary)';
+  deltaOut.textContent = (delta >= 0 ? '+' : '-') + fmt(Math.abs(delta)) + ' (' + (pct >= 0 ? '+' : '') + pct + '%)';
+  deltaOut.style.color = delta > 0 ? 'var(--text-danger)' : delta < 0 ? 'var(--text-success)' : 'var(--text-secondary)';
+  deltaOut.style.fontWeight = '500';
 
-  const statusBadge = document.getElementById('status-badge');
-  statusBadge.textContent = status.text;
-  statusBadge.style.background = status.bg;
-  statusBadge.style.color = status.color;
+  const badge = document.getElementById('status-badge');
+  badge.textContent       = st.text;
+  badge.style.background  = st.bg;
+  badge.style.color       = st.color;
 
-  const marketContribution = computeScenario(project.baseline, project.ext, 1.0, 0) - project.baseline;
-  const efficiencyContribution =
-    computeScenario(project.baseline, 1.0, project.eff, 0) - project.baseline;
-  const feeContribution = computeScenario(project.baseline, 1.0, 1.0, project.fee) - project.baseline;
+  const mktC = computeScenario(p.baseline, p.ext, 1.0, 0) - p.baseline;
+  const effC = computeScenario(p.baseline, 1.0, p.eff, 0) - p.baseline;
+  const feeC = computeScenario(p.baseline, 1.0, 1.0, p.fee) - p.baseline;
+  setBar('market', mktC);
+  setBar('eff',    effC);
+  setBar('fee',    feeC);
 
-  setBar('market', marketContribution);
-  setBar('eff', efficiencyContribution);
-  setBar('fee', feeContribution);
-
-  const primaryDriver =
-    Math.abs(marketContribution) >= Math.abs(efficiencyContribution)
-      ? 'market conditions'
-      : 'subcontractor efficiency';
-
-  let narrative =
-    `${project.name}'s projected overrun is ${scenarioText} against a ${baselineText} baseline, ` +
-    `mainly from ${primaryDriver}.`;
-
-  if (project.fee > 0) {
-    narrative += ` Expediting is offsetting about ${formatCurrency(Math.abs(feeContribution))}.`;
-  }
-
-  document.getElementById('narrative').textContent = narrative;
+  const lead = Math.abs(mktC) >= Math.abs(effC) ? 'market conditions' : 'subcontractor efficiency';
+  let text = p.name + "'s projected overrun is " + scenarioText + ' against a ' + baselineText + ' baseline, mainly from ' + lead + '.';
+  if (p.fee > 0) { text += ' Expediting is offsetting about ' + fmt(Math.abs(feeC)) + '.'; }
+  document.getElementById('narrative').textContent = text;
 }
 
-function renderAll() {
-  renderPortfolio();
-  renderCard();
-}
+function renderAll()        { renderPortfolio(); renderCard(); }
+function selectProject(key) { activeKey = key; syncControls(); renderAll(); }
+function askCompare()       { sendPrompt('Compare ' + state[activeKey].name + ' to its Q2 baseline'); }
+function askSetBaseline()   { sendPrompt('Set the current forecast as the new baseline for ' + state[activeKey].name); }
 
-function selectProject(key) {
-  activeKey = key;
-  syncControls();
-  renderAll();
-}
+// Fallback sendPrompt when running standalone
+function sendPrompt(text)   { console.log('[prompt]', text); }
 
-function askCompare() {
-  sendPrompt(`Compare ${state[activeKey].name} to its Q2 baseline`);
-}
-
-function askSetBaseline() {
-  sendPrompt(`Set the current forecast as the new baseline for ${state[activeKey].name}`);
-}
-
-document.querySelectorAll('.ext-btn').forEach((button) => {
-  button.addEventListener('click', () => {
-    state[activeKey].ext = parseFloat(button.dataset.level);
+document.querySelectorAll('.ext-btn').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    state[activeKey].ext = parseFloat(btn.dataset.level);
     renderAll();
     setActiveExt(state[activeKey].ext);
   });
 });
 
-document.getElementById('eff').addEventListener('input', (event) => {
-  state[activeKey].eff = parseFloat(event.target.value);
+document.getElementById('eff').addEventListener('input', (e) => {
+  state[activeKey].eff = parseFloat(e.target.value);
   document.getElementById('eff-out').textContent = state[activeKey].eff.toFixed(2);
   renderAll();
 });
 
-document.getElementById('fee').addEventListener('input', (event) => {
-  state[activeKey].fee = parseFloat(event.target.value);
-  document.getElementById('fee-out').textContent = `${state[activeKey].fee.toFixed(1)}%`;
+document.getElementById('fee').addEventListener('input', (e) => {
+  state[activeKey].fee = parseFloat(e.target.value);
+  document.getElementById('fee-out').textContent = state[activeKey].fee.toFixed(1) + '%';
   renderAll();
 });
 
-document.getElementById('ask-input').addEventListener('keydown', (event) => {
-  if (event.key === 'Enter' && event.target.value.trim()) {
-    sendPrompt(event.target.value.trim());
-    event.target.value = '';
+document.getElementById('ask-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && e.target.value.trim()) {
+    sendPrompt(e.target.value.trim());
+    e.target.value = '';
   }
 });
 
 syncControls();
 renderAll();
 </script>
+
+</body>
+</html>
