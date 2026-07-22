@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Predictive Analytics for Job Cost Forecasting (SLM)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+
+  :root{
+    --navy-0:#081420;
+    --navy-1:#0C1D30;
+    --navy-2:#122942;
+    --line:#2A4666;
+    --line-soft:#1B2F49;
+    --ink-0:#EDF2F7;
+    --ink-1:#B7C4D6;
+    --ink-2:#7C8FA8;
+    --blue:#5FA8F0;
+    --blue-dim:#3E6E9E;
+    --red:#E2544F;
+    --amber:#E3A23C;
+    --green:#4FAE7E;
+    --green-bg:#153A2B;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--navy-0);
+    color:var(--ink-0);
+    font-family:'IBM Plex Sans', sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .sheet{max-width:920px; margin:0 auto; padding:0 0 100px;}
+
+  .frame-top, .frame-bottom{
+    display:flex; justify-content:space-between;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px; letter-spacing:0.06em; color:var(--ink-2);
+    padding:18px 28px;
+  }
+  .frame-top{border-bottom:1px solid var(--line-soft);}
+  .frame-bottom{border-top:1px solid var(--line-soft); margin-top:80px;}
+
+  .hero{padding:64px 40px 56px; border-bottom:1px solid var(--line);}
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px; letter-spacing:0.14em; text-transform:uppercase;
+    color:var(--blue); margin:0 0 18px; display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{content:""; width:7px; height:7px; background:var(--blue); display:inline-block; border-radius:1px;}
+  h1{
+    font-family:'IBM Plex Mono', monospace; font-weight:600;
+    font-size:36px; line-height:1.2; margin:0 0 22px; color:var(--ink-0);
+    letter-spacing:-0.01em; max-width:700px;
+  }
+  .hero-sub{font-size:17px; color:var(--ink-1); max-width:600px; margin:0 0 40px;}
+  .hero-meta{display:flex; gap:36px; flex-wrap:wrap; font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-2);}
+  .hero-meta span b{color:var(--ink-0); font-weight:500;}
+
+  .stat-rail{display:grid; grid-template-columns:repeat(3,1fr); border-bottom:1px solid var(--line);}
+  .stat{padding:26px 32px; border-right:1px solid var(--line);}
+  .stat:last-child{border-right:none;}
+  .stat-num{font-family:'IBM Plex Mono', monospace; font-size:32px; font-weight:600; color:var(--blue); line-height:1; margin-bottom:8px;}
+  .stat-label{font-size:13px; color:var(--ink-2);}
+
+  section{padding:52px 40px; border-bottom:1px solid var(--line);}
+  .sec-head{display:flex; align-items:baseline; gap:14px; margin-bottom:22px;}
+  .sec-tag{font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-2); letter-spacing:0.08em; white-space:nowrap;}
+  h2{font-family:'IBM Plex Mono', monospace; font-size:19px; font-weight:600; color:var(--ink-0); margin:0;}
+
+  .prose p{font-size:16.5px; line-height:1.75; color:var(--ink-1); max-width:700px; margin:0 0 20px;}
+  .prose p:last-child{margin-bottom:0;}
+  .prose strong{color:var(--ink-0); font-weight:500;}
+
+  .pull{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:20px; line-height:1.5; color:var(--blue);
+    border-left:2px solid var(--blue); padding:2px 0 2px 22px;
+    max-width:620px; margin:28px 0 8px;
+  }
+  .pull.tight{margin-top:4px;}
+
+  /* ---------- instrument panel (embedded simulator) ---------- */
+  .instrument{
+    margin-top:6px;
+    background:#FFFFFF;
+    border-radius:16px;
+    border:1px solid #0000;
+    box-shadow:0 0 0 1px var(--line-soft), 0 24px 60px -20px rgba(0,0,0,0.55);
+    overflow:hidden;
+    color:#131A22;
+    font-family:'Inter', -apple-system, sans-serif;
+  }
+  .instrument *{box-sizing:border-box;}
+
+  .im-card{display:grid; grid-template-columns:200px 1fr;}
+  .im-sidebar{border-right:1px solid #E4E8EC; padding:22px 0;}
+  .im-sidebar-label{font-size:11px; font-weight:600; letter-spacing:0.08em; color:#8A94A0; padding:0 20px 12px;}
+  .im-proj{display:flex; align-items:center; justify-content:space-between; padding:13px 20px; cursor:pointer; border-left:3px solid transparent; border-bottom:1px solid #E4E8EC;}
+  .im-proj:hover{background:#F6F8FA;}
+  .im-proj.active{border-left:3px solid #3B6FE0; background:#F6F8FA;}
+  .im-proj-name{font-size:14.5px; font-weight:600; color:#131A22;}
+  .im-proj-pct{font-size:12.5px; margin-top:2px;}
+  .im-proj-pct.pos{color:#C0392B;}
+  .im-proj-pct.neg{color:#1E8E5A;}
+  .im-dot{width:8px; height:8px; border-radius:50%; flex-shrink:0;}
+  .im-dot.red{background:#C0392B;} .im-dot.amber{background:#B5730C;} .im-dot.green{background:#1E8E5A;}
+
+  .im-main{padding:28px 30px 30px;}
+  .im-narrative{font-size:17px; line-height:1.55; color:#131A22; margin:0 0 20px;}
+  .im-narrative b{font-weight:600;}
+
+  .im-overrun{background:#F6F8FA; border:1px solid #E4E8EC; border-radius:14px; padding:20px 22px 20px; margin-bottom:22px;}
+  .im-op-top{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:4px;}
+  .im-op-label{font-size:13px; color:#4B5766;}
+  .im-status-pill{font-size:12px; font-weight:600; padding:4px 12px; border-radius:20px;}
+  .im-op-value{font-size:34px; font-weight:700; letter-spacing:-0.01em; margin:2px 0 6px;}
+  .im-op-baseline{font-size:13px; color:#4B5766; margin-bottom:16px;}
+  .im-op-baseline .im-delta-pos{color:#C0392B; font-weight:600;}
+  .im-op-baseline .im-delta-neg{color:#1E8E5A; font-weight:600;}
+
+  .im-confidence{
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+    background:#FFFFFF; border:1px solid #E4E8EC; border-radius:10px;
+    padding:12px 14px; margin-bottom:18px;
+  }
+  .im-conf-left{flex:1;}
+  .im-conf-label{font-size:12.5px; color:#4B5766; margin-bottom:6px;}
+  .im-conf-track{height:6px; background:#E4E8EC; border-radius:3px; overflow:hidden;}
+  .im-conf-fill{height:100%; border-radius:3px; transition:width 0.15s ease;}
+  .im-conf-right{font-size:15px; font-weight:700; white-space:nowrap;}
+  .im-conf-tag{font-size:11px; font-weight:600; margin-top:2px; text-align:right;}
+
+  .im-driver-row{margin-bottom:14px;}
+  .im-driver-row:last-child{margin-bottom:0;}
+  .im-driver-top{display:flex; justify-content:space-between; font-size:13.5px; margin-bottom:7px;}
+  .im-driver-top-label{color:#4B5766;}
+  .im-driver-top-val{font-weight:600;}
+  .im-driver-top-val.pos{color:#C0392B;}
+  .im-driver-top-val.neg{color:#1E8E5A;}
+  .im-track{height:6px; background:#E4E8EC; border-radius:3px; position:relative; overflow:hidden;}
+  .im-fill{position:absolute; top:0; bottom:0; left:0; border-radius:3px;}
+  .im-fill.neg{background:#1E8E5A;} .im-fill.pos{background:#C0392B;}
+
+  .im-presets{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:22px;}
+  .im-preset-btn{font-family:inherit; font-size:14px; font-weight:600; padding:11px 0; border-radius:10px; border:1.5px solid #E4E8EC; background:#FFFFFF; color:#131A22; cursor:pointer;}
+  .im-preset-btn:hover{border-color:#C7D2DE;}
+  .im-preset-btn.active{border-color:#3B6FE0; background:#EAF0FE; color:#3B6FE0;}
+
+  .im-sliders-head{font-size:11px; font-weight:600; letter-spacing:0.06em; color:#8A94A0; margin:0 0 12px;}
+  .im-sliders-grid{display:grid; grid-template-columns:1fr 1fr; gap:18px 26px; margin-bottom:22px;}
+  .im-slider-top{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:7px;}
+  .im-slider-label{font-size:13.5px; font-weight:600; color:#131A22;}
+  .im-slider-val{font-size:13.5px; font-weight:600; color:#131A22; font-variant-numeric:tabular-nums;}
+  .instrument input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:4px; background:#E4E8EC; border-radius:2px; outline:none;}
+  .instrument input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:16px; height:16px; border-radius:50%; background:#FFFFFF; border:2px solid #131A22; cursor:pointer; margin-top:-6px;}
+  .instrument input[type=range]::-moz-range-thumb{width:16px; height:16px; border-radius:50%; background:#FFFFFF; border:2px solid #131A22; cursor:pointer;}
+
+  .im-actions{display:flex; gap:10px; flex-wrap:wrap;}
+  .im-action-btn{font-family:inherit; font-size:13.5px; font-weight:600; padding:10px 16px; border-radius:10px; border:1.5px solid #E4E8EC; background:#FFFFFF; color:#131A22; cursor:pointer;}
+  .im-action-btn:hover{border-color:#C7D2DE;}
+
+  .caption{font-size:12.5px; color:var(--ink-2); margin-top:16px; max-width:640px;}
+
+  .closer{padding:60px 40px 0;}
+  .closer .pull{font-size:24px; max-width:660px;}
+
+  @media (max-width:640px){
+    .hero{padding:48px 22px 40px;}
+    h1{font-size:26px;}
+    .stat-rail{grid-template-columns:1fr;}
+    .stat{border-right:none; border-bottom:1px solid var(--line);}
+    section{padding:40px 22px;}
+    .im-card{grid-template-columns:1fr;}
+    .im-sidebar{border-right:none; border-bottom:1px solid #E4E8EC;}
+    .im-main{padding:22px 18px 26px;}
+    .im-sliders-grid{grid-template-columns:1fr;}
+    .im-presets{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<div class="sheet">
+
+  <div class="frame-top">
+    <span>CMS / PREDICTIVE-ANALYTICS</span>
+    <span>SLM · 22 JUL 2026</span>
+  </div>
+
+  <div class="hero">
+    <p class="eyebrow">Executive Abstract</p>
+    <h1>Predictive analytics for job cost forecasting</h1>
+    <p class="hero-sub">Every project has a moment where things start going wrong. We built something to catch it while there's still time to act.</p>
+    <div class="hero-meta">
+      <span>Prepared for <b>Trimble CMS engineering &amp; product</b></span>
+      <span>Source input <b>Laura Nauta</b></span>
+      <span>Status <b>Active build</b></span>
+    </div>
+  </div>
+
+  <section class="prose">
+    <div class="sec-head"><span class="sec-tag">01</span><h2>The problem</h2></div>
+    <p>Every construction project has a moment where things start going wrong. The problem is, nobody notices until it's too late. The budget looks fine. The balance sheet looks fine. And then, six weeks before closeout, it isn't fine at all.</p>
+    <div class="pull">We think that's broken. So we built something to fix it.</div>
+  </section>
+
+  <section class="prose">
+    <div class="sec-head"><span class="sec-tag">02</span><h2>The idea</h2></div>
+    <p>Take your Vista job data — years of it, real projects, real outcomes — and instead of running it through some rigid formula that treats a $500K residential job the same as a $5M commercial build, you let the machine actually learn. It learns what makes commercial jobs different from residential ones. It learns what your projects look like, specifically — not generic projects, <strong>your</strong> projects. That's the multi-tenant piece. Every project has its own fingerprint, and now the model knows it.</p>
+    <p>We didn't stop there. We pushed the forecast out to 36 months, because a good prediction isn't just about today — it's about seeing around corners. The model understands that a weather delay isn't just a weather delay — it ripples into equipment rental costs, into fuel spend, into labor. Real relationships, not spreadsheet guesses.</p>
+  </section>
+
+  <div class="stat-rail">
+    <div class="stat"><div class="stat-num">88%</div><div class="stat-label">Accuracy on test data</div></div>
+    <div class="stat"><div class="stat-num">36 mo</div><div class="stat-label">Forecast horizon per project</div></div>
+    <div class="stat"><div class="stat-num">4 MB</div><div class="stat-label">Small enough to run anywhere</div></div>
+  </div>
+
+  <section class="prose">
+    <div class="sec-head"><span class="sec-tag">03</span><h2>Try it</h2></div>
+    <p>But prediction alone isn't magic. The magic is what you do with it. So we built a simulator — drag a slider, change your material costs, change your fuel exposure, change your labor plan — and watch the risk status change in real time. RED becomes YELLOW. Sixty-eight thousand dollars saved, right there on the screen, before you've spent a dime. That's not a report. That's a decision-making tool.</p>
+
+    <div class="instrument" id="instrument">
+      <div class="im-card">
+        <div class="im-sidebar" id="imSidebar">
+          <div class="im-sidebar-label">PROJECTS</div>
+        </div>
+        <div class="im-main">
+          <div class="im-narrative" id="imNarrative"></div>
+
+          <div class="im-overrun">
+            <div class="im-op-top">
+              <div class="im-op-label">Scenario overrun</div>
+              <div class="im-status-pill" id="imStatusPill"></div>
+            </div>
+            <div class="im-op-value" id="imOverrunVal"></div>
+            <div class="im-op-baseline" id="imBaselineLine"></div>
+
+            <div class="im-confidence">
+              <div class="im-conf-left">
+                <div class="im-conf-label">Prediction confidence</div>
+                <div class="im-conf-track"><div class="im-conf-fill" id="imConfFill"></div></div>
+              </div>
+              <div>
+                <div class="im-conf-right" id="imConfVal"></div>
+                <div class="im-conf-tag" id="imConfTag"></div>
+              </div>
+            </div>
+
+            <div id="imWaterfall"></div>
+          </div>
+
+          <div class="im-presets" id="imPresets">
+            <button class="im-preset-btn" data-preset="stable">Stable</button>
+            <button class="im-preset-btn" data-preset="moderate">Moderate</button>
+            <button class="im-preset-btn" data-preset="severe">Severe</button>
+          </div>
+
+          <div class="im-sliders-head">SCENARIO DRIVERS</div>
+          <div class="im-sliders-grid" id="imSlidersGrid"></div>
+
+          <div class="im-actions">
+            <button class="im-action-btn" id="imResetBtn">Reset scenario</button>
+            <button class="im-action-btn" id="imBaselineBtn">Set as new baseline ↗</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="caption">Live model — drag any slider or switch projects. Confidence reflects how far the current scenario sits from the pattern the model was trained on; wider swings from a project's typical range lower confidence, even when the dollar prediction itself looks precise.</p>
+  </section>
+
+  <section class="closer">
+    <div class="pull">We don't want to tell you a project is over budget. We want to tell you it's about to be — while there's still time to do something about it.</div>
+  </section>
+
+  <div class="frame-bottom">
+    <span>TRIMBLE CMS</span>
+    <span>PREDICTIVE ANALYTICS — JOB COST FORECASTING</span>
+  </div>
+
+</div>
+
+<script>
+
+const fmt = n => (n < 0 ? '-$' : '$') + Math.abs(Math.round(n)).toLocaleString('en-US');
+const fmtSigned = n => (n <= 0 ? '-$' : '+$') + Math.abs(Math.round(n)).toLocaleString('en-US');
+
+const PRESETS = {
+  stable:   { material:1.00, fuel:10, labor:1.00, machinery:5,  market:-0.15 },
+  moderate: { material:1.08, fuel:22, labor:1.05, machinery:15, market:0.02  },
+  severe:   { material:1.18, fuel:38, labor:1.12, machinery:28, market:0.25  }
+};
+
+const DRIVER_DEFS = [
+  { key:'material', label:'Material inflation', unit:'index', min:0.90, max:1.30, step:0.01, weight:0.90 },
+  { key:'fuel', label:'Fuel costs', unit:'pct', min:0, max:50, step:1, weight:0.15 },
+  { key:'labor', label:'Labor costs', unit:'index', min:0.90, max:1.25, step:0.01, weight:0.60 },
+  { key:'machinery', label:'Machinery rental', unit:'pct', min:0, max:40, step:1, weight:0.20 },
+  { key:'subcontractor', label:'Subcontractor efficiency', unit:'index', min:0.85, max:1.15, step:0.01, weight:0.60 },
+  { key:'expedited', label:'Expedited intervention fee', unit:'pct', min:0, max:20, step:1, weight:0.50 }
+];
+
+const PROJECTS = [
+  { id:'P-Delta',   badge:'+45%', badgeClass:'pos', dot:'red',   baseline:640000, preset:'severe'   },
+  { id:'P-Bravo',   badge:'+7%',  badgeClass:'pos', dot:'amber', baseline:812000, preset:'moderate' },
+  { id:'P-Echo',    badge:'+6%',  badgeClass:'pos', dot:'amber', baseline:705000, preset:'moderate' },
+  { id:'P-Charlie', badge:'-18%', badgeClass:'neg', dot:'green', baseline:958000, preset:'stable'   },
+  { id:'P-Foxtrot', badge:'-15%', badgeClass:'neg', dot:'green', baseline:540000, preset:'stable'   }
+];
+
+let activeProject = PROJECTS[3];
+let activePreset = 'stable';
+let values = {};
+
+function loadPreset(name){
+  const p = PRESETS[name];
+  values.material = p.material;
+  values.fuel = p.fuel;
+  values.labor = p.labor;
+  values.machinery = p.machinery;
+  values.market = p.market;
+  values.subcontractor = name === 'stable' ? 1.05 : (name === 'moderate' ? 1.02 : 0.98);
+  values.expedited = 0;
+}
+
+function contribution(def, value){
+  const b = activeProject.baseline;
+  if(def.key === 'material' || def.key === 'labor') return (value - 1) * b * def.weight;
+  if(def.key === 'subcontractor') return (1 - value) * b * def.weight;
+  return (value / 100) * b * def.weight;
+}
+
+function computeConfidence(){
+  const base = activePreset === 'stable' ? 93 : activePreset === 'moderate' ? 85 : 74;
+  const p = PRESETS[activePreset];
+  let dev = 0;
+  dev += Math.abs(values.material - p.material) / 0.40;
+  dev += Math.abs(values.fuel - p.fuel) / 50;
+  dev += Math.abs(values.labor - p.labor) / 0.35;
+  dev += Math.abs(values.machinery - p.machinery) / 40;
+  dev += Math.abs(values.subcontractor - 1.00) / 0.30;
+  dev += Math.abs(values.expedited - 0) / 20;
+  let conf = base - dev * 38;
+  return Math.max(55, Math.min(97, Math.round(conf)));
+}
+
+function renderSidebar(){
+  const sb = document.getElementById('imSidebar');
+  sb.innerHTML = '<div class="im-sidebar-label">PROJECTS</div>';
+  PROJECTS.forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'im-proj' + (p.id === activeProject.id ? ' active' : '');
+    row.innerHTML =
+      '<div><div class="im-proj-name">' + p.id + '</div>' +
+      '<div class="im-proj-pct ' + p.badgeClass + '">' + p.badge + '</div></div>' +
+      '<div class="im-dot ' + p.dot + '"></div>';
+    row.addEventListener('click', () => {
+      activeProject = p;
+      activePreset = p.preset;
+      loadPreset(activePreset);
+      renderAll();
+    });
+    sb.appendChild(row);
+  });
+}
+
+function renderSliders(){
+  const grid = document.getElementById('imSlidersGrid');
+  grid.innerHTML = '';
+  DRIVER_DEFS.forEach(def => {
+    const item = document.createElement('div');
+    const displayVal = def.unit === 'index' ? values[def.key].toFixed(2) : values[def.key].toFixed(0) + '%';
+    item.innerHTML =
+      '<div class="im-slider-top"><span class="im-slider-label">' + def.label + '</span>' +
+      '<span class="im-slider-val" id="imval-' + def.key + '">' + displayVal + '</span></div>' +
+      '<input type="range" id="imslider-' + def.key + '" min="' + def.min + '" max="' + def.max + '" step="' + def.step + '" value="' + values[def.key] + '">';
+    grid.appendChild(item);
+  });
+  DRIVER_DEFS.forEach(def => {
+    document.getElementById('imslider-' + def.key).addEventListener('input', e => {
+      values[def.key] = parseFloat(e.target.value);
+      renderComputed();
+    });
+  });
+}
+
+function renderComputed(){
+  const b = activeProject.baseline;
+  const marketContribution = values.market * b;
+  const rows = [{ label:'Market conditions', value: marketContribution }];
+  DRIVER_DEFS.forEach(def => rows.push({ label: def.label, value: contribution(def, values[def.key]) }));
+
+  const total = rows.reduce((s, r) => s + r.value, 0);
+  const overrun = Math.max(b + total, 0);
+  const delta = overrun - b;
+  const deltaPct = (delta / b) * 100;
+  const ratio = overrun / b;
+
+  document.getElementById('imOverrunVal').textContent = fmt(overrun);
+
+  const deltaClass = delta <= 0 ? 'im-delta-neg' : 'im-delta-pos';
+  const deltaSign = delta <= 0 ? '-' : '+';
+  document.getElementById('imBaselineLine').innerHTML =
+    'Baseline ' + fmt(b) + ' · delta <span class="' + deltaClass + '">' + deltaSign + '$' +
+    Math.abs(Math.round(delta)).toLocaleString('en-US') + ' (' + deltaSign + Math.abs(deltaPct).toFixed(0) + '%)</span>';
+
+  let status, statusBg, statusFg;
+  if(ratio <= 0.95){ status = 'On track'; statusBg = '#E6F5EC'; statusFg = '#1E8E5A'; }
+  else if(ratio <= 1.10){ status = 'Watch'; statusBg = '#FCF1DF'; statusFg = '#B5730C'; }
+  else { status = 'Over budget'; statusBg = '#FBEAE8'; statusFg = '#C0392B'; }
+  const pill = document.getElementById('imStatusPill');
+  pill.textContent = status;
+  pill.style.background = statusBg;
+  pill.style.color = statusFg;
+
+  const conf = computeConfidence();
+  const confColor = conf >= 85 ? '#1E8E5A' : conf >= 70 ? '#B5730C' : '#C0392B';
+  const confTag = conf >= 85 ? 'High confidence' : conf >= 70 ? 'Moderate confidence' : 'Low confidence';
+  document.getElementById('imConfFill').style.width = conf + '%';
+  document.getElementById('imConfFill').style.background = confColor;
+  document.getElementById('imConfVal').textContent = conf + '%';
+  document.getElementById('imConfVal').style.color = confColor;
+  document.getElementById('imConfTag').textContent = confTag;
+  document.getElementById('imConfTag').style.color = confColor;
+
+  const maxAbs = Math.max(...rows.map(r => Math.abs(r.value)), 1);
+  const wf = document.getElementById('imWaterfall');
+  wf.innerHTML = '';
+  rows.forEach(r => {
+    const pct = Math.min((Math.abs(r.value) / maxAbs) * 100, 100);
+    const isNeg = r.value <= 0;
+    const row = document.createElement('div');
+    row.className = 'im-driver-row';
+    row.innerHTML =
+      '<div class="im-driver-top"><span class="im-driver-top-label">' + r.label + '</span>' +
+      '<span class="im-driver-top-val ' + (isNeg ? 'neg' : 'pos') + '">' + fmtSigned(r.value) + '</span></div>' +
+      '<div class="im-track"><div class="im-fill ' + (isNeg ? 'neg' : 'pos') + '" style="width:' + pct + '%"></div></div>';
+    wf.appendChild(row);
+  });
+
+  const topDriver = rows.reduce((a, c) => Math.abs(c.value) > Math.abs(a.value) ? c : a, rows[0]);
+  const reasonWord = topDriver.value <= 0 ? 'savings from' : 'pressure from';
+  document.getElementById('imNarrative').innerHTML =
+    '<b>' + activeProject.id + "'s</b> projected overrun is <b>" + fmt(overrun) + '</b> against a <b>' + fmt(b) +
+    '</b> baseline, mainly ' + reasonWord + ' <b>' + topDriver.label.toLowerCase() + '</b>.';
+
+  Object.keys(values).forEach(k => {
+    const el = document.getElementById('imval-' + k);
+    if(!el) return;
+    const def = DRIVER_DEFS.find(d => d.key === k);
+    if(!def) return;
+    el.textContent = def.unit === 'index' ? values[k].toFixed(2) : values[k].toFixed(0) + '%';
+  });
+}
+
+function renderPresets(){
+  document.querySelectorAll('.im-preset-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.preset === activePreset);
+  });
+}
+
+function renderAll(){
+  renderSidebar();
+  renderSliders();
+  renderPresets();
+  renderComputed();
+}
+
+document.querySelectorAll('.im-preset-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    activePreset = btn.dataset.preset;
+    loadPreset(activePreset);
+    renderAll();
+  });
+});
+
+document.getElementById('imResetBtn').addEventListener('click', () => {
+  activePreset = activeProject.preset;
+  loadPreset(activePreset);
+  renderAll();
+});
+
+document.getElementById('imBaselineBtn').addEventListener('click', () => {
+  const b = activeProject.baseline;
+  const marketContribution = values.market * b;
+  let total = marketContribution;
+  DRIVER_DEFS.forEach(def => { total += contribution(def, values[def.key]); });
+  activeProject.baseline = Math.max(Math.round(b + total), 0);
+  activePreset = 'moderate';
+  loadPreset('moderate');
+  values.material = 1.00; values.fuel = 0; values.labor = 1.00;
+  values.machinery = 0; values.market = 0; values.subcontractor = 1.00; values.expedited = 0;
+  renderAll();
+});
+
+loadPreset(activePreset);
+renderAll();
+
+</script>
+
+</body>
+</html>
